@@ -1,2 +1,0 @@
-# softlab
- Lab webapplication
