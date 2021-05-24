@@ -5,4 +5,6 @@ from django.shortcuts import render, HttpResponse
 
 def index(request):
     
-    return render(request, 'labsys/index.html')
+    return render(request, 'labsys\index.html', {
+        "VarOne" :  "This is passed var"
+    })
