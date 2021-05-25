@@ -99,15 +99,13 @@ class note(models.Model):
 class Patient(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     active = models.BooleanField(blank=True, null=True, default=True)
-    name = name()
-    telecom = telecom()
-    gender = models.CharField(max_length=75)
+    name = models.ForeignKey(name, on_delete=models.PROTECT, related_name='Patient_Name')
     birthDate = models.DateField(blank=True, null=True)
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
-    address = address()
+    address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField()
-    concact = contact()
-    communication = models.CharField(max_length=75, blank=True, null=True)
+    concact = models.ForeignKey(contact, on_delete=models.PROTECT, related_name='Patient_Contact')
+    communication = models.ForeignKey(telecom, on_delete=models.PROTECT, related_name='Patient_telecom')
     generalPractitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP')
     
 
