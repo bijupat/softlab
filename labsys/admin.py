@@ -10,4 +10,9 @@ admin.site.register(Practitioner)
 admin.site.register(Note)
 admin.site.register(Patient)
 admin.site.register(Telecom)
+admin.site.register(Account)
+admin.site.register(Encounter)
+admin.site.register(Observation)
+
+
 

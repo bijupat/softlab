@@ -55,12 +55,12 @@ class Contact(models.Model):
 class Practitioner(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     active = models.BooleanField(blank=True, null=True, default=True)
-    #name = models.OneToOneField(name, on_delete=models.PROTECT, related_name='Practitioner_name')
-    #telecom = models.ManyToManyField(telecom, related_name='Practitioner_telecom')
+    #name = models.OneToOneField(name, on_delete=models.PROTECT, related_name='practitioner_name')
+    #telecom = models.ManyToManyField(telecom, related_name='practitioner_telecom')
     gender = models.CharField(max_length=20)
     birthDate = models.DateField(blank=True, null=True)
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
-    #address =  models.ManyToManyField(address, related_name='Practitioner_Address')
+    #address =  models.ManyToManyField(address, related_name='p                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         fractitioner_Address')
     photo = models.ImageField(blank=True, null=True)
     qualification = models.CharField(max_length=200, blank=True, null=True)
     #communication = communication()
@@ -70,7 +70,7 @@ class Practitioner(models.Model):
 
 
 class Note(models.Model):
-    author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Note_by')
+    author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='author_note')
     time = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=500, blank=True, null=True)    
     def __str__(self):
@@ -88,7 +88,7 @@ class Patient(models.Model):
     #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField(blank=True, null=True)
     #concact = models.ForeignKey(contact, on_delete=models.PROTECT, related_name='Patient_Contact')     
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
+    #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
     
 
     def __str__(self):
@@ -104,9 +104,9 @@ class Telecom(models.Model):
     use = models.CharField(max_length=75, choices=Telecom_use)
     # // Specify preferred order of use (1 = highest)
     rank = models.IntegerField(blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='Patient_Telecom', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Practitioner_Telecom', blank=True, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_telecom', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_telecom', blank=True, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='contact_telecom',blank=True, null=True)
 
 
 
@@ -129,9 +129,9 @@ class Name(models.Model):
     # // Parts that come after the name
     suffix = models.CharField(max_length=75, blank=True, null=True)
     # Time period when name was/is in use
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='Patient_Name', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Practitioner_Name', blank=True, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Name',blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_name', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_name', blank=True, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='contact_name',blank=True, null=True)
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True)
 
     def __str__(self):
@@ -151,9 +151,9 @@ class Address(models.Model):
     state = models.CharField(max_length=250, default="Gujarat")
     postalCode = models.CharField(max_length=250)
     country = models.CharField(max_length=250, default="India")
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='Patient_Address', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Practitioner_Address', blank=True, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Address',blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_address', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_address', blank=True, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='contact_address',blank=True, null=True)
     # Time period when name was/is in use
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
@@ -162,9 +162,51 @@ class Address(models.Model):
 class Period(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='Patient_Period', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Practitioner_Period', blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_period', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_period', blank=True, null=True)
     #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     def __str__(self):
             return 'period starts : {} and ends {}'.format(self.start, self.end)
+
+class Account (models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # active | inactive | entered-in-error | on-hold | unknown
+    status = models.CharField(max_length=75, blank=True, null=True)
+    #patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_account', blank=True, null=True)
+    # patient, expense, depreciation
+    type = models.CharField(max_length=75, blank=True, null=True)
+    #// Human-readable label
+    name = models.CharField(max_length=75, blank=True, null=True)
+    #Explanation of purpose/use
+    description = models.CharField(max_length=75, blank=True, null=True)
+
+    def __str__(self):
+            return 'Account  : {}'.format(self.name)
+
+class Encounter(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # planned | arrived | triaged | in-progress | onleave | finished | cancelled
+    status = models.CharField(max_length=75, blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_encounter', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='account_encounter', blank=True, null=True)
+    timedate = models.DateTimeField(auto_now_add=True)
+    #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    def __str__(self):
+            return 'Encounter for Patient : {} at {}'.format(self.patient.id.patient_name, self.timedate)
+            
+#master data class
+class Observation (models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # registered | preliminary | final | amended +
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='observation_pratitioner', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
+    timedate = models.DateTimeField(auto_now_add=True)
+    encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
+
+    def __str__(self):
+            return 'Observation for Patient : {}'.format(self.ecounter.patient.id.patient_name)
+ 
