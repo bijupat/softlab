@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models.enums import Choices
+from django.contrib.auth.models import AbstractUser
+
 
 
 # phone | fax | email | pager | url | sms | other
@@ -38,6 +40,8 @@ Address_use =(
     ("O", "old"),
     ("B", "billing"),
  )
+class User(AbstractUser) :
+    pass
 
 # // A contact party (e.g. guardian, partner, friend) for the patient##
 class Contact(models.Model):
@@ -195,18 +199,18 @@ class Encounter(models.Model):
     #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     def __str__(self):
-            return 'Encounter for Patient : {} at {}'.format(self.patient.id.patient_name, self.timedate)
+            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name, self.timedate)
             
 #master data class
 class Observation (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | preliminary | final | amended +
     status = models.CharField(max_length=75, blank=True, null=True, default='registered')
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='observation_pratitioner', blank=True, null=True)
+    entered_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_entered_by', blank=True, null=True)
+    verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
     encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
 
     def __str__(self):
-            return 'Observation for Patient : {}'.format(self.ecounter.patient.id.patient_name)
- 
+            return 'Observation for Patient : {}'.format(self.encounter.patient.patient_name)
