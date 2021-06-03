@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models.base import Model
 from django.db.models.enums import Choices
 from django.contrib.auth.models import AbstractUser
+from django.db.models.fields.related import OneToOneField
 
 
 
@@ -184,24 +186,39 @@ class Account (models.Model):
     name = models.CharField(max_length=75, blank=True, null=True)
     #Explanation of purpose/use
     description = models.CharField(max_length=75, blank=True, null=True)
+    
 
     def __str__(self):
             return 'Account  : {}'.format(self.name)
 
-class Encounter(models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    # planned | arrived | triaged | in-progress | onleave | finished | cancelled
-    status = models.CharField(max_length=75, blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_encounter', blank=True, null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='account_encounter', blank=True, null=True)
-    timedate = models.DateTimeField(auto_now_add=True)
-    #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    def __str__(self):
-            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name, self.timedate)
-            
+
 #master data class
+class Pricelist(models.Model):
+    pricelist = models.CharField(max_length=75, blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='pricelist_account')
+    
+    def __str__(self):
+            return 'Pricelist : {}'.format(self.pricelist)
+
+class Testlist (models.Model):
+    test = models.CharField(max_length=75, blank=True, null=True)
+    price = models.PositiveIntegerField(blank=True, null=True)
+    #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
+    pricelist_included = models.ManyToManyField(Pricelist,on_delete=models.PROTECT, related_name='test_pricelist', blank=True, null=True)
+    method = models.CharField(max_length=75, blank=True, null=True)
+    referenceRange_high = models.CharField(max_length=75,blank=True, null=True)
+    referenceRange_low = models.CharField(max_length=75,blank=True, null=True)
+
+    def __str__(self):
+            return 'Test : {}'.format(self.test)
+
+class Sampletype(models.Model):
+    sampletype = models.CharField(max_length=75, blank=True, null=True)
+    test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='sampletype_test' )
+
+    def __str__(self):
+            return 'SampleType : {}'.format(self.sampletype)
+
 class Observation (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | preliminary | final | amended +
@@ -210,7 +227,25 @@ class Observation (models.Model):
     verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
-    encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
+    test = models.ManyToManyField(Testlist, through='Encounter')
+    value = models.CharField(max_length=200, blank=True, null=True)
+    interpretation = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
             return 'Observation for Patient : {}'.format(self.encounter.patient.patient_name)
+
+class Encounter(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    observation = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='encounter_observation', blank=True, null=True)
+    test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='encounter_testlist', blank=True, null=True)
+    # planned | arrived | triaged | in-progress | onleave | finished | cancelled
+    status = models.CharField(max_length=75, blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_encounter', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='account_encounter', blank=True, null=True)
+    timedate = models.DateTimeField(auto_now_add=True)
+        #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    def __str__(self):
+            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name[1].text, self.timedate)
+            
