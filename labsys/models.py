@@ -71,8 +71,7 @@ class Practitioner(models.Model):
     qualification = models.CharField(max_length=200, blank=True, null=True)
     #communication = communication()
     def __str__(self):
-        return 'Practitioner id : {}'.format(self.id)
-
+        return 'Practitioner id : {}  name :{}'.format(self.practitioner_name.get().text ,self.id)
 
 
 class Note(models.Model):
@@ -98,7 +97,7 @@ class Patient(models.Model):
     
 
     def __str__(self):
-        return 'Person name : {}'.format(self.id)  
+        return 'Patient name : {} {} and id : {}'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )  
  
 
 class Telecom(models.Model):
@@ -117,7 +116,7 @@ class Telecom(models.Model):
 
 
     def __str__(self):
-            return 'telecom  : {} is  {}'.format(self.system, self.value)
+            return 'patient {} {} has {} ({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
 
 
 
@@ -141,8 +140,10 @@ class Name(models.Model):
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True)
 
     def __str__(self):
-            return 'name : {}'.format(self.text)
-
+        if self.patient:
+            return 'Patient : {} {} having  id {}'.format(self.text, self.family, self.patient.id)
+        if self.practitioner:
+            return 'Practitioner : {} {} having  id {}'.format(self.text, self.family, self.practitioner.id)
 
 class Address(models.Model):
     # // home | work | temp | old | billing - purpose of this address
@@ -163,7 +164,7 @@ class Address(models.Model):
     # Time period when name was/is in use
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
-            return 'address : {} at : {}'.format(self.use, self.city)
+            return 'address for : {} {} at({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family, self.get_use_display(), self.text)
 
 class Period(models.Model):
     start = models.DateTimeField()
@@ -185,8 +186,7 @@ class Account (models.Model):
     #// Human-readable label
     name = models.CharField(max_length=75, blank=True, null=True)
     #Explanation of purpose/use
-    description = models.CharField(max_length=75, blank=True, null=True)
-    
+    description = models.CharField(max_length=75, blank=True, null=True)    
 
     def __str__(self):
             return 'Account  : {}'.format(self.name)
@@ -204,7 +204,7 @@ class Testlist (models.Model):
     test = models.CharField(max_length=75, blank=True, null=True)
     price = models.PositiveIntegerField(blank=True, null=True)
     #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
-    pricelist_included = models.ManyToManyField(Pricelist,on_delete=models.PROTECT, related_name='test_pricelist', blank=True, null=True)
+    pricelist_included = models.ManyToManyField(Pricelist, related_name='test_pricelist', blank=True, null=True)
     method = models.CharField(max_length=75, blank=True, null=True)
     referenceRange_high = models.CharField(max_length=75,blank=True, null=True)
     referenceRange_low = models.CharField(max_length=75,blank=True, null=True)
@@ -227,12 +227,12 @@ class Observation (models.Model):
     verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
-    test = models.ManyToManyField(Testlist, through='Encounter')
+    test = models.ManyToManyField(Testlist, through='Encounter', related_name='observation_testlist')
     value = models.CharField(max_length=200, blank=True, null=True)
     interpretation = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-            return 'Observation for Patient : {}'.format(self.encounter.patient.patient_name)
+            return 'Observation for Patient : {} for test {}'.format(self.encounter_observation.all()[0].patient.patient_name.get().text, self.test.all()[0].test)
 
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -246,6 +246,6 @@ class Encounter(models.Model):
     timedate = models.DateTimeField(auto_now_add=True)
         #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+
     def __str__(self):
-            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name[1].text, self.timedate)
-            
+            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name.get().text, self.timedate)

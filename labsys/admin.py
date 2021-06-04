@@ -14,7 +14,9 @@ admin.site.register(Account)
 admin.site.register(Encounter)
 admin.site.register(Observation)
 admin.site.register(User)
-
+admin.site.register(Pricelist)
+admin.site.register(Sampletype)
+admin.site.register(Testlist)
 
 
 

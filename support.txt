@@ -56,3 +56,83 @@ Code language: SQL (Structured Query Language) (sql)
 Second, restore the table structure only from the dvdrental.tar backup file by using the following command:
 
 >pg_restore --dbname=dvdrental_tpl --section=pre-data  c:\pgbackup\dvdrental.tar
+
+
+
+
+
+
+
+ralated manager quetr
+
+
+
+
+
+
+
+
+
+
+Microsoft Windows [Version 10.0.19042.985]
+(c) Microsoft Corporation. All rights reserved.
+
+D:\Brijesh\softlab>py manage.py shell
+Python 3.8.2 (tags/v3.8.2:7b3ab59, Feb 25 2020, 23:03:10) [MSC v.1916 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from labsys.models import *
+>>> p1 = Patient.objects.get(pk=1)
+>>> p1
+<Patient: Person name : 1>
+>>> p1_name = p1.patient_name.objects.all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'RelatedManager' object has no attribute 'objects'
+>>> p1_name = p1.patient_name.all()
+>>> p1_name
+<QuerySet [<Name: name : Rakesh>]>
+>>> p1_name.text
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'QuerySet' object has no attribute 'text'
+>>> p1_name[0]
+<Name: name : Rakesh>
+>>> p1_name[0].text
+'Rakesh'
+>>> p[1]
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'p' is not defined
+>>> p2 = Patient.objects.get(pk=2)
+>>> p3 = Patient.objects.get(pk=3).patient_name
+>>> p3
+<django.db.models.fields.related_descriptors.create_reverse_many_to_one_manager.<locals>.RelatedManager object at 0x00000209A9FA39A0>
+>>> p3.all()
+<QuerySet [<Name: name : Ramesh>]>
+>>> p4 = Patient.objects.get(pk=4).patient_name.all()
+>>> p4
+<QuerySet [<Name: name : Rajesh>]>
+>>> p5 = Patient.objects.get(pk=5).patient_name.get()
+>>> p5.text
+'Gitesh'
+>>>
+
+
+>>> from labsys.models import *
+>>> es = Encounter.objects.all()
+>>> es[1].test
+<Testlist: Test : CBC>
+>>> p[0].patient_encounter
+<django.db.models.fields.related_descriptors.create_reverse_many_to_one_manager.<locals>.RelatedManager object at 0x0000027125145D90>
+>>> p[0].patient_encounter.test
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'RelatedManager' object has no attribute 'test'
+>>> p[0].patient_encounter.all()
+<QuerySet [<Encounter: Encounter for Patient : labsys.Name.None at 2021-06-02 15:37:43.344085+00:00>]>
+>>> p[0].patient_encounter.all()[0].test
+<Testlist: Test : Creatinine>
+>>> p[0].patient_encounter.all()[0].test.test
+'Creatinine'
+>>> select_related() QuerySet
