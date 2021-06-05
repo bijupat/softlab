@@ -45,18 +45,7 @@ Address_use =(
 class User(AbstractUser) :
     pass
 
-# // A contact party (e.g. guardian, partner, friend) for the patient##
-class Contact(models.Model):
-    # // The kind of relationship
-    relationship = models.CharField(max_length=75, blank=True, null=True)
-    # A name associated with the contact person
-    #name = models.OneToOneField(name, on_delete=models.PROTECT)
-    #telecom = models.ForeignKey(telecom, on_delete=models.PROTECT, related_name='Contact_Per_Telecom')
-    #address =  models.ForeignKey(address, on_delete=models.PROTECT, related_name='Contact_Per_Address')
-    gender = models.CharField(max_length=20, blank=True, null=True)
-    #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
-    def __str__(self):
-            return 'contact  : {} is  {}'.format(self.id, self.relationship)
+
 
 class Practitioner(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -71,15 +60,24 @@ class Practitioner(models.Model):
     qualification = models.CharField(max_length=200, blank=True, null=True)
     #communication = communication()
     def __str__(self):
-        return 'Practitioner id : {}  name :{}'.format(self.practitioner_name.get().text ,self.id)
+        return 'Practitioner id {} name : {}'.format(self.id, self.practitioner_name.get().text)
 
+# // A contact party (e.g. guardian, partner, friend) for the patient##
+class Contact(models.Model):
+    # // The kind of relationship
+    relationship = models.CharField(max_length=75, blank=True, null=True)
+    # A name associated with the contact person
+    gender = models.CharField(max_length=20, blank=True, null=True)
+    #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
+    def __str__(self):
+            return 'Relationship {} between {}(Contact) and {}(Patient)'.format(self.relationship, self.contact_name.get().text, self.patient_contact.get().patient_name.get().text)
 
 class Note(models.Model):
     author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='author_note')
     time = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=500, blank=True, null=True)    
     def __str__(self):
-            return 'Note by   : {} at : {}'.format(self.author, self.time)
+            return 'Note by   : {} at : {}'.format(self.author.practitioner_name.get().text, self.time)
 
 
 
@@ -92,7 +90,7 @@ class Patient(models.Model):
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
     #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField(blank=True, null=True)
-    #concact = models.ForeignKey(contact, on_delete=models.PROTECT, related_name='Patient_Contact')     
+    concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patient_contact')     
     #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
     
 
@@ -116,7 +114,12 @@ class Telecom(models.Model):
 
 
     def __str__(self):
+        if self.patient:
             return 'patient {} {} has {} ({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
+        if self.practitioner:
+            return 'Practitioner {} {} has {} ({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
+        if self.contact:
+            return 'Practitioner {} {} has {} ({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
 
 
 
@@ -144,6 +147,10 @@ class Name(models.Model):
             return 'Patient : {} {} having  id {}'.format(self.text, self.family, self.patient.id)
         if self.practitioner:
             return 'Practitioner : {} {} having  id {}'.format(self.text, self.family, self.practitioner.id)
+        if self.contact:
+            return 'Contact : {} {} having  id {}'.format(self.text, self.family, self.contact.id)
+
+
 
 class Address(models.Model):
     # // home | work | temp | old | billing - purpose of this address
@@ -164,7 +171,12 @@ class Address(models.Model):
     # Time period when name was/is in use
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
+        if self.patient:
             return 'address for : {} {} at({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family, self.get_use_display(), self.text)
+        if self.practitioner:
+            return 'address for : {} {} at({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family, self.get_use_display(), self.text)
+        if self.contact:
+            return 'address for : {} {} at({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family, self.get_use_display(), self.text)
 
 class Period(models.Model):
     start = models.DateTimeField()
@@ -175,6 +187,7 @@ class Period(models.Model):
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     def __str__(self):
             return 'period starts : {} and ends {}'.format(self.start, self.end)
+
 
 class Account (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -210,11 +223,11 @@ class Testlist (models.Model):
     referenceRange_low = models.CharField(max_length=75,blank=True, null=True)
 
     def __str__(self):
-            return 'Test : {}'.format(self.test)
+            return 'Test : {} by {} method with price : {}'.format(self.test, self.method, self.price)
 
 class Sampletype(models.Model):
     sampletype = models.CharField(max_length=75, blank=True, null=True)
-    test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='sampletype_test' )
+    test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='sampletype_test')
 
     def __str__(self):
             return 'SampleType : {}'.format(self.sampletype)
