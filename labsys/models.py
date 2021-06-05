@@ -70,7 +70,10 @@ class Contact(models.Model):
     gender = models.CharField(max_length=20, blank=True, null=True)
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
+        if self.contact_name.get():
             return 'Relationship {} between {}(Contact) and {}(Patient)'.format(self.relationship, self.contact_name.get().text, self.patient_contact.get().patient_name.get().text)
+        else:
+            return 'some error'
 
 class Note(models.Model):
     author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='author_note')
@@ -90,7 +93,7 @@ class Patient(models.Model):
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
     #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField(blank=True, null=True)
-    concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patient_contact')     
+    concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patient_contact',blank=True, null=True)     
     #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
     
 
@@ -172,12 +175,13 @@ class Address(models.Model):
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
         if self.patient:
-            return 'address for : {} {} at({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family, self.get_use_display(), self.text)
+            return 'address for : {} {}(Patient) at({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family, self.get_use_display(), self.text)
         if self.practitioner:
-            return 'address for : {} {} at({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family, self.get_use_display(), self.text)
+            return 'address for : {} {}(Practitioner) at({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family, self.get_use_display(), self.text)
         if self.contact:
-            return 'address for : {} {} at({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family, self.get_use_display(), self.text)
-
+            return 'address for : {} {} (Contact) at({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family, self.get_use_display(), self.text)
+        else:
+            return 'Some error'
 class Period(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
@@ -213,11 +217,19 @@ class Pricelist(models.Model):
     def __str__(self):
             return 'Pricelist : {}'.format(self.pricelist)
 
+class Sampletype(models.Model):
+    sampletype = models.CharField(max_length=75, blank=True, null=True)
+    #test = models.ManyToManyField(Testlist, related_name='sampletype_test')
+
+    def __str__(self):
+            return 'SampleType : {}'.format(self.sampletype)
+
 class Testlist (models.Model):
     test = models.CharField(max_length=75, blank=True, null=True)
     price = models.PositiveIntegerField(blank=True, null=True)
     #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
     pricelist_included = models.ManyToManyField(Pricelist, related_name='test_pricelist', blank=True, null=True)
+    sampletype = models.ForeignKey(Sampletype, on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
     method = models.CharField(max_length=75, blank=True, null=True)
     referenceRange_high = models.CharField(max_length=75,blank=True, null=True)
     referenceRange_low = models.CharField(max_length=75,blank=True, null=True)
@@ -225,12 +237,7 @@ class Testlist (models.Model):
     def __str__(self):
             return 'Test : {} by {} method with price : {}'.format(self.test, self.method, self.price)
 
-class Sampletype(models.Model):
-    sampletype = models.CharField(max_length=75, blank=True, null=True)
-    test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='sampletype_test')
 
-    def __str__(self):
-            return 'SampleType : {}'.format(self.sampletype)
 
 class Observation (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
