@@ -45,6 +45,21 @@ Address_use =(
 class User(AbstractUser) :
     pass
 
+class Period(models.Model):
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    """
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_period', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_period', blank=True, null=True)
+    #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    def __str__(self):
+        if self.patient:
+            return 'Period for Patient {} {} Starts :{}/{}/{} and Ends :{}/{}/{} (dd/mm/yyyy)'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family, self.start.day, self.start.month, self.start.year, self.end.day, self.end.month, self.end.year)
+        if self.practitioner:
+            return 'Period for Practitioner {} {} Starts :{}/{}/{} and Ends :{}/{}/{} (dd/mm/yyyy)'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family,  self.start.day, self.start.month, self.start.year, self.end.day, self.end.month, self.end.year)
+    """ 
+
 
 
 class Practitioner(models.Model):
@@ -58,6 +73,8 @@ class Practitioner(models.Model):
     #address =  models.ManyToManyField(address, related_name='p                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         fractitioner_Address')
     photo = models.ImageField(blank=True, null=True)
     qualification = models.CharField(max_length=200, blank=True, null=True)
+    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner_period',blank=True, null=True)
+
     #communication = communication()
     def __str__(self):
         return 'Practitioner id {} name : {}'.format(self.id, self.practitioner_name.get().text)
@@ -95,10 +112,12 @@ class Patient(models.Model):
     photo = models.ImageField(blank=True, null=True)
     concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patient_contact',blank=True, null=True)     
     #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
-    
+    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patient_period',blank=True, null=True)
+    class Meta:
+        ordering = ["id"]
 
     def __str__(self):
-        return 'Patient name : {} {} and id : {}'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )  
+        return 'Patient Name : {} {} having id : {}'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )  
  
 
 class Telecom(models.Model):
@@ -182,15 +201,6 @@ class Address(models.Model):
             return 'address for : {} {} (Contact) at({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family, self.get_use_display(), self.text)
         else:
             return 'Some error'
-class Period(models.Model):
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_period', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_period', blank=True, null=True)
-    #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    def __str__(self):
-            return 'period starts : {} and ends {}'.format(self.start, self.end)
 
 
 class Account (models.Model):
@@ -228,8 +238,8 @@ class Testlist (models.Model):
     test = models.CharField(max_length=75, blank=True, null=True)
     price = models.PositiveIntegerField(blank=True, null=True)
     #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
-    pricelist_included = models.ManyToManyField(Pricelist, related_name='test_pricelist', blank=True, null=True)
-    sampletype = models.ForeignKey(Sampletype, on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
+    pricelist_included = models.ManyToManyField(Pricelist, related_name='testlist_pricelist', blank=True)
+    sampletype = models.ForeignKey(Sampletype, on_delete=models.PROTECT, related_name='testlist_sampletype', blank=True, null=True)
     method = models.CharField(max_length=75, blank=True, null=True)
     referenceRange_high = models.CharField(max_length=75,blank=True, null=True)
     referenceRange_low = models.CharField(max_length=75,blank=True, null=True)
@@ -237,7 +247,25 @@ class Testlist (models.Model):
     def __str__(self):
             return 'Test : {} by {} method with price : {}'.format(self.test, self.method, self.price)
 
-
+class Encounter(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    test = models.ManyToManyField(Testlist, through='Observation', related_name='Encounter_testlist')
+    #observation = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='encounter_observation', blank=True, null=True)
+    #test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='encounter_testlist', blank=True, null=True)
+    # planned | arrived | triaged | in-progress | onleave | finished | cancelled
+    status = models.CharField(max_length=75, blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_encounter', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='account_encounter', blank=True, null=True)
+    timedate = models.DateTimeField(auto_now_add=True)
+    #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    
+    class Meta:
+        ordering = ["-timedate"]
+    
+    def __str__(self):
+            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name.get().text, self.timedate)
 
 class Observation (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -245,27 +273,20 @@ class Observation (models.Model):
     status = models.CharField(max_length=75, blank=True, null=True, default='registered')
     entered_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_entered_by', blank=True, null=True)
     verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
+    #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
-    test = models.ManyToManyField(Testlist, through='Encounter', related_name='observation_testlist')
+    test = models.ForeignKey(Testlist, related_name='observation_testlist', on_delete=models.PROTECT, blank=True, null=True)
     value = models.CharField(max_length=200, blank=True, null=True)
     interpretation = models.CharField(max_length=200, blank=True, null=True)
+    encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
 
+    class Meta:
+        ordering = ["-timedate"]
+
+    
     def __str__(self):
-            return 'Observation for Patient : {} for test {}'.format(self.encounter_observation.all()[0].patient.patient_name.get().text, self.test.all()[0].test)
-
-class Encounter(models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    observation = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='encounter_observation', blank=True, null=True)
-    test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='encounter_testlist', blank=True, null=True)
-    # planned | arrived | triaged | in-progress | onleave | finished | cancelled
-    status = models.CharField(max_length=75, blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_encounter', blank=True, null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='account_encounter', blank=True, null=True)
-    timedate = models.DateTimeField(auto_now_add=True)
-        #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-
-    def __str__(self):
-            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name.get().text, self.timedate)
+        if self.encounter and self.test:
+            return 'Observation : {} for Patient : {} for test {}'.format(self.id, self.encounter.patient.patient_name.get().text, self.test.test)
+        else:
+            return 'You need to enter observation using Encounter model'
+    
