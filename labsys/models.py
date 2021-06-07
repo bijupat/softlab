@@ -42,6 +42,76 @@ Address_use =(
     ("O", "old"),
     ("B", "billing"),
  )
+
+Contact_relationship =(
+    ("H", "Husband"),
+    ("W", "Wife"),
+    ("F", "Father"),
+    ("M", "Mother"),
+    ("B", "Brother"),
+    ("S", "Sister"),
+    ("Fr", "Friend"),
+    ("FI", "Father in law"),
+    ("MI", "Mother in law"),
+    ("BI", "Brother in law"),
+    ("SI", "Sister in law"),
+    ("O", "Other(specify with name)")
+ )
+
+
+"""
+Male.	Male
+Female.	Female
+Other.	The administrative gender is a value other than male/female/unknown. Where this value is selected, systems may often choose to include an extension with the localized more specific value.
+Unknown. A proper value is applicable (field value is there), but not known. Usage Notes: This means the actual value is not known(but is there like home tele is there but no is not known) etc.), then the OTH or UNC flavor should be used. No properties should be included for a datatype with this property unless: Those properties themselves directly translate to a semantic of "unknown". (E.g. a local code sent as a translation that conveys 'unknown') Those properties further qualify the nature of what is unknown. (E.g. 
+"""
+gender =(
+    ("M", "home"),
+    ("F", "work"),
+    ("U", "Unknown"),
+    ("O", "Other"),
+)
+
+"""
+A	Annulled :	Marriage contract has been declared null and to not have existed
+D	Divorced :	Marriage contract has been declared dissolved and inactive
+I	Interlocutory :	Subject to an Interlocutory Decree.
+L	Legally Separated	
+M	Married:A current marriage contract is active
+P	Polygamous :	More than 1 current spouse
+S	Never Married :	No marriage contract has ever been entered
+T	Domestic partner :	Person declares that a domestic partner relationship exists.
+U	unmarried :	Currently not in a marriage contract.
+W	Widowed	: The spouse has died
+"""
+marital_status =(
+    ("A", "Annulled"),
+    ("D", "Divorced"),
+    ("I", "Interlocutory"),
+    ("L", "Legally Separated"),
+    ("M", "Married"),
+    ("P", "Polygamous"),
+    ("S", "Never Married"),
+    ("T", "Domestic partner"),
+    ("u", "Unmarried"),
+    ("W", "Widowed"),
+ )
+#A language which may be used to communicate with the patient about his or her health.
+communication = (
+    ("G", "Gujarati"),
+    ("Hi", "Hindi"),
+    ("Pa", "Punjabi"),
+    ("Kn", "Kannada"),
+    ("Ml", "Malayalam"),
+    ("Ne", "Nepali"),
+    ("Or", "Odia"),
+    ("Mr", "Marathi"),
+    ("Bn", "Bengali"),
+    ("T", "Tamil"),
+    ("Ur", "Urdu"),
+    ("E", "English"),
+)
+
 class User(AbstractUser) :
     pass
 
@@ -67,12 +137,14 @@ class Practitioner(models.Model):
     active = models.BooleanField(blank=True, null=True, default=True)
     #name = models.OneToOneField(name, on_delete=models.PROTECT, related_name='practitioner_name')
     #telecom = models.ManyToManyField(telecom, related_name='practitioner_telecom')
-    gender = models.CharField(max_length=20)
+    gender = models.CharField(max_length=20, choices=gender)
     birthDate = models.DateField(blank=True, null=True)
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
     #address =  models.ManyToManyField(address, related_name='p                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         fractitioner_Address')
     photo = models.ImageField(blank=True, null=True)
     qualification = models.CharField(max_length=200, blank=True, null=True)
+     #A language which may be used to communicate with the patient about his or her health.
+    communication = models.CharField(max_length=25, choices=communication)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner_period',blank=True, null=True)
 
     #communication = communication()
@@ -82,9 +154,9 @@ class Practitioner(models.Model):
 # // A contact party (e.g. guardian, partner, friend) for the patient##
 class Contact(models.Model):
     # // The kind of relationship
-    relationship = models.CharField(max_length=75, blank=True, null=True)
+    relationship = models.CharField(max_length=75, blank=True, null=True, choices= Contact_relationship)
     # A name associated with the contact person
-    gender = models.CharField(max_length=20, blank=True, null=True)
+    gender = models.CharField(max_length=20, blank=True, null=True, choices=gender)
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
         if self.contact_name.get():
@@ -108,10 +180,14 @@ class Patient(models.Model):
     #name = models.ForeignKey(name, on_delete=models.PROTECT, related_name='Patient_Name')
     birthDate = models.DateField(blank=True, null=True)
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
+    gender = models.CharField(max_length= 10, choices=gender)
     #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField(blank=True, null=True)
+    marital_status = models.CharField(max_length=25, choices = marital_status)
     concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patient_contact',blank=True, null=True)     
     #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
+    #A language which may be used to communicate with the patient about his or her health.
+    communication = models.CharField(max_length=25, choices=communication)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patient_period',blank=True, null=True)
     class Meta:
         ordering = ["id"]
