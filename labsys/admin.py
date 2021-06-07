@@ -16,7 +16,11 @@ admin.site.register(Observation)
 admin.site.register(User)
 admin.site.register(Pricelist)
 admin.site.register(Sampletype)
-admin.site.register(Testlist)
+admin.site.register(ObservationDefinition)
+admin.site.register(TestCategory)
+admin.site.register(QualifiedInterval)
+admin.site.register(DiagnosticReport)
+admin.site.register(Organization)
 
 
 

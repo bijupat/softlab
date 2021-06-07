@@ -53,13 +53,10 @@ class Period(models.Model):
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_period', blank=True, null=True)
     #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
+    """
     def __str__(self):
-        if self.patient:
-            return 'Period for Patient {} {} Starts :{}/{}/{} and Ends :{}/{}/{} (dd/mm/yyyy)'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family, self.start.day, self.start.month, self.start.year, self.end.day, self.end.month, self.end.year)
-        if self.practitioner:
-            return 'Period for Practitioner {} {} Starts :{}/{}/{} and Ends :{}/{}/{} (dd/mm/yyyy)'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family,  self.start.day, self.start.month, self.start.year, self.end.day, self.end.month, self.end.year)
-    """ 
-
+            return 'Period for Starts :{}/{}/{} and Ends :{}/{}/{} (dd/mm/yyyy)'.format(self.start.day, self.start.month, self.start.year, self.end.day, self.end.month, self.end.year)
+ 
 
 
 class Practitioner(models.Model):
@@ -229,29 +226,60 @@ class Pricelist(models.Model):
 
 class Sampletype(models.Model):
     sampletype = models.CharField(max_length=75, blank=True, null=True)
-    #test = models.ManyToManyField(Testlist, related_name='sampletype_test')
+    #test = models.ManyToManyField(ObservationDefination, related_name='sampletype_test')
 
     def __str__(self):
             return 'SampleType : {}'.format(self.sampletype)
-
-class Testlist (models.Model):
-    test = models.CharField(max_length=75, blank=True, null=True)
-    price = models.PositiveIntegerField(blank=True, null=True)
-    #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
-    pricelist_included = models.ManyToManyField(Pricelist, related_name='testlist_pricelist', blank=True)
-    sampletype = models.ForeignKey(Sampletype, on_delete=models.PROTECT, related_name='testlist_sampletype', blank=True, null=True)
-    method = models.CharField(max_length=75, blank=True, null=True)
-    referenceRange_high = models.CharField(max_length=75,blank=True, null=True)
-    referenceRange_low = models.CharField(max_length=75,blank=True, null=True)
+class TestCategory (models.Model):
+    category = models.CharField(max_length=75, blank=True, null=True)
 
     def __str__(self):
+            return 'Category : {}'.format(self.category)
+
+class Organization (models.Model):
+    pass
+
+
+
+
+
+#master list of observations(Testlist)
+class ObservationDefinition (models.Model):
+    # use loinic Consumer Name if possible
+    test = models.CharField(max_length=75, blank=True, null=True)
+    # general name usded in routine practice
+    alias = models.CharField(max_length=75, blank=True, null=True)
+    price = models.PositiveIntegerField(blank=True, null=True)
+    #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
+    pricelist_included = models.ManyToManyField(Pricelist, related_name='observationdefination_pricelist', blank=True)
+    sampletype = models.ForeignKey(Sampletype, on_delete=models.PROTECT, related_name='observationdefination_sampletype', blank=True, null=True)
+    method = models.CharField(max_length=75, blank=True, null=True)
+    category = models.ForeignKey(TestCategory, on_delete=models.PROTECT, related_name='observationdefination_testcategory', blank=True, null=True)
+    outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='observationdefination_organization', blank=True, null=True)
+    unit = models.CharField(max_length=75, blank=True, null=True)
+    loinc_code = models.CharField(max_length=75, blank=True, null=True)
+    # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
+    category = models.CharField(max_length=75, blank=True, null=True) 
+"""
+    def __str__(self):
             return 'Test : {} by {} method with price : {}'.format(self.test, self.method, self.price)
+"""
+# Referance range for testlist(observationdefination)
+class QualifiedInterval (models.Model):
+    high = models.CharField(max_length=75, blank=True, null=True)
+    low = models.CharField(max_length=75, blank=True, null=True)
+    age_high = models.PositiveIntegerField(blank=True)
+    age_low = models.PositiveIntegerField(blank=True)
+    observationdefinition = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='qualifiedinterval_observationdefination', blank=True, null=True)
+    
+    def __str__(self):
+            return 'pending'
 
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
-    test = models.ManyToManyField(Testlist, through='Observation', related_name='Encounter_testlist')
+    test = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='Encounter_observationdefination')
     #observation = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='encounter_observation', blank=True, null=True)
-    #test = models.ForeignKey(Testlist, on_delete=models.PROTECT, related_name='encounter_testlist', blank=True, null=True)
+    #test = models.ForeignKey(ObservationDefination, on_delete=models.PROTECT, related_name='encounter_observationdefination', blank=True, null=True)
     # planned | arrived | triaged | in-progress | onleave | finished | cancelled
     status = models.CharField(max_length=75, blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
@@ -275,7 +303,7 @@ class Observation (models.Model):
     verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
     #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
-    test = models.ForeignKey(Testlist, related_name='observation_testlist', on_delete=models.PROTECT, blank=True, null=True)
+    test = models.ForeignKey(ObservationDefinition, related_name='observation_observationdefination', on_delete=models.PROTECT, blank=True, null=True)
     value = models.CharField(max_length=200, blank=True, null=True)
     interpretation = models.CharField(max_length=200, blank=True, null=True)
     encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
@@ -283,10 +311,12 @@ class Observation (models.Model):
     class Meta:
         ordering = ["-timedate"]
 
-    
+    """
     def __str__(self):
         if self.encounter and self.test:
             return 'Observation : {} for Patient : {} for test {}'.format(self.id, self.encounter.patient.patient_name.get().text, self.test.test)
         else:
             return 'You need to enter observation using Encounter model'
-    
+    """
+class DiagnosticReport (models.Model):
+    pass
