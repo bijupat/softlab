@@ -73,7 +73,7 @@ WSGI_APPLICATION = 'softlab.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -91,7 +91,7 @@ DATABASES = {
         'PORT': '',
     }
 }
-"""
+
 #Substituting a custom User model
 
 AUTH_USER_MODEL="labsys.User"
