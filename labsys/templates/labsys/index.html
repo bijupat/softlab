@@ -1,5 +1,17 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
-{% block title %}Index{% endblock %}
-{% block body %}<P> this is index body and var is {{VarOne}}</P>{% endblock %}
+{% block title %}test{% endblock %}
+{% block body %}
 
+    <P> 
+       {% for c in context %}
+       <ul>
+        <li>{{c.i.date}} for patient ID {{c.i.name}}</li>
+        
+        </ul>
+       {% empty %}
+            No Patient Listed!
+        {% endfor %}
+    </P>
+    {{context.1.name}}
+{% endblock %}

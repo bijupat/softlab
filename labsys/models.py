@@ -1,8 +1,8 @@
 from django.db import models
-from django.db.models.base import Model
-from django.db.models.enums import Choices
+#from django.db.models.base import Model
+#from django.db.models.enums import Choices
 from django.contrib.auth.models import AbstractUser
-from django.db.models.fields.related import OneToOneField
+#from django.db.models.fields.related import OneToOneField
 
 
 
@@ -66,8 +66,8 @@ Other.	The administrative gender is a value other than male/female/unknown. Wher
 Unknown. A proper value is applicable (field value is there), but not known. Usage Notes: This means the actual value is not known(but is there like home tele is there but no is not known) etc.), then the OTH or UNC flavor should be used. No properties should be included for a datatype with this property unless: Those properties themselves directly translate to a semantic of "unknown". (E.g. a local code sent as a translation that conveys 'unknown') Those properties further qualify the nature of what is unknown. (E.g. 
 """
 gender =(
-    ("M", "home"),
-    ("F", "work"),
+    ("M", "Male"),
+    ("F", "Female"),
     ("U", "Unknown"),
     ("O", "Other"),
 )
@@ -111,6 +111,30 @@ communication = (
     ("Ur", "Urdu"),
     ("E", "English"),
 )
+# active | inactive | entered-in-error | on-hold | unknown
+Account_status = (
+    ("A", "Active"),
+    ("I", "Inactive"),
+    ("E", "entered-in-error"),
+    ("H", "on-hold"),
+    ("U", "unknown"),
+)
+Account_type = (
+    ("P", "Periodic"),
+    ("C", "Cash"),
+    ("T", "Temporary"),
+)
+# social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
+ObservationDefinition_category =(
+    ("SH", "social-history"),
+    ("I", "imaging"),
+    ("L", "laboratory"),
+    ("P", "procedure"),
+    ("S", "survey"),
+    ("E", "exam"),
+    ("T", "therapy"),
+    ("A", "activity"),
+)
 
 class User(AbstractUser) :
     pass
@@ -134,16 +158,15 @@ class Practitioner(models.Model):
     active = models.BooleanField(blank=True, null=True, default=True)
     #name = models.OneToOneField(name, on_delete=models.PROTECT, related_name='practitioner_name')
     #telecom = models.ManyToManyField(telecom, related_name='practitioner_telecom')
-    gender = models.CharField(max_length=20, choices=gender)
+    gender = models.CharField(max_length=20, choices=gender,blank=True, null=True)
     birthDate = models.DateField(blank=True, null=True)
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
     #address =  models.ManyToManyField(address, related_name='p                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         fractitioner_Address')
     photo = models.ImageField(blank=True, null=True)
     qualification = models.CharField(max_length=200, blank=True, null=True)
      #A language which may be used to communicate with the patient about his or her health.
-    communication = models.CharField(max_length=25, choices=communication)
+    communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner_period',blank=True, null=True)
-
     #communication = communication()
     def __str__(self):
         return 'Practitioner id {} name : {}'.format(self.id, self.practitioner_name.get().text)
@@ -157,7 +180,7 @@ class Contact(models.Model):
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
         if self.contact_name.get():
-            return 'Relationship {} between {}(Contact) and {}(Patient)'.format(self.relationship, self.contact_name.get().text, self.patient_contact.get().patient_name.get().text)
+            return 'Contact id-{}: Relationship {} between {}(Contact) and {}(Patient)'.format(self.id, self.get_relationship_display(), self.contact_name.get().text, self.patient_contact.get().patient_name.get().text)
         else:
             return 'some error'
 
@@ -168,24 +191,22 @@ class Note(models.Model):
     def __str__(self):
             return 'Note by   : {} at : {}'.format(self.author.practitioner_name.get().text, self.time)
 
-
-
-
 class Patient(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     active = models.BooleanField(blank=True, null=True, default=True)
     #name = models.ForeignKey(name, on_delete=models.PROTECT, related_name='Patient_Name')
     birthDate = models.DateField(blank=True, null=True)
     deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
-    gender = models.CharField(max_length= 10, choices=gender)
+    gender = models.CharField(max_length= 10, choices=gender,blank=True, null=True)
     #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField(blank=True, null=True)
-    marital_status = models.CharField(max_length=25, choices = marital_status)
+    marital_status = models.CharField(max_length=25, choices = marital_status,blank=True, null=True)
     concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patient_contact',blank=True, null=True)     
     #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
     #A language which may be used to communicate with the patient about his or her health.
-    communication = models.CharField(max_length=25, choices=communication)
+    communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patient_period',blank=True, null=True)
+
     class Meta:
         ordering = ["id"]
 
@@ -206,8 +227,6 @@ class Telecom(models.Model):
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_telecom', blank=True, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='contact_telecom',blank=True, null=True)
 
-
-
     def __str__(self):
         if self.patient:
             return 'patient {} {} has {} ({}) : {}'.format(self.patient.patient_name.get().text, self.patient.patient_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
@@ -215,8 +234,6 @@ class Telecom(models.Model):
             return 'Practitioner {} {} has {} ({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
         if self.contact:
             return 'Practitioner {} {} has {} ({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
-
-
 
 class Name(models.Model):
     # // usual | official | temp | nickname | anonymous | old | maiden
@@ -244,8 +261,6 @@ class Name(models.Model):
             return 'Practitioner : {} {} having  id {}'.format(self.text, self.family, self.practitioner.id)
         if self.contact:
             return 'Contact : {} {} having  id {}'.format(self.text, self.family, self.contact.id)
-
-
 
 class Address(models.Model):
     # // home | work | temp | old | billing - purpose of this address
@@ -279,10 +294,10 @@ class Address(models.Model):
 class Account (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # active | inactive | entered-in-error | on-hold | unknown
-    status = models.CharField(max_length=75, blank=True, null=True)
+    status = models.CharField(max_length=75, blank=True, null=True, choices= Account_status)
     #patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_account', blank=True, null=True)
     # patient, expense, depreciation
-    type = models.CharField(max_length=75, blank=True, null=True)
+    type = models.CharField(max_length=75, blank=True, null=True, choices=Account_type)
     #// Human-readable label
     name = models.CharField(max_length=75, blank=True, null=True)
     #Explanation of purpose/use
@@ -306,6 +321,7 @@ class Sampletype(models.Model):
 
     def __str__(self):
             return 'SampleType : {}'.format(self.sampletype)
+
 class TestCategory (models.Model):
     category = models.CharField(max_length=75, blank=True, null=True)
 
@@ -314,9 +330,6 @@ class TestCategory (models.Model):
 
 class Organization (models.Model):
     pass
-
-
-
 
 
 #master list of observations(Testlist)
@@ -335,11 +348,14 @@ class ObservationDefinition (models.Model):
     unit = models.CharField(max_length=75, blank=True, null=True)
     loinc_code = models.CharField(max_length=75, blank=True, null=True)
     # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
-    category = models.CharField(max_length=75, blank=True, null=True) 
-"""
+    category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
+
+    class Meta:
+        ordering = ["test"]
+
     def __str__(self):
             return 'Test : {} by {} method with price : {}'.format(self.test, self.method, self.price)
-"""
+
 # Referance range for testlist(observationdefination)
 class QualifiedInterval (models.Model):
     high = models.CharField(max_length=75, blank=True, null=True)
@@ -369,7 +385,7 @@ class Encounter(models.Model):
         ordering = ["-timedate"]
     
     def __str__(self):
-            return 'Encounter for Patient : {} at {}'.format(self.patient.patient_name.get().text, self.timedate)
+            return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.patient_name.get().text, self.timedate)
 
 class Observation (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -386,13 +402,12 @@ class Observation (models.Model):
 
     class Meta:
         ordering = ["-timedate"]
-
-    """
+    
     def __str__(self):
         if self.encounter and self.test:
-            return 'Observation : {} for Patient : {} for test {}'.format(self.id, self.encounter.patient.patient_name.get().text, self.test.test)
+            return 'Observation : {} for Patient : {} for test {} on Encounter id : {}'.format(self.id, self.encounter.patient.patient_name.get().text, self.test.test, self.encounter.id)
         else:
             return 'You need to enter observation using Encounter model'
-    """
+    
 class DiagnosticReport (models.Model):
     pass

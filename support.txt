@@ -136,3 +136,69 @@ AttributeError: 'RelatedManager' object has no attribute 'test'
 >>> p[0].patient_encounter.all()[0].test.test
 'Creatinine'
 >>> select_related() QuerySet
+
+
+>>> from labsys.models import *
+
+>>> n = Name.objects.filter(text="navin")
+>>> n
+<QuerySet [<Name: Patient : navin chaudhary having  id 7>]>
+>>> n = Name.objects.get(text="navin")
+>>> n
+<Name: Patient : navin chaudhary having  id 7>
+>>> p = Patient.objects.get(id=n.id)
+>>> p
+<Patient: Patient Name : navin chaudhary having id : 7>
+>>> ec = Encounter.objects.filter(patient=p)
+>>> ec
+<QuerySet [<Encounter: Encounter id 8 for Patient : navin at 2021-06-06 09:19:51.569866+00:00>, <Encounter: Encounter id 7 for Patient : navin at 2021-06-02 15:38:33.523719+00:00>]>
+>>> ob = Observation.objects.filter(encounter=ec[0])
+>>> ob
+<QuerySet [<Observation: Observation : 11 for Patient : navin for test CBC on Encounter id : 8>]>
+>>> ec5 = Encounter.objects.get(pk=5)
+>>> ec5
+<Encounter: Encounter id 5 for Patient : Gitesh at 2021-06-02 15:38:21.020504+00:00>
+>>> ob5 = Observation.objects.filter(encounter=ec5)
+>>> ob5
+<QuerySet [<Observation: Observation : 15 for Patient : Gitesh for test TOTAL BILIRUBIN on Encounter id : 5>, <Observation: Observation : 14 for Patient : Gitesh for test SGOT on Encounter id : 5>]>
+
+
+
+>>> for ob in ob5:
+...     print(ob.test)
+...
+Test : TOTAL BILIRUBIN by Spectrophotometry method with price : 250
+Test : SGOT by Spectrophotometry method with price : 250
+
+
+>>> for ob in ob5:
+...     print(ob.test.test)
+...
+TOTAL BILIRUBIN
+SGOT
+
+
+>>> for ob in ob5:
+...     print(ob.value)
+...
+1.2
+23.3
+>>> for ob in ob5:
+...     print(f"{ob.test.test}: {ob.value}")
+...
+TOTAL BILIRUBIN: 1.2
+SGOT: 23.3
+>>>
+
+
+>>> etoday = Encounter.objects.filter(timedate__date=datetime.today().date())
+>>> etoday
+<QuerySet [<Encounter: Encounter id 10 for Patient : Ramesh at 2021-06-07 15:53:01.452343+00:00>, <Encounter: Encounter id 9 for Patient : Gitesh at 2021-06-07 15:52:50.852502+00:00>]>
+ for e in etoday:
+...     print(e.timedate.date())
+...     print(e.patient.patient_name.get().text)
+...
+2021-06-07
+Ramesh
+2021-06-07
+Gitesh
