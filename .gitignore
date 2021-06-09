@@ -1,3 +1,5 @@
 venv/
 db.sqlite3
 media/
+softlab/settings.py
+labsys/migrations/
