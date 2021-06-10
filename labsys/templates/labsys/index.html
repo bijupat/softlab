@@ -1,6 +1,6 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
-{% block title %}test{% endblock %}
+{% block title %}Index{% endblock %}
 {% block body %}
     <h1>Patient Listed</h1>
 
@@ -27,10 +27,20 @@
             <a href="#" class="list-group-item list-group-item-action" aria-current="true">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">{{e.id}} : {{e.patient}}</h5>
+                    <small>{{e.account}}.</small>
                     <small>{{e.practitioner}}</small>
                 </div>
-                <p class="mb-1">{{e.test.all|join:", "|default:"No Test Listed"}}.</p>
-                <small>{{e.account}}.</small>
+                <p class="mb-5">
+                    <ol>
+                        {% for t in e.test.all %}
+                        <li>{{t.test}} : {{t.price}}</li>
+                        {% endfor %}
+                    </ol>
+                </p>
+                {# <p class="mb-1">{{e.test.all|join:", "|default:"No Test Listed"}}.</p> #}
+            
+                
+
             </a>
             {% empty %}
             No Patient Listed!
