@@ -1,7 +1,7 @@
 venv/
 db.sqlite3
 media/
-settings.py
-**/migrations
-migrations/
+
+
+
 
