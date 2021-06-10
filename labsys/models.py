@@ -169,7 +169,10 @@ class Practitioner(models.Model):
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner_period',blank=True, null=True)
     #communication = communication()
     def __str__(self):
-        return 'Practitioner id {} name : {}'.format(self.id, self.practitioner_name.get().text)
+        if self.practitioner_name:
+            return 'Practitioner : {} {}'.format(self.practitioner_name.get().text, self.practitioner_name.get().family)
+        else :
+            return f'Practitioner id {self.id}'
 
 # // A contact party (e.g. guardian, partner, friend) for the patient##
 class Contact(models.Model):
@@ -211,7 +214,11 @@ class Patient(models.Model):
         ordering = ["id"]
 
     def __str__(self):
-        return 'Patient Name : {} {} having id : {}'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )  
+        if self.patient_name:
+            return 'Patient Name : {} {} (id : {})'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )
+        else :
+            return f'Patient id : {self.id}'
+
  
 
 class Telecom(models.Model):
@@ -354,7 +361,7 @@ class ObservationDefinition (models.Model):
         ordering = ["test"]
 
     def __str__(self):
-            return 'Test : {} by {} method with price : {}'.format(self.test, self.method, self.price)
+            return 'Test : {}  price : {}'.format(self.test, self.price)
 
 # Referance range for testlist(observationdefination)
 class QualifiedInterval (models.Model):

@@ -2,16 +2,44 @@
 {% load static %}
 {% block title %}test{% endblock %}
 {% block body %}
+    <h1>Patient Listed</h1>
 
-    <P> 
-       {% for c in context %}
-       <ul>
-        <li>{{c.i.date}} for patient ID {{c.i.name}}</li>
-        
+    {% comment "template for dict created manually in view function" %}
+    <P>
+        {% for c in context %}
+        <ul>
+           <li>
+               {{c.id}} : {{c.date}} : {{c.patient}} : {{c.practitioner}} :{{c.account}} :
+               {% for test in c.test%} {{test}},
+               {% empty %}
+               No Test Listed
+               {% endfor %}
+            </li>
         </ul>
-       {% empty %}
+        {% empty %}
             No Patient Listed!
         {% endfor %}
     </P>
-    {{context.1.name}}
+    {% endcomment %}
+
+    <div class="list-group">
+        {% for e in encounter %}
+            <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{e.id}} : {{e.patient}}</h5>
+                    <small>{{e.practitioner}}</small>
+                </div>
+                <p class="mb-1">{{e.test.all|join:", "|default:"No Test Listed"}}.</p>
+                <small>{{e.account}}.</small>
+            </a>
+            {% empty %}
+            No Patient Listed!
+            {% endfor %}
+    </div>
+            
+      
+
+    </p>
 {% endblock %}
+
+

@@ -11,15 +11,22 @@ def index(request):
     encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
     encounter_date = Encounter.objects.filter(timedate__date=datetime(2021, 6, 2).date())
     print(encounter_today)
-    context = {}
-    i=0
+    #create empty list to pass to template as value dic
+    context = []
     for e in encounter_today:
+        #create dic item for each encounter
         object = {}
+        #add value to object dict with different key 
         object["date"] = e.timedate.date()
-        object["pat_name"] = e.patient.patient_name.get().text +" "+ e.patient.patient_name.get().family
-        context[i] = object
-        i=i+1
+        object["patient"] = e.patient.patient_name.get().text +" "+ e.patient.patient_name.get().family
+        object["id"] = e.id
+        object["practitioner"] = e.practitioner
+        object["account"] = e.account
+        object["test"] = e.test.all()
+        
+
+        #add object dict to list context
+        context.append(object)
     print(context)
-    print(context[1].date)
-    return render(request, 'labsys\index.html', context)
+    return render(request, 'labsys\index.html', {"context" : context, "encounter" :encounter_today})
 
