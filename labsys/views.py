@@ -1,7 +1,8 @@
-from labsys.models import Patient
+#from labsys.models import Patient
 from django.shortcuts import render, HttpResponse
 from .models import *
 from django.utils.timezone import datetime 
+from django.db.models import Avg, Max, Min, Sum
 
 # Create your views here.
 
@@ -11,6 +12,10 @@ def index(request):
     encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
     encounter_date = Encounter.objects.filter(timedate__date=datetime(2021, 6, 2).date())
     print(encounter_today)
+    for e in encounter_today:
+        #e.test.all().(total=sum('price'))
+        p = e.objects.all().aggregate(Sum('price'))
+    print(p)
     #create empty list to pass to template as value dic
     context = []
     for e in encounter_today:
@@ -28,5 +33,5 @@ def index(request):
         #add object dict to list context
         context.append(object)
     print(context)
-    return render(request, 'labsys\index.html', {"context" : context, "encounter" :encounter_today})
+    return render(request, 'labsys\index.html', {"context" : context, "encounter" :encounter_today, "p" : p})
 

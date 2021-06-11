@@ -3,7 +3,6 @@
 {% block title %}Index{% endblock %}
 {% block body %}
     <h1>Patient Listed</h1>
-
     {% comment "template for dict created manually in view function" %}
     <P>
         {% for c in context %}
@@ -21,7 +20,6 @@
         {% endfor %}
     </P>
     {% endcomment %}
-
     <div class="list-group">
         {% for e in encounter %}
             <a href="#" class="list-group-item list-group-item-action" aria-current="true">
@@ -35,21 +33,14 @@
                         {% for t in e.test.all %}
                         <li>{{t.test}} : {{t.price}}</li>
                         {% endfor %}
+                        <li>Total : {{p.price__sum}}
                     </ol>
                 </p>
                 {# <p class="mb-1">{{e.test.all|join:", "|default:"No Test Listed"}}.</p> #}
-            
-                
-
             </a>
             {% empty %}
             No Patient Listed!
             {% endfor %}
     </div>
-            
-      
-
     </p>
 {% endblock %}
-
-
