@@ -3,6 +3,7 @@
 {% block title %}Index{% endblock %}
 {% block body %}
     <h1>Patient Listed</h1>
+
     {% comment "template for dict created manually in view function" %}
     <P>
         {% for c in context %}
@@ -20,27 +21,38 @@
         {% endfor %}
     </P>
     {% endcomment %}
+
     <div class="list-group">
         {% for e in encounter %}
-            <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+            <a href= {% url 'encounter' e.id %} class="list-group-item list-group-item-action" aria-current="true">
                 <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{e.id}} : {{e.patient}}</h5>
+                    <h6 class="mb-1">{{e.id}} : {{e.timedate|date}} : {{e.patient}}</h6>
                     <small>{{e.account}}.</small>
                     <small>{{e.practitioner}}</small>
+                    <small>
+                        <ol>
+                            {% for t in e.test.all %}
+                            <li>{{t.test}} : {{t.price}}</li>
+                            {% endfor %}
+                        </ol>
+                        <ul><li>Total : {{e.test.all.aggregate}}</li></ul>
+                    </small>
                 </div>
-                <p class="mb-5">
-                    <ol>
-                        {% for t in e.test.all %}
-                        <li>{{t.test}} : {{t.price}}</li>
-                        {% endfor %}
-                        <li>Total : {{p.price__sum}}
-                    </ol>
+                <p class="mb-1">
+                    
                 </p>
                 {# <p class="mb-1">{{e.test.all|join:", "|default:"No Test Listed"}}.</p> #}
+               
+
             </a>
             {% empty %}
             No Patient Listed!
             {% endfor %}
     </div>
+            
+      
+
     </p>
 {% endblock %}
+
+

@@ -168,9 +168,11 @@ class Practitioner(models.Model):
     communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner_period',blank=True, null=True)
     #communication = communication()
+
     def __str__(self):
+        #return self.practitioner_name.all()
         if self.practitioner_name:
-            return 'Practitioner : {} {}'.format(self.practitioner_name.get().text, self.practitioner_name.get().family)
+            return 'Ref By : {} {}'.format(self.practitioner_name.get().text, self.practitioner_name.get().family)
         else :
             return f'Practitioner id {self.id}'
 
@@ -192,7 +194,7 @@ class Note(models.Model):
     time = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=500, blank=True, null=True)    
     def __str__(self):
-            return 'Note by   : {} at : {}'.format(self.author.practitioner_name.get().text, self.time)
+            return 'Note by : {} at : {}'.format(self.author.practitioner_name.get().text, self.time)
 
 class Patient(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -215,7 +217,7 @@ class Patient(models.Model):
 
     def __str__(self):
         if self.patient_name:
-            return 'Patient Name : {} {} (id : {})'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )
+            return 'Patient : {} {} (id : {})'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )
         else :
             return f'Patient id : {self.id}'
 
