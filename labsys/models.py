@@ -420,3 +420,32 @@ class Observation (models.Model):
     
 class DiagnosticReport (models.Model):
     pass
+
+class Invoice(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # draft | issued | balanced | cancelled | entered-in-error
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    cancelled_reason = models.CharField(max_length=200, blank=True, null=True)
+    # Recipient(s) of goods and services
+    subject = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='invoice_subject', blank=True, null=True)
+    # Recipient of this invoice
+    recipient = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='invoice_recipient', blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    # Participant in creation of this Invoice
+    participant = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='invoice_participant', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='invoice_participant', blank=True, null=True)
+    lineItem = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='invoice_observationdefination', blank=True, null=True)
+    # Invoice total , taxes excluded.
+    totalnet = models.CharField(max_length=75, blank=True, null=True)
+    # Invoice total, tax included.
+    totalGross = models.CharField(max_length=75, blank=True, null=True)
+    # Payment details such as banking details, period of payment, deductibles, methods of payment.
+    paymentTerms = models.CharField(max_length=200, blank=True, null=True)
+    # Comments made about the invoice by the issuer, subject, or other participants.
+    note = models.ForeignKey(Note, on_delete=models.PROTECT, related_name= 'invoice_note', blank=True, null=True)
+
+    def __str__(self):
+        return f' Inovoice for {self.subject}'
+
+    
+
