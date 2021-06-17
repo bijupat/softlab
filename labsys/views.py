@@ -54,20 +54,26 @@ def pat_register(request):
         form = PatientRegistration(request.POST, request.FILES)
         user = request.user
         if form.is_valid():
-            birthdate = form.cleaned_data["DOB"]
-            new_patient = Patient(birthDate=birthdate, gender=request.POST["Gender"],  photo=request.FILES['photo'])
+            print(form.cleaned_data)
+            #birthdate = form.cleaned_data["birth_date"]
+            new_patient = Patient(birthDate=request.POST["birth_date"], gender=request.POST["gender"],  photo=request.FILES['photo'])
             new_patient.save()
-            pat_name = Name(text=request.POST["First Name"], patient=new_patient, family=request.POST["Last Name"] )
+            pat_name = Name(text=request.POST["f_name"], patient=new_patient, family=request.POST["l_name"] )
             pat_name.save()
-            pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["Mobile"])
+            pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["mobile"])
             pat_telecom.save()
-            pat_address = Address()
-            pat_address.use = "home"
-            pat_address.text = form.cleaned_data["Address"]
-            pat_address.save()
+            enc = Encounter()
+            enc.patient = new_patient
+            enc.save()
+            enc.test.set(form.cleaned_data["test"])
+            
+            #pat_address = Address()
+            #pat_address.use = "home"
+            #pat_address.text = form.cleaned_data["Address"]
+            #pat_address.save()
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "auctions/create_Listing.html", {
+            return render(request, 'labsys\pat_regi.html', {
                 "form": form
             })
     else:
@@ -75,7 +81,7 @@ def pat_register(request):
      
 
         return render(request, 'labsys\pat_regi.html', {
-            "form": PatientRegistration()    })
+            "form": PatientRegistration   })
 
 
 

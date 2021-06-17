@@ -331,7 +331,7 @@ class Sampletype(models.Model):
     def __str__(self):
             return 'SampleType : {}'.format(self.sampletype)
 
-class TestCategory (models.Model):
+class TestCategory(models.Model):
     category = models.CharField(max_length=75, blank=True, null=True)
 
     def __str__(self):
@@ -342,7 +342,7 @@ class Organization (models.Model):
 
 
 #master list of observations(Testlist)
-class ObservationDefinition (models.Model):
+class ObservationDefinition(models.Model):
     # use loinic Consumer Name if possible
     test = models.CharField(max_length=75, blank=True, null=True)
     # general name usded in routine practice
@@ -366,7 +366,7 @@ class ObservationDefinition (models.Model):
             return 'Test : {}  price : {}'.format(self.test, self.price)
 
 # Referance range for testlist(observationdefination)
-class QualifiedInterval (models.Model):
+class QualifiedInterval(models.Model):
     high = models.CharField(max_length=75, blank=True, null=True)
     low = models.CharField(max_length=75, blank=True, null=True)
     age_high = models.PositiveIntegerField(blank=True)
@@ -396,7 +396,7 @@ class Encounter(models.Model):
     def __str__(self):
             return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.patient_name.get().text, self.timedate)
 
-class Observation (models.Model):
+class Observation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | preliminary | final | amended +
     status = models.CharField(max_length=75, blank=True, null=True, default='registered')
