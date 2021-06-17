@@ -54,19 +54,23 @@ def pat_register(request):
         form = PatientRegistration(request.POST, request.FILES)
         user = request.user
         if form.is_valid():
-            new_patient = Patient(title=request.POST["title"], price=request.POST["price"], category=request.POST["category"],
-                label=request.POST["label"], description=request.POST["description"], created_by= user, image=request.FILES['image'])
+            new_patient = Patient(birthDate=request.POST["DOB"], gender=request.POST["Gender"],  photo=request.FILES['photo'])
             new_patient.save()
-
+            pat_name = Name(text=request.POST["First Name"], patient=new_patient, family=request.POST["Last Name"] )
+            pat_name.save()
+            pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["Mobile"])
+            pat_telecom.save()
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/create_Listing.html", {
                 "form": form
             })
     else:
+        tests = ObservationDefinition.objects.all()
+
         return render(request, 'labsys\pat_regi.html', {
-            "form": PatientRegistration()
-        })
+            "form": PatientRegistration(),
+            "tests": tests      })
 
 
 
