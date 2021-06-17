@@ -3,6 +3,11 @@ from django.shortcuts import render, HttpResponse
 from .models import *
 from django.utils.timezone import datetime 
 from django.db.models import Avg, Max, Min, Sum
+from .forms import PatientRegistration
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+
 
 # Create your views here.
 
@@ -44,6 +49,24 @@ def index(request):
 
         return render(request, 'labsys\index.html', {"encounter" :encounter_date})
 
+def pat_register(request):
+    if request.method == "POST":
+        form = PatientRegistration(request.POST, request.FILES)
+        user = request.user
+        if form.is_valid():
+            new_patient = Patient(title=request.POST["title"], price=request.POST["price"], category=request.POST["category"],
+                label=request.POST["label"], description=request.POST["description"], created_by= user, image=request.FILES['image'])
+            new_patient.save()
+
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "auctions/create_Listing.html", {
+                "form": form
+            })
+    else:
+        return render(request, 'labsys\pat_regi.html', {
+            "form": PatientRegistration()
+        })
 
 
 

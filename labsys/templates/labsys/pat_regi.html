@@ -1,0 +1,11 @@
+{% extends "labsys/layout.html" %}
+{% load static %}
+{% block title %}Index{% endblock %}
+{% block body %}
+    <form action="{% url 'PatReg' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form }}
+        <br>
+        <input class="btn btn-primary btn-sm" type="submit">
+    </form>
+{% endblock %}

@@ -447,5 +447,33 @@ class Invoice(models.Model):
     def __str__(self):
         return f' Inovoice for {self.subject}'
 
-    
+class PaymentReconciliation(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    #  active | cancelled | draft | entered-in-error
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    # Creation date The date when the resource was created.
+    created = models.DateTimeField(auto_now_add=True)
+    # Need to identify the party resonsible for the payment and this resource.
+    payment_issuer = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='paymentreconciliation_issuer', blank=True, null=True)
+    # Reference to requesting resource (Invoice)
+    request = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='paymentreconciliation_issuer', blank=True, null=True)
+    # When payment issued
+    paymentDate = models.DateField(auto_now_add=True)
+    # Total amount of Payment Total payment amount as indicated on the financial instrument.
+    paymentAmount = models.FloatField(blank=True, null=True)
+    # The period of time for which payments have been gathered into this bulk payment for settlement.(For Periodic Accounts )
+    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='paymentreconciliation_period',blank=True, null=True)
+
+    """    Payment types
+    Code		Definition
+    payment		The amount is partial or complete settlement of the amounts due.
+    adjustment	The amount is an adjustment regarding claims already paid.
+    advance		The amount is an advance against future claims.
+    """
+    type = models.CharField(max_length=10, blank=True, null=True)
+    note = note = models.ForeignKey(Note, on_delete=models.PROTECT, related_name= 'paymentreconciliation_note', blank=True, null=True)
+
+
+    def __str__(self):
+        return f' Payment id {self.id}'
 
