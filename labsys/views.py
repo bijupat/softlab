@@ -18,9 +18,9 @@ def index(request):
 
     elif request.method == 'POST':
         date = request.POST["date"]
-        encounter_date = Encounter.objects.filter(timedate__date=date.date())
+        encounter_date = Encounter.objects.filter(timedate__date=date)
 
-        return render(request, 'labsys\index.html', {"encounter" :encounter_date})
+        return render(request, 'labsys\index.html', {"encounter" :encounter_date, "date" : date})
 
 def pat_register(request):
     if request.method == "POST":

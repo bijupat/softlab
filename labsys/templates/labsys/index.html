@@ -3,15 +3,18 @@
 {% block title %}Index{% endblock %}
 {% block body %}
  
-<div class="input-group flex-nowrap">
+
     <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <label class="input-group-text" for="date">Select Date:</label>
-        <input class="form-control" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
-        <input class="btn btn-primary btn-sm" type="submit">
+        <div class="input-group flex-nowrap">
+            <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
+            <input class="form-control" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
+            <input class="btn btn-primary btn-sm" type="submit">
+        </div>
     </form>
-</div>
-    <h1>Patient Listed</h1>
+    <br>
+
+    <h5>Patient Listed for  : {{date|default:"Today"}}</h5>
     <div class="list-group">
         {% for e in encounter %}
             <a href= {% url 'encounter' e.id %} class="list-group-item list-group-item-action" aria-current="true">
@@ -25,15 +28,8 @@
                             <li>{{t.test}} : {{t.price}}</li>
                             {% endfor %}
                         </ol>
-                        <ul><li>Total : {{e.test.all.aggregate}}</li></ul>
                     </small>
                 </div>
-                <p class="mb-1">
-                    
-                </p>
-                {# <p class="mb-1">{{e.test.all|join:", "|default:"No Test Listed"}}.</p> #}
-               
-
             </a>
             {% empty %}
             No Patient Listed!

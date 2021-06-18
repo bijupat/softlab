@@ -11,6 +11,7 @@
   <div class="card-body">
     <h5 class="card-title">{{e.id}} : {{e.timedate|date}} : {{e.practitioner}}</h5>
     <p class="card-text">Tests Registered</p>
+    <a href={% url 'index'  %} class="btn btn-primary">Add Test</a>
   </div>
 </div>
 
@@ -19,7 +20,7 @@
 <ul class="list-group">
    {% for t in e.test.all %}
   <li class="list-group-item d-flex justify-content-between align-items-center">
-    {{t.test}}
+    {{t.test}} <a href={% url 'index'  %} class="btn btn-primary">Delete Test</a>
     <span >{{t.price}}</span>
   </li>
   {% empty %}
