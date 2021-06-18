@@ -54,17 +54,25 @@ def pat_register(request):
         form = PatientRegistration(request.POST, request.FILES)
         user = request.user
         if form.is_valid():
-            print(form.cleaned_data)
-            #birthdate = form.cleaned_data["birth_date"]
-            new_patient = Patient(birthDate=request.POST["birth_date"], gender=request.POST["gender"],  photo=request.FILES['photo'])
+            #print(form.cleaned_data)
+            birthdate = form.cleaned_data["birth_date"]
+            #pupulate new_patient instance of Patient class
+            new_patient = Patient(birthDate=birthdate, gender=request.POST["gender"],  photo=request.FILES['photo'])
             new_patient.save()
+            #populate new_name instance of Name class
             pat_name = Name(text=request.POST["f_name"], patient=new_patient, family=request.POST["l_name"] )
             pat_name.save()
+            #populate new_tele instance of Name class
             pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["mobile"])
             pat_telecom.save()
+            #create new encounter instance
             enc = Encounter()
+            # assing it's patient attribute to new_patient instance of Patient Class and save
             enc.patient = new_patient
+            enc.practitioner = form.cleaned_data["practitioner"]
+            enc.account = form.cleaned_data['account']
             enc.save()
+            # populate enc instance with queryset test/form.cleaned_data['test'] will return queryset as it is foreingkey(many to one)
             enc.test.set(form.cleaned_data["test"])
             
             #pat_address = Address()
