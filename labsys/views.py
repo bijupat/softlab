@@ -6,7 +6,25 @@ from django.db.models import Avg, Max, Min, Sum
 from .forms import PatientRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views.generic import ListView
 
+class InvoiceListView(ListView):
+    model = Invoice
+    context_object_name = 'invoice_Obj'
+
+
+def AddPayment(request, invoice_id):
+    form = PatientRegistration(request.POST, request.FILES)
+    user = request.user
+    
+    if request.method == 'GET':
+
+        return render(request, 'labsys\add_payment.html')
+
+
+    if request.method == 'POST':
+
+        return HttpResponseRedirect(reverse("encounter", args=[5]))
 
 
 def index(request):
@@ -72,3 +90,4 @@ def encounter(request, enc_id):
     total = p['price__sum']
 
     return render(request, 'labsys\encounter.html', {"e" : e, "total": total})
+
