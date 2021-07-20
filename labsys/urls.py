@@ -6,5 +6,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('encounter/<int:enc_id>/', views.encounter, name='encounter'),
     path('register', views.pat_register, name = 'PatReg' ),
-    path('publishers/', views.InvoiceListView.as_view(), name = 'invoice'),
+    path('invoice/', views.InvoiceListView.as_view(), name = 'invoice'),
+    path('addpayment/', views.AddPayment, name = 'addpayment'),
 ]

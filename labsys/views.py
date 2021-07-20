@@ -13,13 +13,13 @@ class InvoiceListView(ListView):
     context_object_name = 'invoice_Obj'
 
 
-def AddPayment(request, invoice_id):
+def AddPayment(request):
     form = PatientRegistration(request.POST, request.FILES)
     user = request.user
     
     if request.method == 'GET':
 
-        return render(request, 'labsys\add_payment.html')
+        return render(request, 'labsys\payment.html')
 
 
     if request.method == 'POST':
