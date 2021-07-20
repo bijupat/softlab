@@ -11,7 +11,7 @@ class PatientRegistration(forms.Form):
     m_name = forms.CharField(label="Middle Name", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'id':'exampleFormControlInput1', 'placeholder': 'Middle Name' }))
     l_name = forms.CharField(label="Last Name", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'id':'exampleFormControlInput1', 'placeholder': 'Last  Name' }))
     gender =  forms.ChoiceField(label="Gender", choices=gender, widget=forms.TextInput(attrs={'class': 'form-control', 'id':'exampleFormControlInput1', 'placeholder': 'Gender' }))
-    birth_date = forms.DateField(label="DOB", required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'id':'exampleFormControlInput1', 'placeholder': 'DOB' }))
+    birth_date = forms.DateField(label="DOB", required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'id':'exampleFormControlInput1', 'placeholder': 'DOB YYYY-MM-DD' }))
     mobile = forms.IntegerField(label="Mobile", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mobile', 'id':'exampleFormControlInput1'}))
     photo = forms.ImageField(label='Add Image ', required=False)
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By")  

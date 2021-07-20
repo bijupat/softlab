@@ -46,12 +46,11 @@ def pat_register(request):
         user = request.user
         if form.is_valid():
             #print(form.cleaned_data)
-            birthdate = form.cleaned_data["birth_date"]
             #pupulate new_patient instance of Patient class
-            new_patient = Patient(birthDate=birthdate, gender=request.POST["gender"],  photo=request.FILES['photo'])
+            new_patient = Patient(birthDate=form.cleaned_data["birth_date"], gender=request.POST["gender"],  photo=request.FILES['photo'])
             new_patient.save()
             #populate new_name instance of Name class
-            pat_name = Name(text=request.POST["f_name"], patient=new_patient, family=request.POST["l_name"] )
+            pat_name = Name(text=request.POST["f_name"].title(), patient=new_patient, family=request.POST["l_name"].title() )
             pat_name.save()
             #populate new_tele instance of Name class
             pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["mobile"])
