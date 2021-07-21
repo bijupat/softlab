@@ -376,6 +376,35 @@ class QualifiedInterval(models.Model):
     def __str__(self):
             return 'pending'
 
+class Invoice(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # draft | issued | balanced | cancelled | entered-in-error
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    cancelled_reason = models.CharField(max_length=200, blank=True, null=True)
+    # Recipient(s) of goods and services
+    subject = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='invoice_subject', blank=True, null=True)
+    # Recipient of this invoice
+    recipient = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='invoice_recipient', blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    # Participant in creation of this Invoice
+    participant = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='invoice_participant', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='invoice_participant', blank=True, null=True)
+    #lineItem = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='invoice_observationdefination', blank=True, null=True)
+    # Invoice total, discount excluded.
+    totalGross = models.PositiveIntegerField(blank=True, null=True)
+    discount = models.PositiveIntegerField(blank=True, null=True)
+    # Invoice total after discount.
+    totalnet = models.PositiveIntegerField(blank=True, null=True)   
+    # Payment details such as banking details, period of payment, deductibles, methods of payment.
+    due = models.PositiveIntegerField(blank=True, null=True)
+    paymentTerms = models.CharField(max_length=200, blank=True, null=True)
+    # Comments made about the invoice by the issuer, subject, or other participants.
+    note = models.ForeignKey(Note, on_delete=models.PROTECT, related_name= 'invoice_note', blank=True, null=True)
+
+    def __str__(self):
+        return f' Inovoice for {self.subject}'
+
+
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     test = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='Encounter_observationdefination')
@@ -386,6 +415,8 @@ class Encounter(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_encounter', blank=True, null=True)
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_encounter', blank=True, null=True)
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='account_encounter', blank=True, null=True)
+    # one invoice can be created for more than one encounter
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='invoice_encounter', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
     #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
@@ -421,31 +452,6 @@ class Observation(models.Model):
 class DiagnosticReport (models.Model):
     pass
 
-class Invoice(models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    # draft | issued | balanced | cancelled | entered-in-error
-    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
-    cancelled_reason = models.CharField(max_length=200, blank=True, null=True)
-    # Recipient(s) of goods and services
-    subject = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='invoice_subject', blank=True, null=True)
-    # Recipient of this invoice
-    recipient = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='invoice_recipient', blank=True, null=True)
-    date = models.DateTimeField(auto_now_add=True)
-    # Participant in creation of this Invoice
-    participant = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='invoice_participant', blank=True, null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='invoice_participant', blank=True, null=True)
-    lineItem = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='invoice_observationdefination', blank=True, null=True)
-    # Invoice total , taxes excluded.
-    totalnet = models.CharField(max_length=75, blank=True, null=True)
-    # Invoice total, tax included.
-    totalGross = models.CharField(max_length=75, blank=True, null=True)
-    # Payment details such as banking details, period of payment, deductibles, methods of payment.
-    paymentTerms = models.CharField(max_length=200, blank=True, null=True)
-    # Comments made about the invoice by the issuer, subject, or other participants.
-    note = models.ForeignKey(Note, on_delete=models.PROTECT, related_name= 'invoice_note', blank=True, null=True)
-
-    def __str__(self):
-        return f' Inovoice for {self.subject}'
 
 class PaymentReconciliation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -457,10 +463,12 @@ class PaymentReconciliation(models.Model):
     payment_issuer = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='paymentreconciliation_issuer', blank=True, null=True)
     # Reference to requesting resource (Invoice)
     request = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='paymentreconciliation_issuer', blank=True, null=True)
+    #payment received by user
+    received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='payment_received_by', blank=True, null=True)
     # When payment issued
     paymentDate = models.DateField(auto_now_add=True)
     # Total amount of Payment Total payment amount as indicated on the financial instrument.
-    paymentAmount = models.FloatField(blank=True, null=True)
+    paymentAmount = models.PositiveIntegerField(blank=True, null=True)
     # The period of time for which payments have been gathered into this bulk payment for settlement.(For Periodic Accounts )
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='paymentreconciliation_period',blank=True, null=True)
 

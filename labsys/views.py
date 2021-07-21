@@ -55,20 +55,37 @@ def pat_register(request):
             #populate new_tele instance of Name class
             pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["mobile"])
             pat_telecom.save()
+            #create new invoice and save without payment details
+            inv = Invoice(subject=new_patient, participant = form.cleaned_data["practitioner"], account = form.cleaned_data['account'] )
+            inv.save()
             #create new encounter instance
             enc = Encounter()
             # assing it's patient attribute to new_patient instance of Patient Class and save
             enc.patient = new_patient
             enc.practitioner = form.cleaned_data["practitioner"]
             enc.account = form.cleaned_data['account']
+            enc.invoice = inv
             enc.save()
             # populate enc instance with queryset test/form.cleaned_data['test'] will return queryset as it is foreingkey(many to one)
             enc.test.set(form.cleaned_data["test"])
+            p = enc.test.all().aggregate(Sum('price'))
+            paid = form.cleaned_data["paid"]
+            #populate payment data in invoice object
+            inv.discount = form.cleaned_data["discount"]
+            inv.totalGross = p['price__sum']
+            inv.totalnet = inv.totalGross - inv.discount
+            inv.due = inv.totalnet-paid
+            inv.save()
+       
             
             #pat_address = Address()
             #pat_address.use = "home"
             #pat_address.text = form.cleaned_data["Address"]
             #pat_address.save()
+
+            payment = PaymentReconciliation(request=inv, paymentAmount= paid)
+            payment.save()
+
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, 'labsys\pat_regi.html', {

@@ -17,7 +17,9 @@ class PatientRegistration(forms.Form):
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By")  
     test = forms.ModelMultipleChoiceField(queryset=ObservationDefinition.objects.all(), label = "Tests")
     account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account")
-    
+    discount = forms.IntegerField(label="Discount", required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'id':'exampleFormControlInput1'}))
+    paid = forms.IntegerField(label="Paid", required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid', 'id':'exampleFormControlInput1'}))
+
 class dummy (forms.Form):
     title = forms.CharField(label="Title", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title' }))
     price = forms.FloatField(label="Price", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Price' }))
