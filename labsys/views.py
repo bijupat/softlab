@@ -73,6 +73,10 @@ def pat_register(request):
             #populate payment data in invoice object
             inv.discount = form.cleaned_data["discount"]
             inv.totalGross = p['price__sum']
+            if not inv.discount:
+                inv.discount = 0
+            if not paid:
+                paid = 0
             inv.totalnet = inv.totalGross - inv.discount
             inv.due = inv.totalnet-paid
             inv.save()
@@ -83,7 +87,7 @@ def pat_register(request):
             #pat_address.text = form.cleaned_data["Address"]
             #pat_address.save()
 
-            payment = PaymentReconciliation(request=inv, paymentAmount= paid)
+            payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
             payment.save()
 
             return HttpResponseRedirect(reverse("index"))
@@ -104,6 +108,12 @@ def encounter(request, enc_id):
     e = Encounter.objects.get(pk=enc_id)
     p = e.test.all().aggregate(Sum('price'))
     total = p['price__sum']
+    invoice = Invoice.objects.get(pk=e.invoice.id)
+    payments = PaymentReconciliation.objects.filter(request=e.invoice)
+    due = invoice.due
+    discount =  invoice.discount
 
-    return render(request, 'labsys\encounter.html', {"e" : e, "total": total})
+
+
+    return render(request, 'labsys\encounter.html', {"e" : e, "total": total, "payments" : payments, "invoice": invoice  } )
 

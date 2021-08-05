@@ -22,6 +22,9 @@ admin.site.register(QualifiedInterval)
 admin.site.register(DiagnosticReport)
 admin.site.register(Organization)
 admin.site.register(Invoice)
+admin.site.register(PaymentReconciliation)
+
+
 
 
 

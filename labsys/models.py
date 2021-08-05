@@ -399,10 +399,10 @@ class Invoice(models.Model):
     due = models.PositiveIntegerField(blank=True, null=True)
     paymentTerms = models.CharField(max_length=200, blank=True, null=True)
     # Comments made about the invoice by the issuer, subject, or other participants.
-    note = models.ForeignKey(Note, on_delete=models.PROTECT, related_name= 'invoice_note', blank=True, null=True)
+    note = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f' Inovoice for {self.subject}'
+        return f' Inovoice id {self.id} for {self.subject}'
 
 
 class Encounter(models.Model):
@@ -479,8 +479,7 @@ class PaymentReconciliation(models.Model):
     advance		The amount is an advance against future claims.
     """
     type = models.CharField(max_length=10, blank=True, null=True)
-    note = note = models.ForeignKey(Note, on_delete=models.PROTECT, related_name= 'paymentreconciliation_note', blank=True, null=True)
-
+    note = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return f' Payment id {self.id}'
