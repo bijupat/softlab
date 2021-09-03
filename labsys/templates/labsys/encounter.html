@@ -23,7 +23,7 @@
 <ul class="list-group">
    {% for t in e.test.all %}
   <li class="list-group-item d-flex justify-content-between align-items-center">
-    {{t.test}} <a href={% url 'index'  %} class="btn btn-primary">Delete Test</a>
+    {{t.test}} <a class="btn btn-primary" id="deletetest">Delete Test</a>
     <span >{{t.price}}</span>
   </li>
   {% empty %}

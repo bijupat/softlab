@@ -7,11 +7,18 @@ from .forms import PatientRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
+from django.views.decorators.csrf import csrf_exempt
 
 class InvoiceListView(ListView):
     model = Invoice
     context_object_name = 'invoice_Obj'
 
+
+@csrf_exempt
+def DeleteTest(request):
+    if request.method == "POST":
+        print(request.body)
+    
 
 def AddPayment(request):
     form = PatientRegistration(request.POST, request.FILES)
