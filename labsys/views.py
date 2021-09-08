@@ -8,6 +8,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 class InvoiceListView(ListView):
     model = Invoice
@@ -17,8 +19,14 @@ class InvoiceListView(ListView):
 @csrf_exempt
 def DeleteTest(request):
     if request.method == "POST":
-        print(request.body)
-    
+        eid = json.loads(request.body.decode('utf-8'))["eid"]
+        test = json.loads(request.body.decode('utf-8'))["test"]
+
+        ec = Encounter.objects.get(pk=eid)
+        ob = Observation.objects.filter(encounter=ec)
+        ob.filter(test_id=test).delete()
+        return HttpResponse(status=200)
+
 
 def AddPayment(request):
     form = PatientRegistration(request.POST, request.FILES)

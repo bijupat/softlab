@@ -244,3 +244,12 @@ SGOT: 23.3
 Ramesh
 2021-06-07
 Gitesh
+
+
+ec41 = Encounter.objects.get(pk=41)
+>>> t41 = ec41.test.all()
+>>> t41
+<QuerySet [<ObservationDefinition: Test : B12  price : 900>, <ObservationDefinition: Test : CBC  price : 250>, <ObservationDefinition: Test : Creatinine  price : 200>, <ObservationDefinition: Test : D3  price : 1200>]>
+>>> t41[0]
+<ObservationDefinition: Test : B12  price : 900>
+>>>
