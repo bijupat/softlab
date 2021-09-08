@@ -127,8 +127,14 @@ def encounter(request, enc_id):
     payments = PaymentReconciliation.objects.filter(request=e.invoice)
     due = invoice.due
     discount =  invoice.discount
+    tests = ObservationDefinition.objects.all()
+    #creat set of observationdefination id included in this encounter(allready added tests)
+    test_id_set = []
+    #add observationdefination id to newly created set
+    for t in e.test.all():
+        test_id_set.append(t.id)
+    #creating observationdefination object queryset excluding those in set
+    tests = ObservationDefinition.objects.exclude(id__in=test_id_set)
 
-
-
-    return render(request, 'labsys\encounter.html', {"e" : e, "total": total, "payments" : payments, "invoice": invoice  } )
+    return render(request, 'labsys\encounter.html', {"e" : e, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
 

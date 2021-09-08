@@ -1,6 +1,7 @@
 (function(){
     const eid = document.querySelector('#eid').innerHTML;
-    console.log(eid);
+    document.querySelector('#addtestinput').style.display = "none";
+    //console.log(eid);
     //console.log(document.querySelector('#addpayment'));
     document.querySelector('#addpayment').addEventListener("click", function(event){
         event.preventDefault();
@@ -14,8 +15,18 @@
         alert("add edit Discount clicked!");   
     });
 
-    
+    document.querySelector('#addtestbtn').addEventListener("click", function(event){
+        event.preventDefault();
+        //displa input form
+        document.querySelector('#addtestinput').style.display = "block";
+        //hide addtest button
+        document.querySelector('#addtestbtn').style.display = "none";
 
+
+        //alert("add test clicked!");
+    });
+
+   
 
     document.querySelectorAll('.deletetest').forEach(function(element){
 

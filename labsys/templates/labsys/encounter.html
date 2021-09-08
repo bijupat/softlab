@@ -14,7 +14,15 @@
   <div class="card-body">
     <h5 class="card-title"><span id ="eid">{{e.id}}</span> : {{e.timedate|date}} : {{e.practitioner}}</h5>
     <p class="card-text">Tests Registered</p>
-    <a href={% url 'index'  %} class="btn btn-primary">Add Test</a>
+    <button id = "addtestbtn" class="btn btn-primary">Add Test</button>
+    <div id="addtestinput">
+      <select   name="addtest" list= "testlist">
+            {% for t in tests %}
+              <option value="{{t.id}}">{{t.test}}</option>
+            {% endfor %}
+      </select>
+      <a id="addtest" class="btn btn-primary">Add</a>
+    </div>
   </div>
 </div>
 
