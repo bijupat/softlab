@@ -9,7 +9,7 @@
         <div class="input-group flex-nowrap">
             <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
             <input class="form-control" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
-            <input class="btn btn-primary btn-sm" type="submit">
+            <input disabled id = "datesubmit" class="btn btn-primary btn-sm" type="submit">
         </div>
     </form>
     <br>
@@ -39,6 +39,14 @@
     <a href={% url 'PatReg'  %} class="btn btn-primary">Register New Patient</a>
 </div>
     </p>
+<script>
+    // on selecting date the submit button activated from disabled 
+    document.getElementById('date_select').addEventListener('change', function () {
+        //console.log(document.querySelector('#datesubmit'))
+        //alert("datechanged")
+        document.querySelector('#datesubmit').disabled = false;
+    });
+</script>
 {% endblock %}
 
 

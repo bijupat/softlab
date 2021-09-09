@@ -27,6 +27,31 @@ def DeleteTest(request):
         ob.filter(test_id=test).delete()
         return HttpResponse(status=200)
 
+def AddTest(request):
+    if request.method == "POST":
+        
+        eid = request.POST["eidinput"]
+        testid = request.POST["addtest"]
+        ec = Encounter.objects.get(pk=eid)
+        test = ObservationDefinition.objects.get(pk=testid)
+        new_test = Observation(test=test, encounter=ec)
+        new_test.save()
+        #print(eid)
+        #print(testid)
+        return HttpResponseRedirect(reverse("encounter",  args=[eid]))
+
+def AddEditDiscount(request):
+    if request.method == "POST":
+        eid = request.POST["eidinput"]
+        discount = request.POST["addeditdiscountinput"]
+        ec = Encounter.objects.get(pk=eid)
+        invoice = ec.invoice
+        invoice.discount = discount        
+        invoice.save()
+        #print(eid)
+        #print(discount)
+        return HttpResponseRedirect(reverse("encounter",  args=[eid]))
+
 
 def AddPayment(request):
     form = PatientRegistration(request.POST, request.FILES)
@@ -124,10 +149,16 @@ def encounter(request, enc_id):
     p = e.test.all().aggregate(Sum('price'))
     total = p['price__sum']
     invoice = Invoice.objects.get(pk=e.invoice.id)
-    payments = PaymentReconciliation.objects.filter(request=e.invoice)
-    due = invoice.due
+    payments = PaymentReconciliation.objects.filter(request=invoice)
+    paymentset = payments.aggregate(Sum('paymentAmount'))
+    totalpaid = paymentset['paymentAmount__sum']
     discount =  invoice.discount
+    invoice.totalnet = invoice.totalGross - discount
+    invoice.due = invoice.totalnet-totalpaid
+    invoice.save()
+    due = invoice.due
     tests = ObservationDefinition.objects.all()
+    
     #creat set of observationdefination id included in this encounter(allready added tests)
     test_id_set = []
     #add observationdefination id to newly created set

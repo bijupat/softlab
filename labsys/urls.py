@@ -9,4 +9,9 @@ urlpatterns = [
     path('invoice/', views.InvoiceListView.as_view(), name = 'invoice'),
     path('addpayment/', views.AddPayment, name = 'addpayment'),
     path('deletetest/', views.DeleteTest, name = 'deletetest'),
+    path('addtest/', views.AddTest, name = 'addtest'),
+    path('addeditdiscount/', views.AddEditDiscount, name = 'addeditdiscount'),
+
+    
+
 ]

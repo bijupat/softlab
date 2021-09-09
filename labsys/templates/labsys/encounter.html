@@ -16,12 +16,16 @@
     <p class="card-text">Tests Registered</p>
     <button id = "addtestbtn" class="btn btn-primary">Add Test</button>
     <div id="addtestinput">
-      <select   name="addtest" list= "testlist">
-            {% for t in tests %}
-              <option value="{{t.id}}">{{t.test}}</option>
-            {% endfor %}
-      </select>
-      <a id="addtest" class="btn btn-primary">Add</a>
+      <form action="{% url 'addtest' %}" method="post">
+        <input value="{{e.id}}" name="eidinput" style="display: none">
+        {% csrf_token %}
+        <select   name="addtest" list= "testlist">
+              {% for t in tests %}
+                <option value="{{t.id}}">{{t.test}}</option>
+              {% endfor %}
+        </select>
+        <input type= "submit" id="addtest" class="btn btn-primary btn-sm">
+      </form>
     </div>
   </div>
 </div>
@@ -32,7 +36,7 @@
    {% for t in e.test.all %}
   <li class="list-group-item d-flex justify-content-between align-items-center ">
     <span class ="testname">{{t.test}}</span>
-    <span >{{t.id}}</span>
+    <span  style="display: none" >{{t.id}}</span>
     <a class="btn btn-primary deletetest">Delete Test</a>
     <span >{{t.price}}</span>    
   </li>
@@ -49,7 +53,15 @@
     Discount
     <div>
       <a href={% url 'index'  %} class="btn btn-primary" id="addeditdisc">Add/Edit Discount</a>
-    </div>  
+    </div>
+    <div id="addeditdiscout">
+      <form action="{% url 'addeditdiscount' %}" method="post">
+        <input value="{{e.id}}" name="eidinput" style="display: none">
+        {% csrf_token %}
+        <input   name="addeditdiscountinput" id="addeditdiscountinput">
+        <input disabled type= "submit" id="addeditdiscountsubmit" class="btn btn-primary btn-sm">
+      </form> 
+    </div>
     <span> 
         {{ invoice.discount|default:0 }}
     </span>

@@ -1,6 +1,9 @@
 (function(){
     const eid = document.querySelector('#eid').innerHTML;
     document.querySelector('#addtestinput').style.display = "none";
+    document.querySelector('#addeditdiscout').style.display = "none";
+
+    
     //console.log(eid);
     //console.log(document.querySelector('#addpayment'));
     document.querySelector('#addpayment').addEventListener("click", function(event){
@@ -11,10 +14,24 @@
 
 
     document.querySelector('#addeditdisc').addEventListener("click", function(event){
-        event.preventDefault();
-        alert("add edit Discount clicked!");   
+        event.preventDefault(); 
+        //alert("add edit Discount clicked!");
+        //displa input form
+        document.querySelector('#addeditdiscout').style.display = "block";
+        //hide addtest button
+        document.querySelector('#addeditdisc').style.display = "none";
+
+        
+    });
+    //enable add discount submit button when addeditdiscountinput selected
+    document.getElementById('addeditdiscountinput').addEventListener('input', function () {
+        //console.log(document.getElementById('addeditdiscountinput'))
+        //alert("keyup  event detected")
+        document.querySelector('#addeditdiscountsubmit').disabled = false;
     });
 
+
+    //display element for add test when  add test button clicked
     document.querySelector('#addtestbtn').addEventListener("click", function(event){
         event.preventDefault();
         //displa input form
@@ -26,11 +43,10 @@
         //alert("add test clicked!");
     });
 
-   
-
-    document.querySelectorAll('.deletetest').forEach(function(element){
-
-            
+    
+    
+    // on click of delete post fetch done to /deletetest/ route with data as json
+    document.querySelectorAll('.deletetest').forEach(function(element){            
 
             element.addEventListener("click", function(event){
             //to prevent submitting form
