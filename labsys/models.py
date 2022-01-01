@@ -167,7 +167,6 @@ class Practitioner(models.Model):
      #A language which may be used to communicate with the patient about his or her health.
     communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner_period',blank=True, null=True)
-    #communication = communication()
 
     def __str__(self):
         #return self.practitioner_name.all()

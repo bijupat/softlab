@@ -4,7 +4,7 @@
 {% block body %}
  
 
-    <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
+    <form action="{% url 'labsys:index' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="input-group flex-nowrap">
             <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
@@ -17,7 +17,7 @@
     <h5>Patient Listed for  : {{date|default:"Today"}}</h5>
     <div class="list-group">
         {% for e in encounter %}
-            <a href= {% url 'encounter' e.id %} class="list-group-item list-group-item-action" aria-current="true">
+            <a href= {% url 'labsys:encounter' e.id %} class="list-group-item list-group-item-action" aria-current="true">
                 <div class="d-flex w-100 justify-content-between">
                     <h6 class="mb-1">{{e.id}} : {{e.timedate|date}} : {{e.patient}}</h6>
                     <small>{{e.account}}.</small>
@@ -35,8 +35,8 @@
             No Patient Listed!
             {% endfor %}
     </div>
- <div>
-    <a href={% url 'PatReg'  %} class="btn btn-primary">Register New Patient</a>
+ <div>  
+    <a href={% url 'labsys:PatReg'  %} class="btn btn-primary">Register New Patient</a>
 </div>
     </p>
 <script>
