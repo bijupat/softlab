@@ -2,8 +2,8 @@
 {% load static %}
 {% block title %}Index{% endblock %}
 {% block body %}
- 
 
+<div>
     <form action="{% url 'labsys:index' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="input-group flex-nowrap">
@@ -13,30 +13,43 @@
         </div>
     </form>
     <br>
-
-    <h5>Patient Listed for  : {{date|default:"Today"}}</h5>
-    <div class="list-group">
-        {% for e in encounter %}
-            <a href= {% url 'labsys:encounter' e.id %} class="list-group-item list-group-item-action" aria-current="true">
-                <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1">{{e.id}} : {{e.timedate|date}} : {{e.patient}}</h6>
-                    <small>{{e.account}}.</small>
-                    <small>{{e.practitioner}}</small>
-                    <small>
-                        <ol>
-                            {% for t in e.test.all %}
-                            <li>{{t.test}} : {{t.price}}</li>
-                            {% endfor %}
-                        </ol>
-                    </small>
+</div>
+<h5>Patient Listed For  : {{date|default:"Today"}} </h5>
+<br>
+    {% for e in encounter %}
+        <a href= {% url 'labsys:encounter' e.id %}  class="list-group-item list-group-item-action" aria-current="true">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row row-cols-auto">
+                        <div class="col">{{e.timedate|date:"d/m/Y"}} : : {{e.id}}</div>
+                        <div class="col">{{e.patient}}</div>
+                        <div class="col">Mo: {{e.patient.patient_telecom.get.value }}  </div>
+                    </div>
                 </div>
-            </a>
-            {% empty %}
-            No Patient Listed!
-            {% endfor %}
-    </div>
+                <div class="card-body">
+                    <div class="row row-cols-auto">
+                        <div class="col">{{e.account}}</div>
+                        <div class="col">{{e.practitioner|title}}</div>
+                        <div class="col">
+                            <small>
+                                <ol>                              
+                                    {% for t in e.test.all %}
+                                        <li> {{t.test}} : {{t.price}}</li>
+                                    {% endfor %}
+                                </ol>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    {% empty %}
+    No Patient Listed!
+    {% endfor %}
+<br>
+
  <div>  
-    <a href={% url 'labsys:PatReg'  %} class="btn btn-primary">Register New Patient</a>
+    <a href={% url 'labsys:PatReg'  %} class="btn btn-outline-info btn-sm btn-block">Register New Patient</a>
 </div>
     </p>
 <script>
@@ -46,6 +59,7 @@
         //alert("datechanged")
         document.querySelector('#datesubmit').disabled = false;
     });
+
 </script>
 {% endblock %}
 

@@ -29,6 +29,8 @@ def DeleteTest(request):
         ec = Encounter.objects.get(pk=eid)
         ob = Observation.objects.filter(encounter=ec)
         ob.filter(test_id=test).delete()
+        
+    
         return HttpResponse(status=200)
 
 @login_required(login_url='/login/')
@@ -43,7 +45,7 @@ def AddTest(request):
         new_test.save()
         #print(eid)
         #print(testid)
-        return HttpResponseRedirect(reverse("encounter",  args=[eid]))
+        return HttpResponseRedirect(reverse("labsys:encounter",  args=[eid]))
 
 @login_required(login_url='/login/')
 def AddEditDiscount(request):
@@ -56,7 +58,7 @@ def AddEditDiscount(request):
         invoice.save()
         #print(eid)
         #print(discount)
-        return HttpResponseRedirect(reverse("encounter",  args=[eid]))
+        return HttpResponseRedirect(reverse("labsys:encounter",  args=[eid]))
 
 @login_required(login_url='/login/')
 def AddPayment(request):
@@ -70,7 +72,7 @@ def AddPayment(request):
 
     if request.method == 'POST':
 
-        return HttpResponseRedirect(reverse("encounter", args=[5]))
+        return HttpResponseRedirect(reverse("labsys:encounter", args=[5]))
 
 @login_required(login_url='/login/')
 def index(request):
@@ -133,9 +135,9 @@ def pat_register(request):
             #pat_address.use = "home"
             #pat_address.text = form.cleaned_data["Address"]
             #pat_address.save()
-
-            payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
-            payment.save()
+            if paid:
+                payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
+                payment.save()
 
             return HttpResponseRedirect(reverse("labsys:index"))
         else:
@@ -160,10 +162,16 @@ def encounter(request, enc_id):
     paymentset = payments.aggregate(Sum('paymentAmount'))
     totalpaid = paymentset['paymentAmount__sum']
     discount =  invoice.discount
-    invoice.totalnet = invoice.totalGross - discount
-    invoice.due = invoice.totalnet-totalpaid
+    invoice.totalGross = total
+    if discount:
+        invoice.totalnet = invoice.totalGross - discount
+    else:
+        invoice.totalnet = invoice.totalGross
+    if totalpaid:
+        invoice.due = invoice.totalnet-totalpaid
+    else:
+        invoice.due = invoice.totalnet
     invoice.save()
-    due = invoice.due
     tests = ObservationDefinition.objects.all()
     
     #creat set of observationdefination id included in this encounter(allready added tests)

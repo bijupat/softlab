@@ -9,53 +9,51 @@
 
 <div class="card text-left">
   <div class="card-header">
-    <h6> {{e.patient|truncatewords:4|title}} </h6>
+    <h6> {{e.patient}} : : Mo : {{e.patient.patient_telecom.get.value }}</h6>
   </div>
   <div class="card-body">
-    <h5 class="card-title"><span id ="eid">{{e.id}}</span> : {{e.timedate|date}} : {{e.practitioner}}</h5>
-    <p class="card-text">Tests Registered</p>
-    <button id = "addtestbtn" class="btn btn-primary">Add Test</button>
-    <div id="addtestinput">
-      <form action="{% url 'addtest' %}" method="post">
-        <input value="{{e.id}}" name="eidinput" style="display: none">
-        {% csrf_token %}
-        <select   name="addtest" list= "testlist">
-              {% for t in tests %}
-                <option value="{{t.id}}">{{t.test}}</option>
-              {% endfor %}
-        </select>
-        <input type= "submit" id="addtest" class="btn btn-primary btn-sm">
-      </form>
-    </div>
+    <div class="card-title"><span id ="eid">{{e.id}}</span> : {{e.timedate|date}} : {{e.practitioner|title}}</div>
   </div>
 </div>
-
-
-
 <ul class="list-group">
    {% for t in e.test.all %}
-  <li class="list-group-item d-flex justify-content-between align-items-center ">
+  <li class="list-group-item d-flex justify-content-between  ">
     <span class ="testname">{{t.test}}</span>
     <span  style="display: none" >{{t.id}}</span>
-    <a class="btn btn-primary deletetest">Delete Test</a>
+    <a class="btn btn-outline-danger btn-sm deletetest">Delete Test</a>
     <span >{{t.price}}</span>    
   </li>
   {% empty %}
   No Test Listed.
   {% endfor %}
+  <br>
+  <button id = "addtestbtn" class="btn btn-outline-success btn-sm btn-block">Add Test</button>
+  <div id="addtestinput">
+    <form action="{% url 'labsys:addtest' %}" method="post">
+      <input value="{{e.id}}" name="eidinput" style="display: none">
+      {% csrf_token %}
+      <select   name="addtest" list= "testlist">
+            {% for t in tests %}
+              <option value="{{t.id}}">{{t.test}}</option>
+            {% endfor %}
+      </select>
+      <input type= "submit" id="addtest" class="btn btn-outline-success btn-sm">
+    </form>
+  </div>
+  <br>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
     Total
-    <a href={% url 'index'  %} class="btn btn-primary">Print Bill</a>
-    <span>{{total}}</span>
+    <a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm">Print Bill</a>
+    <span id="totalamount">{{total}}</span>
     
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
     Discount
     <div>
-      <a href={% url 'index'  %} class="btn btn-primary" id="addeditdisc">Add/Edit Discount</a>
+      <a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm" id="addeditdisc">Add/Edit Discount</a>
     </div>
     <div id="addeditdiscout">
-      <form action="{% url 'addeditdiscount' %}" method="post">
+      <form action="{% url 'labsys:addeditdiscount' %}" method="post">
         <input value="{{e.id}}" name="eidinput" style="display: none">
         {% csrf_token %}
         <input   name="addeditdiscountinput" id="addeditdiscountinput">
@@ -68,12 +66,11 @@
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
     Paid:
-    <a href={% url 'index'  %} class="btn btn-primary ">Print Receipt</a>
-    <a href={% url 'addpayment' %} class="btn btn-primary" id="addpayment">Add Payment</a>
+    <a href={% url 'labsys:addpayment' %} class="btn btn-outline-primary btn-sm" id="addpayment">Add Payment</a>
     <span>
       {% for payment in payments %}
-        <ul>
-          <li> {{payment.paymentAmount}}</li>
+        <ul>  
+          <li><a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm">Print Recpt</a> : {{payment.paymentAmount}}</li>
         </ul>
       {% empty %}
         No Payment Received.
@@ -83,14 +80,19 @@
   
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-danger">
     Due &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href={% url 'index'  %} class="btn btn-primary">Send Reminder</a>
-    <span>{{ invoice.due|default:0 }}</span>
+    <a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm">Send Reminder</a>
+    <span id = "due">{{ invoice.due|default:0 }}</span>
   </li>
 </ul>
 <br>
 
 <div>
-    <a href={% url 'index'  %} class="btn btn-primary">Go to Today</a>
-    <a href={% url 'PatReg'  %} class="btn btn-primary">Register New Patient</a>
+    <a href={% url 'labsys:index'  %} class="btn btn-outline-info btn-sm btn-block">Go to Today</a>
+    <br>
+    <form action="{% url 'labsys:index' %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+          <input type = "hidden" value = "{{e.timedate|date:"Y-m-d"}}" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
+          <input  id = "datesubmit" class="btn btn-outline-info btn-sm btn-block" type="submit" value = "Back">
+  </form>
 </div>
 {% endblock %}

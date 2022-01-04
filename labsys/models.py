@@ -2,6 +2,7 @@ from django.db import models
 #from django.db.models.base import Model
 #from django.db.models.enums import Choices
 from django.contrib.auth.models import AbstractUser
+from datetime import date
 #from django.db.models.fields.related import OneToOneField
 
 
@@ -171,7 +172,7 @@ class Practitioner(models.Model):
     def __str__(self):
         #return self.practitioner_name.all()
         if self.practitioner_name:
-            return 'Ref By : {} {}'.format(self.practitioner_name.get().text, self.practitioner_name.get().family)
+            return 'Ref By : Dr {} {}'.format(self.practitioner_name.get().text, self.practitioner_name.get().family)
         else :
             return f'Practitioner id {self.id}'
 
@@ -210,13 +211,20 @@ class Patient(models.Model):
     #A language which may be used to communicate with the patient about his or her health.
     communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patient_period',blank=True, null=True)
+    DisplayFields = ['id', 'active', 'gender', 'age ']
 
     class Meta:
         ordering = ["id"]
+    
+    @property
+    def age(self):
+        if self.birthDate:
+            age = date.today().year - self.birthDate.year
+            return age
 
     def __str__(self):
         if self.patient_name:
-            return 'Patient : {} {} (id : {})'.format(self.patient_name.get().text, self.patient_name.get().family, self.id )
+            return '{} {} (ID : {}) : {} Yrs/{}'.format(self.patient_name.get().text, self.patient_name.get().family, self.id, self.age, self.gender )
         else :
             return f'Patient id : {self.id}'
 
@@ -421,7 +429,7 @@ class Encounter(models.Model):
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     
     class Meta:
-        ordering = ["-timedate"]
+        ordering = ["timedate"]
     
     def __str__(self):
             return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.patient_name.get().text, self.timedate)
