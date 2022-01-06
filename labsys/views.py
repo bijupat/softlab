@@ -181,6 +181,10 @@ def encounter(request, enc_id):
         test_id_set.append(t.id)
     #creating observationdefination object queryset excluding those in set
     tests = ObservationDefinition.objects.exclude(id__in=test_id_set)
+    observations = Observation.objects.filter(encounter=enc_id)
+    for ob in observations:
+        print (ob)
+
 
     return render(request, 'labsys\encounter.html', {"e" : e, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
 

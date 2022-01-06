@@ -136,7 +136,24 @@ ObservationDefinition_category =(
     ("T", "therapy"),
     ("A", "activity"),
 )
-
+# registered | preliminary | final | amended
+Observation_status= (
+    ("R", "registered"),
+    ("P", "preliminary"),
+    ("F", "final"),
+    ("A", "amended"),
+)
+"""
+ObservtionDefination.qualifiedinterval.category
+reference	reference range	Reference (Normal) Range for Ordinal and Continuous Observations.
+critical	critical range	Critical Range for Ordinal and Continuous Observations.
+absolute	absolute range	Absolute Range for Ordinal and Continuous Observations. Results outside this range are not possible.
+"""
+qualifiedInterval_category= (
+    ("R", "reference"),
+    ("C", "critical"),
+    ("A", "absolute"),
+)
 class User(AbstractUser) :
     pass
 
@@ -363,6 +380,8 @@ class ObservationDefinition(models.Model):
     outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='observationdefination_organization', blank=True, null=True)
     unit = models.CharField(max_length=75, blank=True, null=True)
     loinc_code = models.CharField(max_length=75, blank=True, null=True)
+    #The low and high values determining the interval. There may be only one of the two
+    qualifiedInterval_range = models.JSONField(blank=True, null=True)
     # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
     category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
 
@@ -376,10 +395,17 @@ class ObservationDefinition(models.Model):
 class QualifiedInterval(models.Model):
     high = models.CharField(max_length=75, blank=True, null=True)
     low = models.CharField(max_length=75, blank=True, null=True)
+    # category can be reference | critical | absolute
+    category = models.CharField(max_length=10, choices=qualifiedInterval_category)
     age_high = models.PositiveIntegerField(blank=True)
     age_low = models.PositiveIntegerField(blank=True)
+    gender = models.CharField(max_length=20, choices=gender,blank=True, null=True)
     observationdefinition = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='qualifiedinterval_observationdefination', blank=True, null=True)
-    
+    gestationalAge = models.CharField(max_length=50, blank=True, null=True)
+    #Text based condition for which the reference range is valid.
+    condition = models.CharField(max_length=75, blank=True, null=True)
+   
+
     def __str__(self):
             return 'pending'
 
@@ -437,7 +463,7 @@ class Encounter(models.Model):
 class Observation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | preliminary | final | amended +
-    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered',  choices= Observation_status)
     entered_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_entered_by', blank=True, null=True)
     verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
     #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
@@ -446,6 +472,12 @@ class Observation(models.Model):
     value = models.CharField(max_length=200, blank=True, null=True)
     interpretation = models.CharField(max_length=200, blank=True, null=True)
     encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
+    # add Ref high and low value based on patient age and sex from observationdefination qualified interval
+    # this will not change even if we change it in observationdefination qualifed interval so it will not take retrospective effect
+    high = models.CharField(max_length=75, blank=True, null=True)
+    low = models.CharField(max_length=75, blank=True, null=True)
+    # add price from observationdefination based on price, we can edit it later, also price changed in observationdefination will not take retrospective effect
+    price = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ["-timedate"]
