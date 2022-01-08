@@ -15,7 +15,7 @@ admin.site.register(Encounter)
 admin.site.register(Observation)
 admin.site.register(User)
 admin.site.register(Pricelist)
-admin.site.register(Sampletype)
+admin.site.register(Specimen)
 admin.site.register(ObservationDefinition)
 admin.site.register(TestCategory)
 admin.site.register(QualifiedInterval)
@@ -23,6 +23,10 @@ admin.site.register(DiagnosticReport)
 admin.site.register(Organization)
 admin.site.register(Invoice)
 admin.site.register(PaymentReconciliation)
+admin.site.register(ChargeItemDefinition)
+admin.site.register(ChargeItem)
+admin.site.register(Device)
+
 
 
 

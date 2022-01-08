@@ -2,13 +2,76 @@
 {% load static %}
 <!--{% load crispy_forms_tags %} -->
 {% block title %}Index{% endblock %}
+
 {% block body %}
     <form action="{% url 'labsys:PatReg' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="mb-3 row">
-            {{ form.as_p}}
-            <br>
-            <input class="btn btn-primary btn-sm" type="submit">
+        
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                {{form.f_name}}
+            </div>
+            <div class="form-group col-md-4">
+                {{form.m_name}}
+            </div>
+            <div class="form-group col-md-4">
+            {{form.l_name}}
+            </div>
         </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                {{form.gender.label}}
+                {{form.gender}}
+            </div>
+            <div class="form-group col-md-4">
+                {{form.birth_date.label}}
+                {{form.birth_date}}
+            </div>
+            <div class="form-group col-md-4">
+                {{form.mobile}}
+                <span style="color:red;">{{ form.mobile.errors }}</span>
+            </div>
+        </div> 
+
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                {{form.practitioner.label}}
+                {{form.practitioner}}
+            </div>
+            <div class="form-group col-md-4">
+                {{form.account.label}}
+                {{form.account}}
+            </div>
+            <div class="form-group col-md-4">
+                {{form.email}}
+                <span style="color:red;">{{ form.email.errors }}</span>
+
+            </div>
+        </div>
+
+
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                {{form.test.label}}
+                {{form.test}}
+            </div>
+            <div class="form-group col-md-4">
+                {{form.discount}}
+                <span style="color:red;">{{ form.discount.errors }}</span>
+            </div>
+            <div class="form-group col-md-3">
+                {{form.paid}}
+                <span style="color:red;">{{ form.paid.errors }}</span>
+            </div>
+        </div>
+
+        <div class="form-group col-md-5">
+            {{form.photo.label}}
+            {{form.photo}}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
+          
     </form>
 {% endblock %}

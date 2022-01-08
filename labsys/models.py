@@ -348,7 +348,8 @@ class Pricelist(models.Model):
     def __str__(self):
             return 'Pricelist : {}'.format(self.pricelist)
 
-class Sampletype(models.Model):
+
+class Specimen(models.Model):
     sampletype = models.CharField(max_length=75, blank=True, null=True)
     #test = models.ManyToManyField(ObservationDefination, related_name='sampletype_test')
 
@@ -371,10 +372,11 @@ class ObservationDefinition(models.Model):
     test = models.CharField(max_length=75, blank=True, null=True)
     # general name usded in routine practice
     alias = models.CharField(max_length=75, blank=True, null=True)
+    # this needed to be deleted when value in chargeitemdefination is implemented
     price = models.PositiveIntegerField(blank=True, null=True)
-    #sample_type = models.ManyToManyField(Sampletype,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
+    #sample_type = models.ManyToManyField(Specimen,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
     pricelist_included = models.ManyToManyField(Pricelist, related_name='observationdefination_pricelist', blank=True)
-    sampletype = models.ForeignKey(Sampletype, on_delete=models.PROTECT, related_name='observationdefination_sampletype', blank=True, null=True)
+    sampletype = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='observationdefination_sampletype', blank=True, null=True)
     method = models.CharField(max_length=75, blank=True, null=True)
     category = models.ForeignKey(TestCategory, on_delete=models.PROTECT, related_name='observationdefination_testcategory', blank=True, null=True)
     outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='observationdefination_organization', blank=True, null=True)
@@ -476,8 +478,7 @@ class Observation(models.Model):
     # this will not change even if we change it in observationdefination qualifed interval so it will not take retrospective effect
     high = models.CharField(max_length=75, blank=True, null=True)
     low = models.CharField(max_length=75, blank=True, null=True)
-    # add price from observationdefination based on price, we can edit it later, also price changed in observationdefination will not take retrospective effect
-    price = models.PositiveIntegerField(blank=True, null=True)
+
 
     class Meta:
         ordering = ["-timedate"]
@@ -487,10 +488,36 @@ class Observation(models.Model):
             return 'Observation : {} for Patient : {} for test {} on Encounter id : {}'.format(self.id, self.encounter.patient.patient_name.get().text, self.test.test, self.encounter.id)
         else:
             return 'You need to enter observation using Encounter model'
-    
-class DiagnosticReport (models.Model):
+
+class Media(models.Model):
     pass
 
+class DiagnosticReport (models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # registered | partial | preliminary | final +
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    # https://www.hl7.org/fhir/valueset-diagnostic-service-sections.html
+    category = models.CharField(max_length=75, blank=True, null=True)
+    #Name/Code for this diagnostic report
+    code = models.CharField(max_length=75, blank=True, null=True)
+    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='diagnositcreport_patient', null=True, blank=True)
+    encounter = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='diagnositcreport_encounter', null=True, blank=True)
+    effectiveDateTime = models.DateTimeField(blank=True, null=True)
+    # person Responsible Diagnostic Service equivalent to ENTERED by in pplus
+    performer = models.ForeignKey(User, on_delete=models.PROTECT, related_name='diagnositcreport_performer', blank=True, null=True)
+    # person Responsible Diagnostic Service equivalent to verified by in pplus
+    resultsInterpreter = models.ForeignKey(User, on_delete=models.PROTECT, related_name='diagnositcreport_resultinterpreter', blank=True, null=True)
+    # Specimens this report is based on
+    specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='diagnositcreport_specimen', blank=True, null=True)
+    result = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='diagnositcreport_observation', blank=True, null=True)
+    media_link = models.ForeignKey(Media, on_delete=models.PROTECT, related_name='diagnositcreport_media', blank=True, null=True)
+    conclusion = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    # Entire report as issued Rich text representation of the entire result as issued by the diagnostic service 
+    # can be equivalent to layout in pplus
+    presentedForm = models.CharField(max_length=1000, blank=True, null=True)
+
+    def __str__(self):
+        return f' Payment id {self.code}'
 
 class PaymentReconciliation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -499,9 +526,9 @@ class PaymentReconciliation(models.Model):
     # Creation date The date when the resource was created.
     created = models.DateTimeField(auto_now_add=True)
     # Need to identify the party resonsible for the payment and this resource.
-    payment_issuer = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='paymentreconciliation_issuer', blank=True, null=True)
+    payment_issuer = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='paymentreconciliation_orgnanization', blank=True, null=True)
     # Reference to requesting resource (Invoice)
-    request = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='paymentreconciliation_issuer', blank=True, null=True)
+    request = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='paymentreconciliation_invoice', blank=True, null=True)
     #payment received by user
     received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='payment_received_by', blank=True, null=True)
     # When payment issued
@@ -523,3 +550,69 @@ class PaymentReconciliation(models.Model):
     def __str__(self):
         return f' Payment id {self.id}'
 
+#The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices
+class ChargeItemDefinition(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # Name for this charge item definition (human friendly)
+    title = models.CharField(max_length=75, blank=True, null=True)
+    # general name usded in routine practice
+    alias = models.CharField(max_length=75, blank=True, null=True)
+    # Creation date The date when the resource was created.
+    created = models.DateTimeField(auto_now_add=True)
+    #A larger definition of which this particular definition is a component or step
+    partOf = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True,  related_name='ChargeItem_partof')
+    #Completed or terminated request(s) whose function is taken by this new request
+    replaces = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True,  related_name='ChargeItem_relaces')
+    # draft | active | retired | unknown
+    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    # For testing purposes, not real usage
+    experimental = models.BooleanField(blank=True, null=True, default=False)
+    #Date last changed
+    date = models.DateTimeField(blank=True, null=True)
+    approvalDate = models.DateTimeField(blank=True, null=True)
+    lastReviewDate = models.DateTimeField(blank=True, null=True)
+    effectivePeriod = models.ForeignKey(Period,blank=True, null=True, related_name='chargeitemdefination_period', on_delete=models.PROTECT)
+    #Monetary amount associated with this
+    value = models.PositiveIntegerField(blank=True, null=True)
+    def __str__(self):
+        return f' Test : {self.title} '
+
+
+class Device(models.Model):
+    pass
+
+    def __str__(self):
+        return f' Test : '
+
+
+class ChargeItem(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # Resource defining the code of this ChargeItem
+    definitionCanonical = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, null=True, blank=True)
+    # planned | billable | not-billable | aborted | billed | entered-in-error | unknown
+    status = models.CharField(max_length=75, blank=True, null=True, default='billed')
+    #Part of referenced ChargeItem
+    partOf = models.ForeignKey("self", on_delete=models.CASCADE, related_name='chargeitem_partof', null=True, blank=True)
+    # Individual service was done for/to
+    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='chargeitem_patient', null=True, blank=True)
+    # Encounter / Episode associated with event
+    context = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='chargeitem_encounter', null=True, blank=True)
+    # When the charged service was applied
+    occurrenceDateTime = models.DateTimeField(auto_now_add=True)
+    # Price overriding the associated rules
+    priceOverride = models.PositiveIntegerField(blank=True, null=True)
+    # Reason for overriding the list price/factor
+    overrideReason = models.CharField(max_length=200, blank=True, null=True)
+    # Individual who was entering
+    enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
+    # Which rendered service is being charged?
+    service = models.ForeignKey(DiagnosticReport, on_delete=models.CASCADE, related_name='chargeitem_diagnosticreport', null=True, blank=True)
+    # Product/equipment charged or used
+    product = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='chargeitem_device', null=True, blank=True)
+    # Account to place this charge
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='ChargeItem_account', blank=True, null=True)
+    note = models.CharField(max_length=200, blank=True, null=True)
+
+
+    def __str__(self):
+        return f' Test : {self.definitionCanonical} '
