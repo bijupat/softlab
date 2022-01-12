@@ -200,6 +200,7 @@ class Contact(models.Model):
     # A name associated with the contact person
     gender = models.CharField(max_length=20, blank=True, null=True, choices=gender)
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
+
     def __str__(self):
         if self.contact_name.get():
             return 'Contact id-{}: Relationship {} between {}(Contact) and {}(Patient)'.format(self.id, self.get_relationship_display(), self.contact_name.get().text, self.patient_contact.get().patient_name.get().text)
@@ -232,7 +233,7 @@ class Patient(models.Model):
 
     class Meta:
         ordering = ["id"]
-    
+    # implenting age field to be calculated from birth date
     @property
     def age(self):
         if self.birthDate:
@@ -245,7 +246,23 @@ class Patient(models.Model):
         else :
             return f'Patient id : {self.id}'
 
- 
+class Organization (models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # Whether the organization's record is still in active use
+    active = models.BooleanField(blank=True, null=True, default=True)
+    #Name used for the organization
+    name = models.CharField(max_length=75, blank=True, null=True)
+    # A list of alternate names that the organization is known as, or was known as in the past
+    alias = models.CharField(max_length=75, blank=True, null=True)
+    # Contact for the organization for a certain purpose 
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='organization_contact',blank=True, null=True)
+
+
+    def __str__(self):
+            return 'Organizasion  : {}'.format(self.name)
+
+
+
 
 class Telecom(models.Model):
     # phone | fax | email | pager | url | sms | other
@@ -259,6 +276,7 @@ class Telecom(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_telecom', blank=True, null=True)
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_telecom', blank=True, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='contact_telecom',blank=True, null=True)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='organization_telecom',blank=True, null=True)
 
     def __str__(self):
         if self.patient:
@@ -267,6 +285,8 @@ class Telecom(models.Model):
             return 'Practitioner {} {} has {} ({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
         if self.contact:
             return 'Practitioner {} {} has {} ({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
+        if self.organization:
+            return 'Organization {} has {} ({}) : {}'.format(self.organization.name, self.get_system_display(), self.get_use_display(), self.value)
 
 class Name(models.Model):
     # // usual | official | temp | nickname | anonymous | old | maiden
@@ -311,6 +331,8 @@ class Address(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='patient_address', blank=True, null=True)
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='practitioner_address', blank=True, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='contact_address',blank=True, null=True)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='contact_address',blank=True, null=True)
+
     # Time period when name was/is in use
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
     def __str__(self):
@@ -320,6 +342,8 @@ class Address(models.Model):
             return 'address for : {} {}(Practitioner) at({}) : {}'.format(self.practitioner.practitioner_name.get().text, self.practitioner.practitioner_name.get().family, self.get_use_display(), self.text)
         if self.contact:
             return 'address for : {} {} (Contact) at({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family, self.get_use_display(), self.text)
+        if self.organization:
+            return 'address for : {} (organization) at({}) : {}'.format(self.organization.name, self.get_use_display(), self.text)
         else:
             return 'Some error'
 
@@ -334,7 +358,12 @@ class Account (models.Model):
     #// Human-readable label
     name = models.CharField(max_length=75, blank=True, null=True)
     #Explanation of purpose/use
-    description = models.CharField(max_length=75, blank=True, null=True)    
+    description = models.CharField(max_length=75, blank=True, null=True)   
+    # true if particular account is default
+    is_default = models.BooleanField(default=False)
+    is_periodic = models.BooleanField(default=False)
+    # contact
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='account_contact',blank=True, null=True)
 
     def __str__(self):
             return 'Account  : {}'.format(self.name)
@@ -362,8 +391,16 @@ class TestCategory(models.Model):
     def __str__(self):
             return 'Category : {}'.format(self.category)
 
-class Organization (models.Model):
+  
+
+    
+# Master list of depatement like biochem, hemat, histo  
+
+class Department(models.Model):
     pass
+
+
+    
 
 
 #master list of observations(Testlist)
@@ -372,26 +409,42 @@ class ObservationDefinition(models.Model):
     test = models.CharField(max_length=75, blank=True, null=True)
     # general name usded in routine practice
     alias = models.CharField(max_length=75, blank=True, null=True)
-    # this needed to be deleted when value in chargeitemdefination is implemented
-    price = models.PositiveIntegerField(blank=True, null=True)
-    #sample_type = models.ManyToManyField(Specimen,on_delete=models.PROTECT, related_name='test_sampletype', blank=True, null=True)
-    pricelist_included = models.ManyToManyField(Pricelist, related_name='observationdefination_pricelist', blank=True)
-    sampletype = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='observationdefination_sampletype', blank=True, null=True)
+    # name used in SMS field
+    alias_sms = models.CharField(max_length=20, blank=True, null=True)  
     method = models.CharField(max_length=75, blank=True, null=True)
-    category = models.ForeignKey(TestCategory, on_delete=models.PROTECT, related_name='observationdefination_testcategory', blank=True, null=True)
-    outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='observationdefination_organization', blank=True, null=True)
+    category = models.ForeignKey(TestCategory, on_delete=models.PROTECT, related_name='observationdef_testcategory', blank=True, null=True)
     unit = models.CharField(max_length=75, blank=True, null=True)
+    # option fields in observation defination, implemented as set or other method-- all options in one field
+    options = models.CharField(max_length=5000, blank=True, null=True)
     loinc_code = models.CharField(max_length=75, blank=True, null=True)
     #The low and high values determining the interval. There may be only one of the two
     qualifiedInterval_range = models.JSONField(blank=True, null=True)
     # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
     category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
+    # Specimen Required for this chargeitem/test/report
+    specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='observationdef_specimen', blank=True, null=True)
+    # note specific to the observation
+    note = models.CharField(max_length=1000, blank=True, null=True)
+    # which department in lab as per department define in model ie biochem, histo etc
+    dept = models.ForeignKey(Department,  on_delete=models.PROTECT, related_name='observationdef_department', blank=True, null=True)
+    # TAT for the field
+    tat = models.SmallIntegerField(blank=True, null=True)
+    is_calculated = models.BooleanField(blank=True, null=True, default=False)
+    # formula if calculated test
+    formula = models.CharField(db_column='Formula', max_length=200, blank=True, null=True)
+    # Validation Rule 
+    vrule = models.CharField(db_column='VRule', max_length=200, blank=True, null=True)
+    # Validation message if not validated
+    vmsg = models.CharField(db_column='VMsg', max_length=30, blank=True, null=True)
+    # Validation if must ?.
+    vrulemust = models.BooleanField(blank=True, null=True,default=True)
+
 
     class Meta:
         ordering = ["test"]
 
     def __str__(self):
-            return 'Test : {}  price : {}'.format(self.test, self.price)
+            return 'Test : {} '.format(self.test)
 
 # Referance range for testlist(observationdefination)
 class QualifiedInterval(models.Model):
@@ -455,7 +508,10 @@ class Encounter(models.Model):
     timedate = models.DateTimeField(auto_now_add=True)
     #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    
+    # if urgent  reporting required 
+    urgent=  models.BooleanField(default=False)  # Field name made lowercase.
+
+
     class Meta:
         ordering = ["timedate"]
     
@@ -464,20 +520,46 @@ class Encounter(models.Model):
 
 class Observation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
-    # registered | preliminary | final | amended +
+    # registered | preliminary | final | amended + |informed | delivered
     status = models.CharField(max_length=75, blank=True, null=True, default='registered',  choices= Observation_status)
-    entered_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_entered_by', blank=True, null=True)
-    verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_verfied_by', blank=True, null=True)
+    # change staus to preliminary if report entered by operator(entered in pplus)
+    prelimnary_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_prelimnary_by', blank=True, null=True)
+    # changes to final if reported  is verified by pathologist(verified in pplus)
+    final_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_final_by', blank=True, null=True)
+    # changes to informed if reported  is informed by user
+    informed_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_informed_by', blank=True, null=True)
+    # changes to dlivered if delivered
+    delivered_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_delivered_by', blank=True, null=True)
+    # changes to amended if amended
+    amended_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_amended_by', blank=True, null=True)
     #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
+    # timedate when registed
     timedate = models.DateTimeField(auto_now_add=True)
+    # timedate when prelimnary report added
+    prelimnary_timedate = models.DateTimeField(blank=True, null=True)
+    # timedate when final report added
+    final_timedate = models.DateTimeField(blank=True, null=True)
+    # timedate when amedded report added
+    amended_timedate = models.DateTimeField(blank=True, null=True)
+    # timedate when informed report
+    informed_timedate = models.DateTimeField(blank=True, null=True)
+    # timedate when delivered report 
+    delivered_timedate = models.DateTimeField(blank=True, null=True)
     test = models.ForeignKey(ObservationDefinition, related_name='observation_observationdefination', on_delete=models.PROTECT, blank=True, null=True)
-    value = models.CharField(max_length=200, blank=True, null=True)
+    # result of the test 
+    value = models.CharField(max_length=500, blank=True, null=True)
+    # copied from observationdefination.unit but open for change if desired
+    unit = models.CharField(max_length=75, blank=True, null=True)
+    # to be added to print format if desired
     interpretation = models.CharField(max_length=200, blank=True, null=True)
     encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation_encounter', blank=True, null=True)
     # add Ref high and low value based on patient age and sex from observationdefination qualified interval
     # this will not change even if we change it in observationdefination qualifed interval so it will not take retrospective effect
     high = models.CharField(max_length=75, blank=True, null=True)
     low = models.CharField(max_length=75, blank=True, null=True)
+    # copied from observation defination note  but open to be edited if desired    
+    note = models.CharField(max_length=1000, blank=True, null=True)
+
 
 
     class Meta:
@@ -492,6 +574,7 @@ class Observation(models.Model):
 class Media(models.Model):
     pass
 
+"""
 class DiagnosticReport (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | partial | preliminary | final +
@@ -513,11 +596,14 @@ class DiagnosticReport (models.Model):
     media_link = models.ForeignKey(Media, on_delete=models.PROTECT, related_name='diagnositcreport_media', blank=True, null=True)
     conclusion = models.CharField(max_length=75, blank=True, null=True, default='registered')
     # Entire report as issued Rich text representation of the entire result as issued by the diagnostic service 
-    # can be equivalent to layout in pplus
+    # can be equivalent to layout in pplus rtf data
     presentedForm = models.CharField(max_length=1000, blank=True, null=True)
+
 
     def __str__(self):
         return f' Payment id {self.code}'
+"""
+
 
 class PaymentReconciliation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -550,6 +636,13 @@ class PaymentReconciliation(models.Model):
     def __str__(self):
         return f' Payment id {self.id}'
 
+
+class Device(models.Model):
+    pass
+
+    def __str__(self):
+        return f' Test : '
+
 #The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices
 class ChargeItemDefinition(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -567,22 +660,37 @@ class ChargeItemDefinition(models.Model):
     status = models.CharField(max_length=75, blank=True, null=True, default='registered')
     # For testing purposes, not real usage
     experimental = models.BooleanField(blank=True, null=True, default=False)
+    # is it individula test or profiel ?
+    is_profile = models.BooleanField(blank=True, null=True, default=False)
+    # observations(test) included in this charge item
+    observations_included = models.ManyToManyField(ObservationDefinition, blank=True,  related_name='chargeitemdef_observations' )
+    # heading to the report print like Hemogram / Liver function test implemented to whole  report
+    heading = models.CharField(max_length=75, blank=True, null=True)
     #Date last changed
     date = models.DateTimeField(blank=True, null=True)
     approvalDate = models.DateTimeField(blank=True, null=True)
     lastReviewDate = models.DateTimeField(blank=True, null=True)
-    effectivePeriod = models.ForeignKey(Period,blank=True, null=True, related_name='chargeitemdefination_period', on_delete=models.PROTECT)
+    effectivePeriod = models.ForeignKey(Period,blank=True, null=True, related_name='chargeitemdef_period', on_delete=models.PROTECT)
     #Monetary amount associated with this
     value = models.PositiveIntegerField(blank=True, null=True)
+    specimen = models.ManyToManyField(Specimen, related_name='chargeitemdef_specimen', blank=True)
+    # if test is outsourced 
+    outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='chargeitemdef_organization', blank=True, null=True)
+    # use to filter price list in views.py for observations
+    pricelist_included = models.ManyToManyField(Pricelist, related_name='chargeitemdef_pricelist', blank=True)
+    # Note for specific  test like double marker applies to whole report
+    Note = models.CharField(max_length=75,blank=True, null=True)
+    # Product/equipment charged or used
+    product = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='chargeitem_device', null=True, blank=True)
+    # ordering of obseration if more than one observatin involved
+    orderBy= models.SmallIntegerField(blank=True, null=True)  
+
+
     def __str__(self):
-        return f' Test : {self.title} '
+        return f'Test : {self.title} Rs  : {self.value}'  
 
 
-class Device(models.Model):
-    pass
 
-    def __str__(self):
-        return f' Test : '
 
 
 class ChargeItem(models.Model):
@@ -599,20 +707,20 @@ class ChargeItem(models.Model):
     context = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='chargeitem_encounter', null=True, blank=True)
     # When the charged service was applied
     occurrenceDateTime = models.DateTimeField(auto_now_add=True)
-    # Price overriding the associated rules
+    # Price overriding first time as default from chargeitemdefination.value
     priceOverride = models.PositiveIntegerField(blank=True, null=True)
-    # Reason for overriding the list price/factor
+    # Reason for overriding if done aftert first entry the list price/factor
     overrideReason = models.CharField(max_length=200, blank=True, null=True)
     # Individual who was entering
     enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
     # Which rendered service is being charged?
-    service = models.ForeignKey(DiagnosticReport, on_delete=models.CASCADE, related_name='chargeitem_diagnosticreport', null=True, blank=True)
-    # Product/equipment charged or used
-    product = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='chargeitem_device', null=True, blank=True)
+    #service = models.ForeignKey(DiagnosticReport, on_delete=models.CASCADE, related_name='chargeitem_diagnosticreport', null=True, blank=True)
+    
     # Account to place this charge
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='ChargeItem_account', blank=True, null=True)
-    note = models.CharField(max_length=200, blank=True, null=True)
+    # copies  from charge item defination but open for edit if desired
+    note = models.CharField(max_length=1000, blank=True, null=True)
 
 
     def __str__(self):
-        return f' Test : {self.definitionCanonical} '
+        return f'Test : {self.definitionCanonical}'
