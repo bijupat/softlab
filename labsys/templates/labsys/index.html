@@ -27,7 +27,7 @@
                         <div class="col">{{e.timedate|date:"d/m/Y"}} : : {{e.id}}</div>
                         <div class="col">{{e.patient}}</div>
                         <div class="col">
-                            {% for tele in e.patient.patient_telecom.all %}
+                            {% for tele in e.patient.telecom.all %}
                                 {% if tele.use == "mobile" %}
                                     {{tele.use|title}}: {{tele.value}}
                                 {% endif %}
@@ -42,8 +42,8 @@
                         <div class="col">
                             <small>
                                 <ol>                              
-                                    {% for t in e.test.all %}
-                                        <li> {{t.test}} : {{t.price}}</li>
+                                    {% for t in e.chargeitem.all %}
+                                        <li> {{t.definitionCanonical.title}} : {{t.priceOverride}}</li>
                                     {% endfor %}
                                 </ol>
                             </small>

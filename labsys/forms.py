@@ -1,5 +1,5 @@
 from django import forms
-from .models import Account, Practitioner, gender, ObservationDefinition
+from .models import Account, ChargeItemDefinition, Practitioner, gender, ObservationDefinition
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -39,7 +39,7 @@ class PatientRegistration(forms.Form):
     email = forms.EmailField(label="E Mail", required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E Mail',}))
     photo = forms.ImageField(label='Add Image ', required=False,  widget=forms.FileInput(attrs={'class': 'form-control', 'placeholder': 'Photo',}))
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control'}) )  
-    test = forms.ModelMultipleChoiceField(queryset=ObservationDefinition.objects.all(), label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
     account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control'}))
     discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount',}))
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid',}))

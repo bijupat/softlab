@@ -1,4 +1,5 @@
 #from labsys.models import Patient
+from multiprocessing import context
 from django.shortcuts import render, HttpResponse
 from .models import *
 from django.utils.timezone import datetime 
@@ -117,11 +118,11 @@ def pat_register(request):
             enc.save()
             # populate enc instance with queryset test/form.cleaned_data['test'] will return queryset as it is foreingkey(many to one)
             enc.test.set(form.cleaned_data["test"])
-            p = enc.test.all().aggregate(Sum('price'))
+            p = enc.test.all().aggregate(Sum('value'))
             paid = form.cleaned_data["paid"]
             #populate payment data in invoice object
             inv.discount = form.cleaned_data["discount"]
-            inv.totalGross = p['price__sum']
+            inv.totalGross = p['value__sum']
             if not inv.discount:
                 inv.discount = 0
             if not paid:
@@ -129,7 +130,18 @@ def pat_register(request):
             inv.totalnet = inv.totalGross - inv.discount
             inv.due = inv.totalnet-paid
             inv.save()
-       
+
+            # next 8 lines implemented for adding priceovcerided field in chage item by default from charge item defination
+            price = []
+            for p in enc.test.all():
+                price.append(p.value)
+            test = ChargeItem.objects.filter(context=enc)
+            for t in test:
+                p = price.pop(0)
+                t.priceOverride = p
+                t.save()
+            
+            
             
             #pat_address = Address()
             #pat_address.use = "home"
