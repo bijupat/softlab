@@ -20,7 +20,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'x^i@_1k%3diiv7janylvo$g1gq9ub4ihz#%px+rietrywxx+9p'
+
+with open(os.path.join(BASE_DIR,'secret_key.txt')) as f:
+    SECRET_KEY = f.read().strip()
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -93,12 +97,15 @@ DATABASES = {
 #Substituting a custom database
 
 
+with open(os.path.join(BASE_DIR,'pgdb_password.txt')) as f:
+    PGDBPASSWORD = f.read().strip()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'labsys',
         'USER': 'postgres',
-        'PASSWORD': 'uBp@03071976',
+        'PASSWORD': PGDBPASSWORD,
         'HOST': 'localhost',
         'PORT': '',
     }
