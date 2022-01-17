@@ -430,11 +430,11 @@ class ObservationDefinition(models.Model):
     tat = models.SmallIntegerField(blank=True, null=True)
     is_calculated = models.BooleanField(blank=True, null=True, default=False)
     # formula if calculated test
-    formula = models.CharField(db_column='Formula', max_length=200, blank=True, null=True)
+    formula = models.CharField(max_length=200, blank=True, null=True)
     # Validation Rule 
-    vrule = models.CharField(db_column='VRule', max_length=200, blank=True, null=True)
+    vrule = models.CharField(max_length=200, blank=True, null=True)
     # Validation message if not validated
-    vmsg = models.CharField(db_column='VMsg', max_length=30, blank=True, null=True)
+    vmsg = models.CharField(max_length=30, blank=True, null=True)
     # Validation if must ?.
     vrulemust = models.BooleanField(blank=True, null=True,default=True)
 
@@ -700,7 +700,7 @@ class PaymentReconciliation(models.Model):
 class ChargeItem(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # Resource defining the code of this ChargeItem
-    definitionCanonical = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, null=True, blank=True)
+    definitionCanonical = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, null=True, blank=True, related_name='chargeitem')
     # planned | billable | not-billable | aborted | billed | entered-in-error | unknown
     status = models.CharField(max_length=75, blank=True, null=True, default='billed')
     #Part of referenced ChargeItem

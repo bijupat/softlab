@@ -24,12 +24,13 @@ class InvoiceListView(ListView):
 @login_required(login_url='/login/')
 def DeleteTest(request):
     if request.method == "POST":
+
         eid = json.loads(request.body.decode('utf-8'))["eid"]
         test = json.loads(request.body.decode('utf-8'))["test"]
 
         ec = Encounter.objects.get(pk=eid)
-        ob = Observation.objects.filter(encounter=ec)
-        ob.filter(test_id=test).delete()
+        chargeItem = ChargeItem.objects.filter(context=ec)
+        chargeItem.filter(id=test).delete()
         
     
         return HttpResponse(status=200)
@@ -38,11 +39,17 @@ def DeleteTest(request):
 def AddTest(request):
     if request.method == "POST":
         
+        # getting encounter id from form
         eid = request.POST["eidinput"]
+        # getting chargeitemdefination id from form
         testid = request.POST["addtest"]
+        # geting ecnouter object from it's id
         ec = Encounter.objects.get(pk=eid)
-        test = ObservationDefinition.objects.get(pk=testid)
-        new_test = Observation(test=test, encounter=ec)
+        # geting chargeItemDefination object by it's id
+        test = ChargeItemDefinition.objects.get(pk=testid)
+        # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
+        new_test = ChargeItem(definitionCanonical=test, context=ec, priceOverride = test.value )
+        # Saving new chargeitem object  
         new_test.save()
         #print(eid)
         #print(testid)
@@ -166,39 +173,46 @@ def pat_register(request):
 
 @login_required(login_url='/login/')
 def encounter(request, enc_id):
+
     e = Encounter.objects.get(pk=enc_id)
-    p = e.test.all().aggregate(Sum('price'))
-    total = p['price__sum']
+    chargeItems = ChargeItem.objects.filter(context= e)
+    chargeItem_list = chargeItems.aggregate(Sum('priceOverride'))
+    total = chargeItem_list['priceOverride__sum'] or 0
+
+    #Geting invoice object for encouter
     invoice = Invoice.objects.get(pk=e.invoice.id)
+    # filtering payment objects for particular invoice
     payments = PaymentReconciliation.objects.filter(request=invoice)
     paymentset = payments.aggregate(Sum('paymentAmount'))
-    totalpaid = paymentset['paymentAmount__sum']
-    discount =  invoice.discount
+    totalpaid = paymentset['paymentAmount__sum'] or 0
+    discount =  invoice.discount or 0
     invoice.totalGross = total
-    if discount:
+    # checking if no test due to all test deleted and there is discount, totalnet  will be minus 
+    if  invoice.totalGross - discount > 0:
         invoice.totalnet = invoice.totalGross - discount
     else:
-        invoice.totalnet = invoice.totalGross
-    if totalpaid:
+        invoice.totalnet = 0
+    # checking if no test due to all test deleted and there is discount, due will be minus
+    if  invoice.totalnet-totalpaid > 0: 
         invoice.due = invoice.totalnet-totalpaid
     else:
-        invoice.due = invoice.totalnet
-    invoice.save()
-    tests = ObservationDefinition.objects.all()
-    
-    #creat set of observationdefination id included in this encounter(allready added tests)
+        invoice.due = 0
+    #saving the invoice
+    invoice.save()    
+
+    #creat set of chargeitemdefinations id included in this encounter(allready added tests)
     test_id_set = []
-    #add observationdefination id to newly created set
-    for t in e.test.all():
+    # list of all chargeitem defination for the encounter
+    ChargeItemsDefinition = e.test.all()
+    #add chargeitem id to newly created set
+    for t in ChargeItemsDefinition:
         test_id_set.append(t.id)
-    #creating observationdefination object queryset excluding those in set
-    tests = ObservationDefinition.objects.exclude(id__in=test_id_set)
-    observations = Observation.objects.filter(encounter=enc_id)
-    for ob in observations:
-        print (ob)
+    #creating observationdefination object queryset excluding those in set ie already register  for the encounter
+    tests = ChargeItemDefinition.objects.exclude(id__in=test_id_set)
+
+    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
 
 
-    return render(request, 'labsys\encounter.html', {"e" : e, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
 
 def login_view(request):
     if request.method == "POST":
