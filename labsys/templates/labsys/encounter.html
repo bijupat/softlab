@@ -28,30 +28,35 @@
   No Test Listed.
   {% endfor %}
   <br>
-  <button id = "addtestbtn" class="btn btn-outline-success btn-sm btn-block">Add Test</button>
-  <div id="addtestinput">
-    <form action="{% url 'labsys:addtest' %}" method="post">
-      {% csrf_token %}
+
+
+
+  <div class="dropdown">
+    <button id = "addtestdropbtn" class="dropbtn">Add Test</button>
+    <div id="myDropdown" class="dropdown-content">
       <input value="{{e.id}}" name="eidinput" style="display: none">
-      <select   name="addtest">
-            {% for t in tests %}
-              <option value="{{t.id}}">{{t.title}}</option>
-            {% endfor %}
-      </select>
-      <input type= "submit" id="addtest" class="btn btn-outline-success btn-sm">
-    </form>
+      <input type="text" autocomplete="off" placeholder="Search.." id="myInput" >
+            {% for t in tests %}  
+              <a href={% url 'labsys:addtest' e.id t.id %} >{{t.title}}</a>
+            {% empty %}
+              <a>All Test Added !!</a >
+            {% endfor %}  
+                
+    </div>
   </div>
+
+
   <br>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
     Total
-    <a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm">Print Bill</a>
+    <a href=# class="btn btn-outline-primary btn-sm">Print Bill</a>
     <span id="totalamount">{{total}}</span>
     
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
     Discount
     <div>
-      <a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm" id="addeditdisc">Add/Edit Discount</a>
+      <a href=# class="btn btn-outline-primary btn-sm" id="addeditdisc">Add/Edit Discount</a>
     </div>
     <div id="addeditdiscout">
       <form action="{% url 'labsys:addeditdiscount' %}" method="post">
@@ -81,7 +86,7 @@
   
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-danger">
     Due &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm">Send Reminder</a>
+    <a href=# class="btn btn-outline-primary btn-sm">Send Reminder</a>
     <span id = "due">{{ invoice.due|default:0 }}</span>
   </li>
 </ul>

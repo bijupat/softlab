@@ -1,15 +1,18 @@
 (function(){
     const eid = document.querySelector('#eid').innerHTML;
-    document.querySelector('#addtestinput').style.display = "none";
+    //document.querySelector('#addtestinput').style.display = "none";
     document.querySelector('#addeditdiscout').style.display = "none";
-
+ 
     
+
+   
+
     //console.log(eid);
     //console.log(document.querySelector('#addpayment'));
-    document.querySelector('#addpayment').addEventListener("click", function(event){
-        event.preventDefault();
-        alert("add Payment clicked!");        
-    });
+    //document.querySelector('#addpayment').addEventListener("click", function(event){
+       // event.preventDefault();
+       // alert("add Payment clicked!");        
+    //});
 
 
 
@@ -23,6 +26,8 @@
 
         
     });
+
+    
     //enable add discount submit button when addeditdiscountinput selected
     document.getElementById('addeditdiscountinput').addEventListener('input', function () {
         //console.log(document.getElementById('addeditdiscountinput'))
@@ -30,7 +35,7 @@
         document.querySelector('#addeditdiscountsubmit').disabled = false;
     });
 
-
+    /*
     //display element for add test when  add test button clicked
     document.querySelector('#addtestbtn').addEventListener("click", function(event){
         event.preventDefault();
@@ -42,9 +47,9 @@
 
         //alert("add test clicked!");
     });
+    */
+    
 
-    
-    
     // on click of delete post fetch done to /deletetest/ route with data as json
     document.querySelectorAll('.deletetest').forEach(function(element){            
 
@@ -60,7 +65,6 @@
             //console.log(typeof(testname));
             //console.log(this.parentElement.innerHTML);
             // delete li element which is parent to this delete button
-            alert("Are You sure to delete the test?");   
             this.parentElement.remove();
             //console.log(document.querySelector('#totalamount').innerHTML)
             //update new total to html  
@@ -79,7 +83,33 @@
             fetch('/deletetest/', option);
             });
     });
-         
-           
+    
+    
+    document.querySelector('#addtestdropbtn').addEventListener("click", function(event){
+        document.getElementById("myDropdown").classList.toggle("show");
+
+
+    });
+
+    document.querySelector('#myInput').addEventListener("keyup", function(event){
+        //alert("my input clicked");
+        var input, filter, ul, li, a, i;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        //alert(filter);
+        div = document.getElementById("myDropdown");
+        a = div.getElementsByTagName("a");
+        for (i = 0; i < a.length; i++) {
+          txtValue = a[i].textContent || a[i].innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            a[i].style.display = "";
+          } else {
+            a[i].style.display = "none";
+          }
+        }
+
+    });
+
+    
 })()
 

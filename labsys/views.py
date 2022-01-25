@@ -36,13 +36,14 @@ def DeleteTest(request):
         return HttpResponse(status=200)
 
 @login_required(login_url='/login/')
-def AddTest(request):
-    if request.method == "POST":
-        
+def AddTest(request, e_id, t_id):
         # getting encounter id from form
-        eid = request.POST["eidinput"]
+        eid = e_id
         # getting chargeitemdefination id from form
-        testid = request.POST["addtest"]
+        testid = t_id
+        # stript testname string to get testid values between parenthesis   
+        #testid = testname[testname.find("(")+1:testname.find(")")]
+        #print(testname[testname.find("(")+1:testname.find(")")])
         # geting ecnouter object from it's id
         ec = Encounter.objects.get(pk=eid)
         # geting chargeItemDefination object by it's id
@@ -54,6 +55,13 @@ def AddTest(request):
         #print(eid)
         #print(testid)
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[eid]))
+        
+@login_required(login_url='/login/')
+def AddTest2(request):
+
+    encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
+    return render(request, 'labsys\index.html', {"encounter" :encounter_today}) 
+
 
 @login_required(login_url='/login/')
 def AddEditDiscount(request):
@@ -123,8 +131,17 @@ def pat_register(request):
             enc.account = form.cleaned_data['account']
             enc.invoice = inv
             enc.save()
-            # populate enc instance with queryset test/form.cleaned_data['test'] will return queryset as it is foreingkey(many to one)
+            # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
             enc.test.set(form.cleaned_data["test"])
+
+            # filtering charge items for encounter and getting its subject and enterer filed with patient and user
+            chargeItems = ChargeItem.objects.filter(context=enc)
+            for c in chargeItems:
+                c.subject = new_patient
+                c.enterer = request.user
+                c.account = form.cleaned_data['account']
+                c.save()
+            
             p = enc.test.all().aggregate(Sum('value'))
             paid = form.cleaned_data["paid"]
             #populate payment data in invoice object
