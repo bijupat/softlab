@@ -1,0 +1,12 @@
+{% extends "labsys/layout.html" %}
+{% load static %}
+
+<!--{% load crispy_forms_tags %} -->
+{% block title %}Found{% endblock %}
+
+{% block body %}
+
+{% for patient in patients %}
+    {{patient.id}}
+{% endfor %}
+{% endblock %}

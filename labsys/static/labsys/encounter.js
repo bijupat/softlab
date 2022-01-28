@@ -54,34 +54,52 @@
     document.querySelectorAll('.deletetest').forEach(function(element){            
 
             element.addEventListener("click", function(event){
-            //to prevent submitting form
-            event.preventDefault();
-            testname = this.previousElementSibling.innerHTML;
-            testprice = this.nextElementSibling.innerHTML;
-            previous_total = document.querySelector('#totalamount').innerHTML
-            previous_due = document.querySelector('#due').innerHTML
-            //console.log(previous_due);
-            //console.log(testname);
-            //console.log(typeof(testname));
-            //console.log(this.parentElement.innerHTML);
-            // delete li element which is parent to this delete button
-            this.parentElement.remove();
-            //console.log(document.querySelector('#totalamount').innerHTML)
-            //update new total to html  
-            document.querySelector('#totalamount').innerHTML=previous_total - testprice
-             //update new due to HTML
-            document.querySelector('#due').innerHTML=previous_due - testprice
-            data = { eid: eid, test: testname }
-            option = {
-                method: 'POST', // *GET, POST, PUT, DELETE, etc.
-                headers: {
-                    'Content-Type': 'application/json'
-                    // 'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: JSON.stringify(data) // body data type must match "Content-Type" header
-                };
-            fetch('/deletetest/', option);
+
+                event.preventDefault();
+                testid = this.previousElementSibling.innerHTML;
+                test = this.previousElementSibling.previousElementSibling.innerHTML;
+                testprice = this.nextElementSibling.innerHTML;
+                previous_total = document.querySelector('#totalamount').innerHTML
+                previous_due = document.querySelector('#due').innerHTML
+            
+                if (confirm('Are you sure you want to delete '  + test + '  form this Patient?')) {
+                    
+                    
+                    
+                    //console.log(previous_due);
+                    //console.log(testname);
+                    //console.log(typeof(testname));
+                    //console.log(this.parentElement.innerHTML);
+                    // delete li element which is parent to this delete button
+                    this.parentElement.remove();
+                    //console.log(document.querySelector('#totalamount').innerHTML)
+                    //update new total to html  
+                    document.querySelector('#totalamount').innerHTML=previous_total - testprice
+                     //update new due to HTML
+                    document.querySelector('#due').innerHTML=previous_due - testprice
+                    data = { eid: eid, testid: testid }
+                    option = {
+                        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                        headers: {
+                            'Content-Type': 'application/json'
+                            // 'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: JSON.stringify(data) // body data type must match "Content-Type" header
+                        };
+                    fetch('/deletetest/', option);
+                  } else {
+                    // Do nothing!
+                  }
+            
+
+
+            
             });
+
+
+
+
+            
     });
     
     

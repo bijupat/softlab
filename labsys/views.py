@@ -26,41 +26,29 @@ def DeleteTest(request):
     if request.method == "POST":
 
         eid = json.loads(request.body.decode('utf-8'))["eid"]
-        test = json.loads(request.body.decode('utf-8'))["test"]
+        testid = json.loads(request.body.decode('utf-8'))["testid"]
 
         ec = Encounter.objects.get(pk=eid)
         chargeItem = ChargeItem.objects.filter(context=ec)
-        chargeItem.filter(id=test).delete()
+        chargeItem.filter(id=testid).delete()
         
     
         return HttpResponse(status=200)
 
 @login_required(login_url='/login/')
 def AddTest(request, e_id, t_id):
-        # getting encounter id from form
-        eid = e_id
-        # getting chargeitemdefination id from form
-        testid = t_id
-        # stript testname string to get testid values between parenthesis   
-        #testid = testname[testname.find("(")+1:testname.find(")")]
-        #print(testname[testname.find("(")+1:testname.find(")")])
+
         # geting ecnouter object from it's id
-        ec = Encounter.objects.get(pk=eid)
+        ec = Encounter.objects.get(pk=e_id)
         # geting chargeItemDefination object by it's id
-        test = ChargeItemDefinition.objects.get(pk=testid)
+        test = ChargeItemDefinition.objects.get(pk=t_id)
         # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
         new_test = ChargeItem(definitionCanonical=test, context=ec, priceOverride = test.value )
         # Saving new chargeitem object  
         new_test.save()
-        #print(eid)
-        #print(testid)
-        return HttpResponseRedirect(reverse("labsys:encounter",  args=[eid]))
-        
-@login_required(login_url='/login/')
-def AddTest2(request):
 
-    encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
-    return render(request, 'labsys\index.html', {"encounter" :encounter_today}) 
+        return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
+
 
 
 @login_required(login_url='/login/')
@@ -93,7 +81,6 @@ def AddPayment(request):
 @login_required(login_url='/login/')
 def index(request):
     if request.method == 'GET':
-        #date format (yyyy,mm,dd)
         encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
 
         return render(request, 'labsys\index.html', {"encounter" :encounter_today})
@@ -103,7 +90,49 @@ def index(request):
         encounter_date = Encounter.objects.filter(timedate__date=date)
 
         return render(request, 'labsys\index.html', {"encounter" :encounter_date, "date" : date})
+
+@login_required(login_url='/login/')
+def patient_regi(request):
+    if request.method == 'POST':
+       pass
+    return render(request, 'labsys\patient_regi.html',{
+            "form": PatientRegistration   })
+
+@login_required(login_url='/login/')
+def find(request):
+    if request.method == "POST":
+        fname = request.POST.get('find_fname')
+        lname = request.POST.get("find_lname")
+        smpno = request.POST.get("find_smpno")
+        mobno = request.POST.get("find_mobno")
+
+        if fname and lname and len(fname)>2 and len(lname)>2:
+            date=f"Find F Name '{fname}' and L Name '{lname}'"
+            patient_find = Patient.objects.filter(fname__icontains=fname).filter(lname__icontains=lname).order_by('-dor')
+        elif fname and len(fname)>2:
+            if not lname:
+                date=f"Find F Name '{fname}'"
+                patients_found = Name.objects.filter(text__icontains=fname)
+            else:
+                return render(request,"labsys/found.html",{"message":"Please Search L name by 3 or more characters"}) 
+        elif lname and len(lname)>2:
+            if not fname:
+                date=f"Find L Name '{lname}'"
+                encounter_find = Tbllab.objects.filter(lname__icontains=lname)
+            else:
+                return render(request,"labsys/find.html",{"message":"Please Search F name by 3 or more characters"})  
+        elif smpno and int(smpno)>0 and int(smpno)<10000:
+            date=f"Find Sample No '{smpno}'"
+            encounter_find = Tbllab.objects.filter(sampno=smpno)
+        elif mobno and len(mobno) == 10 :
+            date=f"Find Mobile no '{mobno}'"
+            encounter_find = Tbllab.objects.filter(phone=mobno)
+        else:
+            return render(request,"labsys/found.html",{"message":"Invalid Input for Search"})
+
+        return render(request, 'labsys/found.html', {"patients" : patients_found, "date" : date })
         
+
 @login_required(login_url='/login/')
 def pat_register(request):
     if request.method == "POST":
@@ -176,15 +205,13 @@ def pat_register(request):
                 payment.save()
 
             return HttpResponseRedirect(reverse("labsys:index"))
+        # if form is not valid
         else:
             return render(request, 'labsys\pat_regi.html', {
                 "form": form
             })
-    else:
-
-     
-
-        return render(request, 'labsys\pat_regi.html', {
+    # if request method get      
+    return render(request, 'labsys\pat_regi.html', {
             "form": PatientRegistration   })
 
 

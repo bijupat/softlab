@@ -2,6 +2,12 @@ venv/
 db.sqlite3
 media/
 
-
-
-
+hostlab2.txt
+dbnamelab2.txt
+mssqldb_password.txt
+pgdb_password.txt
+pgdb_password_ubuntu.txt
+pplus/settings.py
+secret_key.txt
+/static/
+*.pyc

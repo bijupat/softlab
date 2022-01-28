@@ -100,13 +100,22 @@ DATABASES = {
 with open(os.path.join(BASE_DIR,'pgdb_password.txt')) as f:
     PGDBPASSWORD = f.read().strip()
 
+with open(os.path.join(BASE_DIR,'pgdb_password_ubuntu.txt')) as f:
+    PGDBPASSWORDLAB2 = f.read().strip()
+
+with open(os.path.join(BASE_DIR,'dbnamelab2.txt')) as f:
+    DBLAB2 = f.read().strip()
+
+with open(os.path.join(BASE_DIR,'hostlab2.txt')) as f:
+    HOSTLAB2 = f.read().strip()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'labsys',
+        'NAME': DBLAB2,
         'USER': 'postgres',
-        'PASSWORD': PGDBPASSWORD,
-        'HOST': 'localhost',
+        'PASSWORD': PGDBPASSWORDLAB2,
+        'HOST': HOSTLAB2,
         'PORT': '',
     }
 }
