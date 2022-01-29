@@ -42,15 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "crispy_forms", # to use cryspy form that make bootstrap usabel in forms
-    "crispy_bootstrap5", # to use cryspy form that make bootstrap usabel in forms
+    #"crispy_forms", # to use cryspy form that make bootstrap usabel in forms
+    #"crispy_bootstrap5", # to use cryspy form that make bootstrap usabel in forms
 ]
 
 # to use cryspy form that make bootstrap usabel in forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+#CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # to use cryspy form that make bootstrap usabel in forms
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+#CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 MIDDLEWARE = [

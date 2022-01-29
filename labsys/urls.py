@@ -17,6 +17,8 @@ urlpatterns = [
     path('addeditdiscount/', views.AddEditDiscount, name = 'addeditdiscount'),
     path('patient_regi/', views.patient_regi, name = 'patient_regi'),
     path('find/', views.find, name = 'find'),
+    path('pat_enc/<int:pat_id>/', views.pat_enc, name = 'pat_enc'),
+    path('regi_old_pat/<int:pat_id>/', views.regi_old_pat, name = 'regi_old_pat'),
 
     
 

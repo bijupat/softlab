@@ -21,26 +21,34 @@
         document.querySelector('#new_patient').style.display = "none";        
     });
 
-    document.getElementById('find_fname').addEventListener('change', function () {
-        //console.log(document.querySelector('#datesubmit'))
-        document.querySelector('#find_name_sub').disabled = false;
-        });
-    document.getElementById('find_lname').addEventListener('change', function () {
-        //console.log(document.querySelector('#datesubmit'))
-        document.querySelector('#find_name_sub').disabled = false;
-        });
-    document.getElementById('find_smpno').addEventListener('change', function () {
-        //console.log(document.querySelector('#datesubmit'))
-        document.querySelector('#find_smpno_sub').disabled = false;
-        });
-    document.getElementById('find_mobno').addEventListener('change', function () {
-        //console.log(document.querySelector('#datesubmit'))
-        document.querySelector('#find_mobno_sub').disabled = false;
-        });
+   
 
 
-
-
+        document.querySelector('#searchpatdropdwnbtn').addEventListener("click", function(event){
+            document.getElementById("myDropdown").classList.toggle("show");
+    
+    
+        });
+    
+        document.querySelector('#myInput').addEventListener("keyup", function(event){
+            //alert("my input clicked");
+            var input, filter, ul, li, a, i;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            //alert(filter);
+            div = document.getElementById("myDropdown");
+            a = div.getElementsByTagName("a");
+            for (i = 0; i < a.length; i++) {
+              txtValue = a[i].textContent || a[i].innerText;
+              if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                a[i].style.display = "";
+              } else {
+                a[i].style.display = "none";
+              }
+            }
+    
+        });
+    
 
 
 

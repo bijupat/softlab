@@ -34,7 +34,6 @@
   <div class="dropdown">
     <button id = "addtestdropbtn" class="dropbtn">Add Test</button>
     <div id="myDropdown" class="dropdown-content">
-      <input value="{{e.id}}" name="eidinput" style="display: none">
       <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
             {% for t in tests %}  
               <a href={% url 'labsys:addtest' e.id t.id %} >{{t.title}}</a>

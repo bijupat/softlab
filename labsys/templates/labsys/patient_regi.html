@@ -3,125 +3,73 @@
 {% block head %}
   <script src="{% static 'labsys\patient_regi.js' %}" defer></script>
 {% endblock %}
-<!--{% load crispy_forms_tags %} -->
 {% block title %}New Patient Registration{% endblock %}
 
 {% block body %}
 
 <button  id = "new_pat_btn" class="btn btn-outline-info btn-sm ">Register New Patient</button> 
 <button id = "old_pat_btn" class="btn btn-outline-info btn-sm ">Register Old Patient</button>
-
+<br>
+<!-- This is for new patient -->
 <div id = "new_patient">
-This is for new patient:
-<form action="{% url 'labsys:PatReg' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+    <form action="{% url 'labsys:PatReg' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
     
-    <div class="form-row">
-        <div class="form-group col-md-4">
-            {{form.f_name}}
+        <div class="form-row">
+            <div class="form-group col-md-4">{{form.f_name}}</div>
+            <div class="form-group col-md-4">{{form.m_name}}</div>
+            <div class="form-group col-md-4">{{form.l_name}}</div>
         </div>
-        <div class="form-group col-md-4">
-            {{form.m_name}}
-        </div>
-        <div class="form-group col-md-4">
-        {{form.l_name}}
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group col-md-4">
-            {{form.gender.label}}
-            {{form.gender}}
-        </div>
-        <div class="form-group col-md-4">
-            {{form.birth_date.label}}
-            {{form.birth_date}}
-        </div>
-        <div class="form-group col-md-4">
-            {{form.mobile}}
-            <span style="color:red;">{{ form.mobile.errors }}</span>
-        </div>
-    </div> 
 
-
-    <div class="form-row">
-        <div class="form-group col-md-4">
-            {{form.practitioner.label}}
-            {{form.practitioner}}
+        <div class="form-row">
+            <div class="form-group col-md-4">{{form.gender.label}}{{form.gender}}</div>
+            <div class="form-group col-md-4">{{form.birth_date.label}}{{form.birth_date}}</div>
+            <div class="form-group col-md-4">{{form.mobile}}<span style="color:red;">{{ form.mobile.errors }}</span></div>
         </div>
-        <div class="form-group col-md-4">
-            {{form.account.label}}
-            {{form.account}}
-        </div>
-        <div class="form-group col-md-4">
-            {{form.email}}
-            <span style="color:red;">{{ form.email.errors }}</span>
 
+        <div class="form-row">
+            <div class="form-group col-md-4">{{form.practitioner.label}}{{form.practitioner}}</div>
+            <div class="form-group col-md-4">{{form.account.label}}{{form.account}}</div>
+            <div class="form-group col-md-4">{{form.email}}<span style="color:red;">{{ form.email.errors }}</span></div>
         </div>
-    </div>
 
-
-    <div class="form-row">
-        <div class="form-group col-md-5">
-            {{form.test.label}}
-            {{form.test}}
+        <div class="form-row">
+            <div class="form-group col-md-5">{{form.test.label}}{{form.test}}</div>
+            <div class="form-group col-md-4">{{form.discount}}<span style="color:red;">{{ form.discount.errors }}</span></div>
+            <div class="form-group col-md-3">{{form.paid}}<span style="color:red;">{{ form.paid.errors }}</span></div>
         </div>
-        <div class="form-group col-md-4">
-            {{form.discount}}
-            <span style="color:red;">{{ form.discount.errors }}</span>
-        </div>
-        <div class="form-group col-md-3">
-            {{form.paid}}
-            <span style="color:red;">{{ form.paid.errors }}</span>
-        </div>
-    </div>
 
-    <div class="form-group col-md-5">
-        {{form.photo.label}}
-        {{form.photo}}
-    </div>
+        <div class="form-group col-md-5">{{form.photo.label}}{{form.photo}}</div>
 
-    <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
-      
-</form>
+        <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
+
+    </form>
 </div>
 
 
 <!-- this is for old patient -->
-<br>
-<div id = "old_patient">
-
-    <form action="{% url 'labsys:find' %}" method="post">
-        {% csrf_token %}
-        <div class="input-group flex-nowrap">
-            <label class="input-group-text" id="addon-wrapping" for="find_name"></label>
-            <input class="form-control" type="text" id="find_fname" name="find_fname" aria-describedby="addon-wrapping" placeholder="First Name : Full or part">
-            <label class="input-group-text" id="addon-wrapping" for="find_name"></label>
-            <input class="form-control" type="text"  id="find_lname" name="find_lname" aria-describedby="addon-wrapping" placeholder="Last Name : Full or part">
-            <input  disabled id = "find_name_sub" class="btn btn-primary btn-sm" type="submit">
-        </div>
-    </form>
+<div id = "old_patient" class="dropdown">
     <br>
-    <form action="{% url 'labsys:find' %}" method="post">   
-        {% csrf_token %}
-        <div class="input-group flex-nowrap">
-            <label class="input-group-text" id="addon-wrapping" for="find_smpno"></label>
-            <input class="form-control" type="number" min="1" max="9999" id="find_smpno" name="find_smpno" aria-describedby="addon-wrapping" placeholder="Enter exact Sample Number">
-            <input  disabled id = "find_smpno_sub" class="btn btn-primary btn-sm" type="submit">
-        </div>
-    </form>
+    <button id = "searchpatdropdwnbtn" class="dropbtn">Search</button>
     <br>
-    <form action="{% url 'labsys:find' %}" method="post">
-        {% csrf_token %}
-        <div class="input-group flex-nowrap">
-            <label class="input-group-text" id="addon-wrapping" for="find_mobno"></label>
-            <input class="form-control" pattern="[0-9]{10}" oninvalid="this.setCustomValidity('Enter Valid 10 digit Mobile ')" oninput="this.setCustomValidity('')" id="find_mobno" name="find_mobno" aria-describedby="addon-wrapping" placeholder="Enter Exact Mobile Number">
-            <input  disabled id = "find_mobno_sub" class="btn btn-primary btn-sm" type="submit">
-        </div>
-    </form>
-    <br>
-    
-    
+    <div id="myDropdown" class="dropdown-content">
+        <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
+            {% for name in names %}  
+                <a href={% url 'labsys:regi_old_pat' name.patient.id|default:"0"  %}>{{name.text}} {{name.family}}
+                {% for tele in name.patient.telecom.all %}
+                    {% if tele.use == "mobile" %}
+                        {{tele.value}}
+                    {% endif %}
+                {% endfor %}
+                </a>
+            {% empty %}
+                <a>No Name to Select !!</a >
+            {% endfor %}                      
+    </div>
 </div>
+
+
+
 
 
 

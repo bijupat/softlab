@@ -49,8 +49,6 @@ def AddTest(request, e_id, t_id):
 
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
 
-
-
 @login_required(login_url='/login/')
 def AddEditDiscount(request):
     if request.method == "POST":
@@ -70,32 +68,35 @@ def AddPayment(request):
     user = request.user
     
     if request.method == 'GET':
-
         return render(request, 'labsys\payment.html')
 
-
     if request.method == 'POST':
-
         return HttpResponseRedirect(reverse("labsys:encounter", args=[5]))
 
 @login_required(login_url='/login/')
 def index(request):
     if request.method == 'GET':
         encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
-
         return render(request, 'labsys\index.html', {"encounter" :encounter_today})
 
     elif request.method == 'POST':
         date = request.POST["date"]
         encounter_date = Encounter.objects.filter(timedate__date=date)
-
         return render(request, 'labsys\index.html', {"encounter" :encounter_date, "date" : date})
 
+
+@login_required(login_url='/login/')
+def pat_enc(request, pat_id):
+    date = "All Encounter for This Patient"
+    patient = Patient.objects.get(pk=pat_id)
+    encounter = Encounter.objects.filter(patient=patient)
+    return render(request, 'labsys\index.html', {"encounter" :encounter, "date" : date})
+
+# renders patient registration form 
 @login_required(login_url='/login/')
 def patient_regi(request):
-    if request.method == 'POST':
-       pass
-    return render(request, 'labsys\patient_regi.html',{
+    names = Name.objects.all()
+    return render(request, 'labsys\patient_regi.html',{ "names": names,
             "form": PatientRegistration   })
 
 @login_required(login_url='/login/')
@@ -108,30 +109,50 @@ def find(request):
 
         if fname and lname and len(fname)>2 and len(lname)>2:
             date=f"Find F Name '{fname}' and L Name '{lname}'"
-            patient_find = Patient.objects.filter(fname__icontains=fname).filter(lname__icontains=lname).order_by('-dor')
+            name_found = Name.objects.filter(text__icontains=fname).filter(family__icontains=lname)
         elif fname and len(fname)>2:
             if not lname:
                 date=f"Find F Name '{fname}'"
-                patients_found = Name.objects.filter(text__icontains=fname)
+                name_found = Name.objects.filter(text__icontains=fname)
             else:
-                return render(request,"labsys/found.html",{"message":"Please Search L name by 3 or more characters"}) 
+                return render(request,"labsys/find.html",{"message":"Please Search L name by 3 or more characters"}) 
         elif lname and len(lname)>2:
             if not fname:
                 date=f"Find L Name '{lname}'"
-                encounter_find = Tbllab.objects.filter(lname__icontains=lname)
+                name_found = Name.objects.filter(lname__icontains=lname)
             else:
                 return render(request,"labsys/find.html",{"message":"Please Search F name by 3 or more characters"})  
-        elif smpno and int(smpno)>0 and int(smpno)<10000:
-            date=f"Find Sample No '{smpno}'"
-            encounter_find = Tbllab.objects.filter(sampno=smpno)
+        
         elif mobno and len(mobno) == 10 :
             date=f"Find Mobile no '{mobno}'"
-            encounter_find = Tbllab.objects.filter(phone=mobno)
-        else:
-            return render(request,"labsys/found.html",{"message":"Invalid Input for Search"})
+            #filtering  telecom objects with particular no as mobile use
+            telecoms = Telecom.objects.filter(use="mobile").filter(value=mobno)
+            #filtering patient objects with having telecom in filtered telecom set(queryset) telecoms
+            if telecoms:
+                patients = Patient.objects.filter(telecom__in = telecoms)
+                #filtering name objects with having patient in filtered patient set(queryset) patients
+                name_found = Name.objects.filter(patient__in=patients)
+            else:
+                return render(request,"labsys/find.html",{"message":"Patient with such mobilen no not registered"})
 
-        return render(request, 'labsys/found.html', {"patients" : patients_found, "date" : date })
+        else:
+            return render(request,"labsys/find.html",{"message":"Please Search name by 3 or more characters"})
+            print("lastloop")
+        return render(request, 'labsys/found.html', {"names" : name_found,  "date" : date })
+    else:
+        return render(request, 'labsys/find.html')
+
         
+# get from old patient registration and post from it self 
+@login_required(login_url='/login/')
+def regi_old_pat(request, pat_id):
+    patient= Patient.objects.get(pk=pat_id)
+    #create new encounter instance
+    enc = Encounter()
+    # assing it's patient attribute to new_patient instance of Patient Class and save
+    enc.patient = patient
+    enc.save()
+    return render(request, 'labsys/add_enc.html', { "e" : enc, "pat_id":pat_id, "form": PatientRegistration })
 
 @login_required(login_url='/login/')
 def pat_register(request):
@@ -213,6 +234,7 @@ def pat_register(request):
     # if request method get      
     return render(request, 'labsys\pat_regi.html', {
             "form": PatientRegistration   })
+
 
 
 @login_required(login_url='/login/')
