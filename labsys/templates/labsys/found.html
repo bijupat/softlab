@@ -22,12 +22,12 @@
             {% for name in names %}            
                 <tr>                    
                     <td>{{name.patient.id}}</td>
-                    <td><a href={% url 'labsys:pat_enc' name.patient.id  %}>{{ name.text}} {{name.given}}</a></td>
+                    <td><a href={% url 'labsys:pat_enc' name.patient.id  %}>{{ name.text}} {{name.family}}</a></td>
                     <td>{{ name.patient.age}}/{{name.patient.gender}}</td>
                     <!-- iterate all telecoms for the patietns -->
                     {% for tele in name.patient.telecom.all %}
                     <td> <!-- IF TEL USE IS MOBILE TO GET MOBILE NO -->
-                                    {% if tele.use == "mobile" %}
+                                    {% if tele.use == "M" %}
                                         {{tele.value}}
                                     {% endif %}
                     </td>

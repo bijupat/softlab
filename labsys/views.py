@@ -4,7 +4,7 @@ from django.shortcuts import render, HttpResponse
 from .models import *
 from django.utils.timezone import datetime 
 from django.db.models import Avg, Max, Min, Sum
-from .forms import PatientRegistration
+from .forms import EncounterRegistratioin, PatientRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
@@ -18,6 +18,8 @@ from django.contrib.auth.decorators import login_required
 class InvoiceListView(ListView):
     model = Invoice
     context_object_name = 'invoice_Obj'
+
+
 
 
 @csrf_exempt
@@ -99,60 +101,75 @@ def patient_regi(request):
     return render(request, 'labsys\patient_regi.html',{ "names": names,
             "form": PatientRegistration   })
 
-@login_required(login_url='/login/')
-def find(request):
-    if request.method == "POST":
-        fname = request.POST.get('find_fname')
-        lname = request.POST.get("find_lname")
-        smpno = request.POST.get("find_smpno")
-        mobno = request.POST.get("find_mobno")
 
-        if fname and lname and len(fname)>2 and len(lname)>2:
-            date=f"Find F Name '{fname}' and L Name '{lname}'"
-            name_found = Name.objects.filter(text__icontains=fname).filter(family__icontains=lname)
-        elif fname and len(fname)>2:
-            if not lname:
-                date=f"Find F Name '{fname}'"
-                name_found = Name.objects.filter(text__icontains=fname)
-            else:
-                return render(request,"labsys/find.html",{"message":"Please Search L name by 3 or more characters"}) 
-        elif lname and len(lname)>2:
-            if not fname:
-                date=f"Find L Name '{lname}'"
-                name_found = Name.objects.filter(lname__icontains=lname)
-            else:
-                return render(request,"labsys/find.html",{"message":"Please Search F name by 3 or more characters"})  
-        
-        elif mobno and len(mobno) == 10 :
-            date=f"Find Mobile no '{mobno}'"
-            #filtering  telecom objects with particular no as mobile use
-            telecoms = Telecom.objects.filter(use="mobile").filter(value=mobno)
-            #filtering patient objects with having telecom in filtered telecom set(queryset) telecoms
-            if telecoms:
-                patients = Patient.objects.filter(telecom__in = telecoms)
-                #filtering name objects with having patient in filtered patient set(queryset) patients
-                name_found = Name.objects.filter(patient__in=patients)
-            else:
-                return render(request,"labsys/find.html",{"message":"Patient with such mobilen no not registered"})
-
-        else:
-            return render(request,"labsys/find.html",{"message":"Please Search name by 3 or more characters"})
-            print("lastloop")
-        return render(request, 'labsys/found.html', {"names" : name_found,  "date" : date })
-    else:
-        return render(request, 'labsys/find.html')
 
         
 # get from old patient registration and post from it self 
 @login_required(login_url='/login/')
 def regi_old_pat(request, pat_id):
-    patient= Patient.objects.get(pk=pat_id)
-    #create new encounter instance
-    enc = Encounter()
-    # assing it's patient attribute to new_patient instance of Patient Class and save
-    enc.patient = patient
-    enc.save()
-    return render(request, 'labsys/add_enc.html', { "e" : enc, "pat_id":pat_id, "form": PatientRegistration })
+    if request.method == "POST":
+        form = EncounterRegistratioin(request.POST)
+        user = request.user
+
+        if form.is_valid():
+            old_patient= Patient.objects.get(pk=pat_id)
+            #create new invoice and save without payment details
+            inv = Invoice(subject=old_patient, participant = form.cleaned_data["practitioner"], account = form.cleaned_data['account'] )
+            inv.save()
+            #create new encounter instance
+            enc = Encounter()
+            # assing it's patient attribute to new_patient instance of Patient Class and save
+            enc.patient = old_patient
+            enc.practitioner = form.cleaned_data["practitioner"]
+            enc.account = form.cleaned_data['account']
+            enc.invoice = inv
+            enc.save()
+            # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
+            enc.test.set(form.cleaned_data["test"])
+
+            # filtering charge items for encounter and getting its subject and enterer filed with patient and user
+            chargeItems = ChargeItem.objects.filter(context=enc)
+            for c in chargeItems:
+                c.subject = old_patient
+                c.enterer = request.user
+                c.account = form.cleaned_data['account']
+                c.save()
+            
+            p = enc.test.all().aggregate(Sum('value'))
+            paid = form.cleaned_data["paid"]
+            #populate payment data in invoice object
+            inv.discount = form.cleaned_data["discount"]
+            inv.totalGross = p['value__sum']
+            if not inv.discount:
+                inv.discount = 0
+            if not paid:
+                paid = 0
+            inv.totalnet = inv.totalGross - inv.discount
+            inv.due = inv.totalnet-paid
+            inv.save()
+
+            # next 8 lines implemented for adding priceovcerided field in chage item by default from charge item defination
+            price = []
+            for p in enc.test.all():
+                price.append(p.value)
+            test = ChargeItem.objects.filter(context=enc)
+            for t in test:
+                p = price.pop(0)
+                t.priceOverride = p
+                t.save()
+            #pat_address = Address()
+            #pat_address.use = "home"
+            #pat_address.text = form.cleaned_data["Address"]
+            #pat_address.save()
+            if paid:
+                payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
+                payment.save()
+            return HttpResponseRedirect(reverse("labsys:index"))
+        # if form is not valid
+        else:
+            return render(request, 'labsys\add_enc.html', {"form": form })
+            
+    return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistratioin })
 
 @login_required(login_url='/login/')
 def pat_register(request):
@@ -168,8 +185,11 @@ def pat_register(request):
             pat_name = Name(text=request.POST["f_name"].title(), patient=new_patient, family=request.POST["l_name"].title() )
             pat_name.save()
             #populate new_tele instance of Name class
-            pat_telecom = Telecom(patient=new_patient, system="phone", use = "mobile", value = request.POST["mobile"])
-            pat_telecom.save()
+            pat_mobile = Telecom(patient=new_patient, system="P", use = "M", value = request.POST["mobile"])
+            pat_mobile.save()
+            #populate new_telecom instance of Name class for emali
+            pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
+            pat_email.save()
             #create new invoice and save without payment details
             inv = Invoice(subject=new_patient, participant = form.cleaned_data["practitioner"], account = form.cleaned_data['account'] )
             inv.save()
@@ -214,9 +234,6 @@ def pat_register(request):
                 p = price.pop(0)
                 t.priceOverride = p
                 t.save()
-            
-            
-            
             #pat_address = Address()
             #pat_address.use = "home"
             #pat_address.text = form.cleaned_data["Address"]
@@ -278,7 +295,47 @@ def encounter(request, enc_id):
 
     return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
 
+@login_required(login_url='/login/')
+def find(request):
+    if request.method == "POST":
+        fname = request.POST.get('find_fname')
+        lname = request.POST.get("find_lname")
+        mobno = request.POST.get("find_mobno")
 
+        if fname and lname and len(fname)>2 and len(lname)>2:
+            date=f"Find F Name '{fname}' and L Name '{lname}'"
+            name_found = Name.objects.filter(text__icontains=fname).filter(family__icontains=lname)
+        elif fname and len(fname)>2:
+            if not lname:
+                date=f"Find F Name '{fname}'"
+                name_found = Name.objects.filter(text__icontains=fname)
+            else:
+                return render(request,"labsys/find.html",{"message":"Please Search L name by 3 or more characters"}) 
+        elif lname and len(lname)>2:
+            if not fname:
+                date=f"Find L Name '{lname}'"
+                name_found = Name.objects.filter(lname__icontains=lname)
+            else:
+                return render(request,"labsys/find.html",{"message":"Please Search F name by 3 or more characters"})  
+        
+        elif mobno and len(mobno) == 10 :
+            date=f"Find Mobile no '{mobno}'"
+            #filtering  telecom objects with particular no as mobile use
+            telecoms = Telecom.objects.filter(use="mobile").filter(value=mobno)
+            #filtering patient objects with having telecom in filtered telecom set(queryset) telecoms
+            if telecoms:
+                patients = Patient.objects.filter(telecom__in = telecoms)
+                #filtering name objects with having patient in filtered patient set(queryset) patients
+                name_found = Name.objects.filter(patient__in=patients)
+            else:
+                return render(request,"labsys/find.html",{"message":"Patient with such mobilen no not registered"})
+
+        else:
+            return render(request,"labsys/find.html",{"message":"Please Search name by 3 or more characters"})
+            print("lastloop")
+        return render(request, 'labsys/found.html', {"names" : name_found,  "date" : date })
+    else:
+        return render(request, 'labsys/find.html')
 
 def login_view(request):
     if request.method == "POST":

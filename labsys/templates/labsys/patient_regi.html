@@ -48,23 +48,25 @@
 
 
 <!-- this is for old patient -->
-<div id = "old_patient" class="dropdown">
-    <br>
-    <button id = "searchpatdropdwnbtn" class="dropbtn">Search</button>
-    <br>
-    <div id="myDropdown" class="dropdown-content">
-        <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
-            {% for name in names %}  
-                <a href={% url 'labsys:regi_old_pat' name.patient.id|default:"0"  %}>{{name.text}} {{name.family}}
-                {% for tele in name.patient.telecom.all %}
-                    {% if tele.use == "mobile" %}
-                        {{tele.value}}
-                    {% endif %}
-                {% endfor %}
-                </a>
-            {% empty %}
-                <a>No Name to Select !!</a >
-            {% endfor %}                      
+<div id = "old_patient" >
+    <div class="dropdown">
+        <br>
+        <button id = "searchpatdropdwnbtn" class="dropbtn">Search</button>
+        <br>
+        <div id="myDropdown" class="dropdown-content" >
+            <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
+                {% for name in names %}  
+                    <a href={% url 'labsys:regi_old_pat' name.patient.id|default:"0"  %}>{{name.text}} {{name.family}}
+                    {% for tele in name.patient.telecom.all %}
+                        {% if tele.use == "mobile" %}
+                            {{tele.value}}
+                        {% endif %}
+                    {% endfor %}
+                    </a>
+                {% empty %}
+                    <a>No Name to Select !!</a >
+                {% endfor %}                      
+        </div>
     </div>
 </div>
 

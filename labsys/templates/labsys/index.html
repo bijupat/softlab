@@ -28,7 +28,7 @@
                         <div class="col">{{e.patient}}</div>
                         <div class="col">
                             {% for tele in e.patient.telecom.all %}
-                                {% if tele.use == "mobile" %}
+                                {% if tele.use == "M" %}
                                     {{tele.use|title}}: {{tele.value}}
                                 {% endif %}
                             {% endfor %}

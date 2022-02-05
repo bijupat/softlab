@@ -94,6 +94,7 @@ main img
     min-width: 230px;
     border: 1px solid #ddd;
     z-index: 1;
+    height: 100%;
   }
   
   /* Links inside the dropdown */
@@ -109,3 +110,8 @@ main img
   
   /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
   .show {display:block;}
+
+
+  .full-height {
+    height: 100%;
+  }

@@ -9,8 +9,14 @@
 
 <div class="card text-left">
   <div class="card-header">
-    <!-- telcom needed to be implemented in for loop as done in index -->
-    <h6> {{e.patient}} : : Mo : {{e.patient.telecom.get.value }}</h6>
+    <h6> {{e.patient}} : : Mo : 
+        {% for tele in e.patient.telecom.all %}
+          <!-- IF TEL USE IS MOBILE TO GET MOBILE NO -->
+          {% if tele.use == "M" %}
+            {{tele.value}}
+          {% endif %}
+        {% endfor %}
+    </h6>
   </div>
   <div class="card-body">
     <div class="card-title"><span id ="eid">{{e.id}}</span> : {{e.timedate|date}} : {{e.practitioner|title}}</div>

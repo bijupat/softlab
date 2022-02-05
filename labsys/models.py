@@ -266,11 +266,11 @@ class Organization (models.Model):
 
 class Telecom(models.Model):
     # phone | fax | email | pager | url | sms | other
-    system = models.CharField(max_length=75, choices= Telecom_system)
+    system = models.CharField(max_length=10, choices= Telecom_system)
     # The actual contact point details
     value = models.CharField(max_length=75,)
     # // home | work | temp | old | mobile - purpose of this contact point
-    use = models.CharField(max_length=75, choices=Telecom_use)
+    use = models.CharField(max_length=10, choices=Telecom_use)
     # // Specify preferred order of use (1 = highest)
     rank = models.IntegerField(blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='telecom', blank=True, null=True)
