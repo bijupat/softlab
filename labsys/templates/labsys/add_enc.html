@@ -1,9 +1,17 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
 {% block title %}update Encounter{{e.id}}{% endblock %}
+{% block head %}
+  <script src="{% static 'labsys\add_enc.js' %}" defer></script>
+  <link href="{% static 'labsys\add_enc.css' %}" rel="stylesheet">
+
+{% endblock %}
 
 {% block body %}
-
+{% if message %}
+<div style="color:red">{{message}}</div>
+<br>
+{% endif %}
 <div>
     <form action="{% url 'labsys:regi_old_pat' pat_id %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -15,12 +23,18 @@
         </div>
 
         <div class="form-row">
-            <div class="form-group col-md-5">{{form.test.label}}{{form.test}}</div>
-            <div class="form-group col-md-4">{{form.discount}}<span style="color:red;">{{ form.discount.errors }}</span></div>
-            <div class="form-group col-md-3">{{form.paid}}<span style="color:red;">{{ form.paid.errors }}</span></div>
+            <div class="form-group col-md-5">{{form.discount}}<span style="color:red;">{{ form.discount.errors }}</span></div>
+            <div class="form-group col-md-7">{{form.paid}}<span style="color:red;">{{ form.paid.errors }}</span></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">{{form.test.label}}{{form.test}}</div>
         </div>
         <input type = "hidden" value = "{{e.id}}" name="eid" >
         <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
+
+        
+
+        
 
     </form>
 </div>

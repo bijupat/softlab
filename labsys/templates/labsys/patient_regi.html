@@ -2,16 +2,23 @@
 {% load static %}
 {% block head %}
   <script src="{% static 'labsys\patient_regi.js' %}" defer></script>
+  <link href="{% static 'labsys\patient_regi.css' %}" rel="stylesheet">
+
 {% endblock %}
 {% block title %}New Patient Registration{% endblock %}
 
 {% block body %}
-
+{% if message %}
+<div style="color:red">{{message}}</div>
+<br>
+{% endif %}
 <button  id = "new_pat_btn" class="btn btn-outline-info btn-sm ">Register New Patient</button> 
 <button id = "old_pat_btn" class="btn btn-outline-info btn-sm ">Register Old Patient</button>
 <br>
+
 <!-- This is for new patient -->
 <div id = "new_patient">
+    <br>
     <form action="{% url 'labsys:PatReg' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
     
@@ -58,7 +65,7 @@
                 {% for name in names %}  
                     <a href={% url 'labsys:regi_old_pat' name.patient.id|default:"0"  %}>{{name.text}} {{name.family}}
                     {% for tele in name.patient.telecom.all %}
-                        {% if tele.use == "mobile" %}
+                        {% if tele.use == "M" %}
                             {{tele.value}}
                         {% endif %}
                     {% endfor %}

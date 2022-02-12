@@ -46,7 +46,7 @@ class PatientRegistration(forms.Form):
 
 class EncounterRegistratioin(forms.Form):
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control'}) )  
-    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control custom-select'}))
     account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control'}))
     discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount',}))
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid',}))
