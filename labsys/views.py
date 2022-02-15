@@ -70,7 +70,7 @@ def AddPayment(request):
     user = request.user
     
     if request.method == 'GET':
-        return render(request, 'labsys\payment.html')
+        return render(request, 'labsys\h_filter.html')
 
     if request.method == 'POST':
         return HttpResponseRedirect(reverse("labsys:encounter", args=[5]))
@@ -94,12 +94,6 @@ def pat_enc(request, pat_id):
     encounter = Encounter.objects.filter(patient=patient)
     return render(request, 'labsys\index.html', {"encounter" :encounter, "date" : date})
 
-# renders patient registration form 
-@login_required(login_url='/login/')
-def patient_regi(request):
-    names = Name.objects.all()
-    return render(request, 'labsys\patient_regi.html',{ "names": names,
-            "form": PatientRegistration   })
 
 
 
@@ -187,20 +181,15 @@ def pat_register(request):
         form = PatientRegistration(request.POST)
         user = request.user
         if form.is_valid():
-           
-  
-            
-            #create new encounter instance
+           #create new encounter instance
             enc = Encounter()
             # assing it's patient attribute to new_patient instance of Patient Class and save
-            
             enc.practitioner = form.cleaned_data["practitioner"]
             enc.account = form.cleaned_data['account']
             enc.save()
             # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
             enc.test.set(form.cleaned_data["test"])
-
-            
+           
             #create new invoice and save without payment details
          
             p = enc.test.all().aggregate(Sum('value'))
@@ -219,7 +208,8 @@ def pat_register(request):
             inv.due = inv.totalnet-paid
             if inv.totalnet < 0 or inv.due < 0:
                 enc.delete()
-                return render(request, 'labsys\patient_regi.html', {"form": form, "message":"Payment Error !! Click on register New Patient to correct !"})      
+                names = Name.objects.all()    
+                return render(request, 'labsys\patient_regi.html', {"names": names,"form": form, "message":"Payment Error !! Click on register New Patient to correct !"})      
                         #pupulate new_patient instance of Patient class
             new_patient = Patient(birthDate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
             new_patient.save()
@@ -244,8 +234,6 @@ def pat_register(request):
                 c.enterer = request.user
                 c.account = form.cleaned_data['account']
                 c.save()
-           
-
             # next 8 lines implemented for adding priceovcerided field in chage item by default from charge item defination
             price = []
             for p in enc.test.all():
@@ -266,12 +254,16 @@ def pat_register(request):
             return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
         else:
+            names = Name.objects.all()
             return render(request, 'labsys\patient_regi.html', {
-                "form": form
+                "names": names,
+                "form": form,
+                "message":" Error !! Click on register New Patient to correct !"
             })
-    # if request method get      
-    return render(request, 'labsys\patient_regi.html', {
-            "form": PatientRegistration   })
+    # if request method get  
+    names = Name.objects.all()    
+    return render(request, 'labsys\patient_regi.html', {"names": names,
+            "form": PatientRegistration})
 
 
 
