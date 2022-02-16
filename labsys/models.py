@@ -189,7 +189,7 @@ class Practitioner(models.Model):
     def __str__(self):
         #return self.name.all()
         if self.name:
-            return 'Ref By : Dr {} {}'.format(self.name.get().text, self.name.get().family)
+            return 'Dr {} {}'.format(self.name.get().text.title(), self.name.get().family.title())
         else :
             return f'Practitioner id {self.id}'
 
@@ -545,7 +545,7 @@ class ChargeItemDefinition(models.Model):
 
 
     def __str__(self):
-        return f'Test : {self.title} Rs  : {self.value}'  
+        return f'{self.title} Rs  : {self.value}'  
 
 
 class Encounter(models.Model):

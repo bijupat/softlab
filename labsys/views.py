@@ -4,7 +4,7 @@ from django.shortcuts import render, HttpResponse
 from .models import *
 from django.utils.timezone import datetime 
 from django.db.models import Avg, Max, Min, Sum
-from .forms import EncounterRegistratioin, PatientRegistration
+from .forms import EncounterRegistration, PatientRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
@@ -102,7 +102,7 @@ def pat_enc(request, pat_id):
 @login_required(login_url='/login/')
 def regi_old_pat(request, pat_id):
     if request.method == "POST":
-        form = EncounterRegistratioin(request.POST)
+        form = EncounterRegistration(request.POST)
         user = request.user
 
         if form.is_valid():
@@ -173,7 +173,7 @@ def regi_old_pat(request, pat_id):
         else:
             return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })
             
-    return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistratioin })
+    return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistration })
 
 @login_required(login_url='/login/')
 def pat_register(request):
