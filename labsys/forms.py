@@ -39,14 +39,14 @@ class PatientRegistration(forms.Form):
     email = forms.EmailField(label="E Mail", required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E Mail',}))
     photo = forms.ImageField(label='Add Image ', required=False,  widget=forms.FileInput(attrs={'class': 'form-control', 'placeholder': 'Photo',}))
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}) )  
-    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control custom-select'}))
+    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
     account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}))
     discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount',}))
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid',}))
 
 class EncounterRegistration(forms.Form):
-    practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}) )  
-    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control custom-select'}))
+    practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
+    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
     account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
     discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount',}))
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid',}))

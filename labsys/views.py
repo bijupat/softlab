@@ -251,7 +251,7 @@ def pat_register(request):
                 payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
                 payment.save()
 
-            return HttpResponseRedirect(reverse("labsys:index"))
+            return HttpResponseRedirect(reverse("labsys:encounter",  args=[enc.id]))
         # if form is not valid
         else:
             names = Name.objects.all()
