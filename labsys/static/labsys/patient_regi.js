@@ -1,33 +1,135 @@
+// for multiselect in test slection input field 
+$(".chosen-select").chosen({
+    no_results_text: "Oops, nothing found!"
+  });
+
 (function(){
-    //hiding both new and old patient divs initially
-    document.querySelector('#new_patient').style.display = "none";
-    document.querySelector('#old_patient').style.display = "none";
-
-    // on click of new patient button display new patient div
-    document.querySelector('#new_pat_btn').addEventListener("click", function(event){
-        event.preventDefault(); 
-        //displa new patient div
-        document.querySelector('#new_patient').style.display = "block";
-        //hide old patient div if displayed already
-        document.querySelector('#old_patient').style.display = "none";        
-    });
-
-    // on click of old patient button display old patient div   
-    document.querySelector('#old_pat_btn').addEventListener("click", function(event){
-        event.preventDefault(); 
-        //displa old patient div
-        document.querySelector('#old_patient').style.display = "block";
-        //hide new patient div if displayed already
-        document.querySelector('#new_patient').style.display = "none";        
-    });
-
+   //hiding new patient divs initially
+   document.querySelector('#new_patient').style.display = "none";
+   document.querySelector('#old_patient').style.display = "block";
    
 
+   //hiding name and mobile no search field
+   document.querySelector('#name_input').style.display = "none";
+   document.querySelector('#mobno_input').style.display = "none";
+   document.querySelector('#srchbtn').style.display = "none";
+   document.querySelector('#new_pat_btn').style.display = "none";
+   document.querySelector('#srch_again').style.display = "none";
+
+  if (document.querySelector('#error_check')){
+    document.querySelector('#error_check').addEventListener("click", function(event){
+      event.preventDefault(); 
+      //displa new patient div
+      
+      document.querySelector('#new_patient').style.display = "block";
+      //hide old patient div if displayed already
+      document.querySelector('#old_patient').style.display = "none";
+      event.target.style.display = "none";        
+    });
+
+  }
+   
+
+  // on click of new patient button display new patient div
+  document.querySelector('#new_pat_btn').addEventListener("click", function(event){
+    event.preventDefault(); 
+    //displa new patient div
+    document.querySelector('#new_patient').style.display = "block";
+    //hide old patient div if displayed already
+    document.querySelector('#old_patient').style.display = "none";        
+  });
+  // on click of old patient button display old patient div   
+  document.querySelector('#srch_again').addEventListener("click", function(event){
+    event.preventDefault();
+    //remove all previous seach results
+    element = document.querySelector("#SrchRslt").innerHTML = '';
+    //hide it self
+    event.target.style.display = "none";    
+    //displa old patient div
+    document.querySelector('#old_patient').style.display = "block";
+    document.querySelector('#Srch_by_mobno').style.display = "block";
+    document.querySelector('#Srch_by_name').style.display = "block";
+    //hide new patient div if displayed already
+    document.querySelector('#new_patient').style.display = "none";
+    document.querySelector('#mobno_input').style.display = "none";
+    document.querySelector('#name_input').style.display = "none";
+    document.querySelector('#srchbtn').style.display = "none";
+    document.querySelector('#new_pat_btn').style.display = "none";
+    event.target.style.display = "none";      
+});
+  // on click of search by name button display seach by name  div
+  document.querySelector('#Srch_by_name').addEventListener("click", function(event){
+    event.preventDefault(); 
+    //displa seach by name div
+    document.querySelector('#name_input').style.display = "block";
+    document.querySelector('#srchbtn').style.display = "block";
+    document.querySelector('#srch_again').style.display = "block";
+    //hide mobinput div if displayed already
+    document.querySelector('#mobno_input').style.display = "none";
+    document.querySelector('#Srch_by_mobno').style.display = "none";
+    event.target.style.display = "none";
+  });
+  // on click of search by mobileno button display seach by name  div
+  document.querySelector('#Srch_by_mobno').addEventListener("click", function(event){
+    event.preventDefault(); 
+    //display seach by mobno div
+    document.querySelector('#mobno_input').style.display = "block";
+    document.querySelector('#srchbtn').style.display = "block";
+    document.querySelector('#srch_again').style.display = "block";
+    //hide mobinput div if displayed already
+    document.querySelector('#name_input').style.display = "none";
+    document.querySelector('#Srch_by_name').style.display = "none";
+    event.target.style.display = "none";
+  });
+  //fetch from search route
+  document.querySelector("#srchbtn").addEventListener("click", (event)=>{
+    event.preventDefault();
+    
+    // clearing innerHTML FROM LAST SEARCH
+    element = document.querySelector("#SrchRslt");
+    element.innerHTML = ''    
+    fname = document.querySelector("#fname").value
+    lname = document.querySelector("#lname").value
+    mobno = document.querySelector("#mobno").value
+    // checking if any one of the field has 3 charaters
+    
+    if (fname.length < 3 && lname.length < 3 && mobno.length != 10 ) {alert("Search with at least 3 char for name and exact 10 number for mobile"); return;}
+    //displaying not found add new patient and seach again buttons
+    document.querySelector('#new_pat_btn').style.display = "block";
+    document.querySelector('#name_input').style.display = "none";
+    document.querySelector('#mobno_input').style.display = "none";
+    document.querySelector('#srchbtn').style.display = "none";
+
+    data = { fname: fname, lname: lname, mobno : mobno  }
+    option = {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+        };
+      fetch('/search/', option)
+      .then(response => response.json())
+      .then(names => {
+        names.forEach(name=>{          
+          let tr = document.createElement("tr");
+          tr.innerHTML = `<td class="view-message text-left">${name.patient_id}</td>
+                        <td class="view-message text-center "><a href= 'regi_old_pat/${name.patient_id}'>${name.fname} ${name.lname} </a> </td>
+                        <td class="view-message text-right">${name.mobno}</td>`;
+          element.append(tr)
+        })
+        
+        
+      
+      })
+      .catch(e => console.error(e))
+      
+      });
+/* for patient search input option 
 
         document.querySelector('#searchpatdropdwnbtn').addEventListener("click", function(event){
             document.getElementById("myDropdown").classList.toggle("show");
-    
-    
         });
     
         document.querySelector('#myInput').addEventListener("keyup", function(event){
@@ -46,22 +148,6 @@
                 a[i].style.display = "none";
               }
             }
-    
-        });
-    
-
-
-
-
-
-
-
-
-
-
-
-  
-
-    
+        }); */
 })()
 

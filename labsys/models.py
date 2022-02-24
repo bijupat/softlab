@@ -307,6 +307,28 @@ class Name(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='name',blank=True, null=True)
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True)
 
+    def serialize(self):
+        #if name if for patient it will retun filled dic
+        if self.patient:
+            mobno = ""
+            for t in self.patient.telecom.all():
+                if t.use == "M":
+                    mobno = t.value
+            return{
+                "fname": self.text,
+                "lname": self.family,
+                "patient_id": self.patient.id,
+                "mobno": mobno,    
+            }
+        #if name if of contact or practitioner it will retun empty dict
+        else:
+            return{
+                "fname": "",
+                "lname": "",
+                "patient_id":"",
+                "mobno": "",            
+            }
+
     def __str__(self):
         if self.patient:
             return 'Patient : {} {} having  id {}'.format(self.text, self.family, self.patient.id)

@@ -2,6 +2,7 @@
 from multiprocessing import context
 from django.shortcuts import render, HttpResponse
 from .models import *
+from django.http import JsonResponse
 from django.utils.timezone import datetime 
 from django.db.models import Avg, Max, Min, Sum
 from .forms import EncounterRegistration, PatientRegistration
@@ -19,7 +20,37 @@ class InvoiceListView(ListView):
     model = Invoice
     context_object_name = 'invoice_Obj'
 
+@csrf_exempt
+@login_required(login_url='/login/')
+def search(request):
+    fname = json.loads(request.body.decode('utf-8'))["fname"]
+    lname = json.loads(request.body.decode('utf-8'))["lname"]
+    mobno = json.loads(request.body.decode('utf-8'))["mobno"]
 
+    if len(mobno) == 10 :
+        telecoms = Telecom.objects.filter(use="M").filter(value=mobno)
+        patients = Patient.objects.filter(telecom__in = telecoms)
+        #filtering name objects with having patient in filtered patient set(queryset) patients
+        name_found = Name.objects.filter(patient__in=patients)
+        names = name_found.order_by("-text").all()
+        return JsonResponse([name.serialize() for name in names], safe=False)
+    else:
+        if fname and lname:
+            name_found = Name.objects.filter(text__icontains=fname).filter(family__icontains=lname)
+            names = name_found.order_by("-text").all()
+            return JsonResponse([name.serialize() for name in names], safe=False)
+        if fname and not lname:
+            name_found = Name.objects.filter(text__icontains=fname)
+            names = name_found.order_by("-text").all()
+            return JsonResponse([name.serialize() for name in names], safe=False)
+        if lname and not fname:
+            name_found = Name.objects.filter(family__icontains=lname)
+            names = name_found.order_by("-text").all()
+            return JsonResponse([name.serialize() for name in names], safe=False)
+        
+
+
+    return HttpResponse(status=400)
 
 
 @csrf_exempt
@@ -209,7 +240,7 @@ def pat_register(request):
             if inv.totalnet < 0 or inv.due < 0:
                 enc.delete()
                 names = Name.objects.all()    
-                return render(request, 'labsys\patient_regi.html', {"names": names,"form": form, "message":"Payment Error !! Click on register New Patient to correct !"})      
+                return render(request, 'labsys\patient_regi.html', {"names": names,"form": form, "message":"Payment Error!! Click HERE to correct!"})      
                         #pupulate new_patient instance of Patient class
             new_patient = Patient(birthDate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
             new_patient.save()
@@ -258,7 +289,7 @@ def pat_register(request):
             return render(request, 'labsys\patient_regi.html', {
                 "names": names,
                 "form": form,
-                "message":" Error !! Click on register New Patient to correct !"
+                "message": "Payment Error!! Click HERE to correct!",
             })
     # if request method get  
     names = Name.objects.all()    

@@ -21,11 +21,9 @@
 
 {% block body %}
 {% if message %}
-<div style="color:red">{{message}}</div>
+<button type="submit" id = "error_check" class="btn btn-danger btn-block">{{message}}</button>
 <br>
 {% endif %}
-<button  id = "new_pat_btn" class="btn btn-outline-info">Register New Patient</button> 
-<button id = "old_pat_btn" class="btn btn-outline-info ">Register Old Patient</button>
 <br>
 
 <!-- This is for new patient -->
@@ -59,38 +57,71 @@
             <div class="form-group col-md-3">{{form.paid}}<span style="color:red;">{{ form.paid.errors }}</span></div>
             <div class="form-group col-md-5">{{form.photo}}</div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
+        <button type="submit" id = "new_pat_save_btn" class="btn btn-primary btn-sm btn-block">Save</button>
     </form>
+    
+
 </div>
 
 
 <!-- this is for old patient -->
 <div id = "old_patient" >
-    <div class="dropdown">
+    <br>
+    <div>
+        <button  id = "Srch_by_name" class="btn btn-primary btn-block btn-lg">Seach by Name</button> 
         <br>
-        <button id = "searchpatdropdwnbtn" class="dropbtn">Search</button>
-        <br>
-        <div id="myDropdown" class="dropdown-content" >
-            <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
-                {% for name in names %}  
-                    <a href={% url 'labsys:regi_old_pat' name.patient.id|default:"0"  %}>{{name.text}} {{name.family}}
-                    {% for tele in name.patient.telecom.all %}
-                        {% if tele.use == "M" %}
-                            {{tele.value}}
-                        {% endif %}
-                    {% endfor %}
-                    </a>
-                {% empty %}
-                    <a>No Name to Select !!</a >
-                {% endfor %}                      
+        <button id = "Srch_by_mobno" class="btn btn-primary btn-block btn-lg">Search By Mobile No</button>
+         
+
+    </div>
+    <br>
+    
+    <div class="form-row" id = "name_input">
+        <div class="form-group col-md-12">
+            <ul>
+                <li>Search is not case sensitive, One can seach with upper or lower case.</li>
+                <li>You need to put at  least 3 characters in any one of the fields and other field can have any nuber of
+                    characters, starting from 0.</li>
+            </ul>
+        </div>
+        <div class="form-group col-md-6">
+            <input autofocus onkeydown="return /[a-z]/i.test(event.key)" type="text" id = "fname" class="form-control" placeholder = "Enter First Name" >
+        </div>
+        <div class="form-group col-md-6">
+            <input onkeydown="return /[a-z]/i.test(event.key)" type="text" id = "lname" class="form-control" placeholder = "Enter Last Name">
+        </div>
+        
+    </div>
+    <div class="form-row"id = "mobno_input" >
+        <div class="form-group col-md-12">
+            <ul>
+                <li>Please enter Exactly 10 Numbers</li>
+            </ul>
+        </div>
+        <div class="form-group col-md-12">
+            <input  id ="mobno" type="number" maxlength="10" class="form-control" placeholder = "Enter Mobile Number">
         </div>
     </div>
+    <br>
+    <br>
+    <button type="submit" class="btn btn-primary btn-block" id="srchbtn">Search</button>
+    <br>
+    <br>
+    <div>
+        <table class="table table-inbox table-hover">
+            <tbody id="SrchRslt">
+
+            </tbody>
+        </table>
+        <button  id = "new_pat_btn" class="btn btn-info btn-block">Not Found add new Patient</button>
+        <br>
+        <button  id = "srch_again" class="btn btn-info btn-block">Seach Again</button>
+
+
+      </div>
+    
 </div>
-<script>
-$(".chosen-select").chosen({
-    no_results_text: "Oops, nothing found!"
-  });
-</script>
+
 
 
 

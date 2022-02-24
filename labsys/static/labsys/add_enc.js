@@ -1,3 +1,8 @@
+// for multiselect in test slection input field 
+$(".chosen-select").chosen({
+  no_results_text: "Oops, nothing found!"
+});
+
 (function(){
 
 class CustomSelect {

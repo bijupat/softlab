@@ -16,6 +16,7 @@ urlpatterns = [
     path('addtest/<int:e_id>/<int:t_id>/', views.AddTest, name = 'addtest'),
     path('addeditdiscount/', views.AddEditDiscount, name = 'addeditdiscount'),
     path('find/', views.find, name = 'find'),
+    path('search/', views.search, name = 'search'),
     path('pat_enc/<int:pat_id>/', views.pat_enc, name = 'pat_enc'),
     path('regi_old_pat/<int:pat_id>/', views.regi_old_pat, name = 'regi_old_pat'),
 
