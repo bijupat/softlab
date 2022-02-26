@@ -199,7 +199,7 @@ def regi_old_pat(request, pat_id):
             if paid:
                 payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
                 payment.save()
-            return HttpResponseRedirect(reverse("labsys:encounter",  args=[enc.id]))
+            return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
         else:
             return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })
@@ -282,7 +282,7 @@ def pat_register(request):
                 payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
                 payment.save()
 
-            return HttpResponseRedirect(reverse("labsys:encounter",  args=[enc.id]))
+            return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
         else:
             names = Name.objects.all()
