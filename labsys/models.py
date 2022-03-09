@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date
 #from django.db.models.fields.related import OneToOneField
+from django.contrib.postgres.fields import JSONField
 
 
 
@@ -290,7 +291,7 @@ class Telecom(models.Model):
 
 class Name(models.Model):
     # // usual | official | temp | nickname | anonymous | old | maiden
-    use = models.CharField(max_length=7, blank=True, null=True, choices =Name_use)
+    use = models.CharField(max_length=7, blank=True, null=True, choices =Name_use, default="U")
     # // Text representation of the full name   
     text = models.CharField(max_length=75)
     # // Family name (often called 'Surname')
@@ -543,7 +544,9 @@ class ChargeItemDefinition(models.Model):
     # is it individula test or profiel ?
     is_profile = models.BooleanField(blank=True, null=True, default=False)
     # observations(test) included in this charge item
-    observations_included = models.ManyToManyField(ObservationDefinition, blank=True,  related_name='chargeitemdef' )
+    #observations_included = models.ManyToManyField(ObservationDefinition, blank=True,  related_name='chargeitemdef')
+    observations = models.ManyToManyField(ObservationDefinition, blank=True, related_name='chargeitemdef')
+
     # heading to the report print like Hemogram / Liver function test implemented to whole  report
     heading = models.CharField(max_length=75, blank=True, null=True)
     #Date last changed
@@ -572,9 +575,8 @@ class ChargeItemDefinition(models.Model):
 
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
-    test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='Encounter')
-    #observation = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='encounter_observation', blank=True, null=True)
-    #test = models.ForeignKey(ObservationDefination, on_delete=models.PROTECT, related_name='encounter_observationdefination', blank=True, null=True)
+    test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
+    observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='encounter')
     # planned | arrived | triaged | in-progress | onleave | finished | cancelled
     status = models.CharField(max_length=75, blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='encounter', blank=True, null=True)
@@ -622,7 +624,7 @@ class Observation(models.Model):
     informed_timedate = models.DateTimeField(blank=True, null=True)
     # timedate when delivered report 
     delivered_timedate = models.DateTimeField(blank=True, null=True)
-    test = models.ForeignKey(ObservationDefinition, related_name='observation', on_delete=models.PROTECT, blank=True, null=True)
+    testfield = models.ForeignKey(ObservationDefinition, related_name='observation', on_delete=models.PROTECT, blank=True, null=True)
     # result of the test 
     value = models.CharField(max_length=500, blank=True, null=True)
     # copied from observationdefination.unit but open for change if desired
@@ -643,8 +645,8 @@ class Observation(models.Model):
         ordering = ["-timedate"]
     
     def __str__(self):
-        if self.encounter and self.test:
-            return 'Observation : {} for Patient : {} for test {} on Encounter id : {}'.format(self.id, self.encounter.patient.name.get().text, self.test.test, self.encounter.id)
+        if self.encounter and self.testfield:
+            return 'Observation : {} for Patient : {} for test {} on Encounter id : {}'.format(self.id, self.encounter.patient.name.get().text, self.testfield.test, self.encounter.id)
         else:
             return 'You need to enter observation using Encounter model'
 
@@ -736,7 +738,7 @@ class ChargeItem(models.Model):
     # Price overriding first time as default from chargeitemdefination.value
     priceOverride = models.PositiveIntegerField(blank=True, null=True)
     # Reason for overriding if done aftert first entry the list price/factor
-    overrideReason = models.CharField(max_length=200, blank=True, null=True)
+    overrideReason = models.CharField(max_length=200, blank=True, null=True, default="Registration")
     # Individual who was entering
     enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
     # Which rendered service is being charged?

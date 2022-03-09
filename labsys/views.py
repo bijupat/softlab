@@ -339,6 +339,14 @@ def encounter(request, enc_id):
 
     return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
 
+
+@login_required(login_url='/login/')
+def chargeitem(request, chargeitem_id):
+    chargeitem = ChargeItem.objects.get(pk=chargeitem_id)
+
+    c = chargeitem.definitionCanonical.observations.all()
+    return HttpResponse(f'this is chargeitem id {chargeitem.id}, {chargeitem.definitionCanonical} and {c}.')
+
 @login_required(login_url='/login/')
 def find(request):
     if request.method == "POST":
