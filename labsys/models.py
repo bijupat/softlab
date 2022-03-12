@@ -576,7 +576,7 @@ class ChargeItemDefinition(models.Model):
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
-    observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='encounter')
+    #observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='encounter')
     # planned | arrived | triaged | in-progress | onleave | finished | cancelled
     status = models.CharField(max_length=75, blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='encounter', blank=True, null=True)
@@ -597,6 +597,42 @@ class Encounter(models.Model):
     def __str__(self):
             return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.name.get().text, self.timedate)
 
+
+
+class ChargeItem(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # Resource defining the code of this ChargeItem
+    definitionCanonical = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, null=True, blank=True, related_name='chargeitem')
+    # planned | billable | not-billable | aborted | billed | entered-in-error | unknown
+    status = models.CharField(max_length=75, blank=True, null=True, default='billed')
+    #Part of referenced ChargeItem
+    partOf = models.ForeignKey("self", on_delete=models.CASCADE, related_name='chargeitem_partof', null=True, blank=True)
+    # Individual service was done for/to
+    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='chargeitem', null=True, blank=True)
+    # Encounter / Episode associated with event
+    context = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='chargeitem', null=True, blank=True)
+    # When the charged service was applied
+    occurrenceDateTime = models.DateTimeField(auto_now_add=True)
+    # Price overriding first time as default from chargeitemdefination.value
+    priceOverride = models.PositiveIntegerField(blank=True, null=True)
+    # Reason for overriding if done aftert first entry the list price/factor
+    overrideReason = models.CharField(max_length=200, blank=True, null=True, default="Registration")
+    # Individual who was entering
+    enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
+    # Which rendered service is being charged?
+    #service = models.ForeignKey(DiagnosticReport, on_delete=models.CASCADE, related_name='chargeitem_diagnosticreport', null=True, blank=True)
+    
+    observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='chargeitem')
+
+    # Account to place this charge
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='ChargeItem', blank=True, null=True)
+    # copies  from charge item defination but open for edit if desired
+    note = models.CharField(max_length=1000, blank=True, null=True)
+
+
+    def __str__(self):
+        return f' id : {self.id} Test : {self.definitionCanonical} for Enc : {self.context.id}'
+
 class Observation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | preliminary | final | amended + |informed | delivered
@@ -612,6 +648,10 @@ class Observation(models.Model):
     # changes to amended if amended
     amended_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_amended_by', blank=True, null=True)
     #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
+    
+    # Foreign Key to Chargeitem as requirement of through model; this model is intermediate model
+    chargeitem = models.ForeignKey(ChargeItem, on_delete=models.PROTECT, related_name='observation', blank=True, null=True)
+
     # timedate when registed
     timedate = models.DateTimeField(auto_now_add=True)
     # timedate when prelimnary report added
@@ -631,7 +671,7 @@ class Observation(models.Model):
     unit = models.CharField(max_length=75, blank=True, null=True)
     # to be added to print format if desired
     interpretation = models.CharField(max_length=200, blank=True, null=True)
-    encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation', blank=True, null=True)
+    #encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='observation', blank=True, null=True)
     # add Ref high and low value based on patient age and sex from observationdefination qualified interval
     # this will not change even if we change it in observationdefination qualifed interval so it will not take retrospective effect
     high = models.CharField(max_length=75, blank=True, null=True)
@@ -645,8 +685,8 @@ class Observation(models.Model):
         ordering = ["-timedate"]
     
     def __str__(self):
-        if self.encounter and self.testfield:
-            return 'Observation : {} for Patient : {} for test {} on Encounter id : {}'.format(self.id, self.encounter.patient.name.get().text, self.testfield.test, self.encounter.id)
+        if self.chargeitem and self.testfield:
+            return 'Observation : {} for Patient : {} for test {} on Encounter id : {}'.format(self.id, self.chargeitem.context.patient.name.get().text, self.testfield.test, self.chargeitem.context.id)
         else:
             return 'You need to enter observation using Encounter model'
 
@@ -719,36 +759,3 @@ class PaymentReconciliation(models.Model):
 
 
 
-
-
-class ChargeItem(models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    # Resource defining the code of this ChargeItem
-    definitionCanonical = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, null=True, blank=True, related_name='chargeitem')
-    # planned | billable | not-billable | aborted | billed | entered-in-error | unknown
-    status = models.CharField(max_length=75, blank=True, null=True, default='billed')
-    #Part of referenced ChargeItem
-    partOf = models.ForeignKey("self", on_delete=models.CASCADE, related_name='chargeitem_partof', null=True, blank=True)
-    # Individual service was done for/to
-    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='chargeitem', null=True, blank=True)
-    # Encounter / Episode associated with event
-    context = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='chargeitem', null=True, blank=True)
-    # When the charged service was applied
-    occurrenceDateTime = models.DateTimeField(auto_now_add=True)
-    # Price overriding first time as default from chargeitemdefination.value
-    priceOverride = models.PositiveIntegerField(blank=True, null=True)
-    # Reason for overriding if done aftert first entry the list price/factor
-    overrideReason = models.CharField(max_length=200, blank=True, null=True, default="Registration")
-    # Individual who was entering
-    enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
-    # Which rendered service is being charged?
-    #service = models.ForeignKey(DiagnosticReport, on_delete=models.CASCADE, related_name='chargeitem_diagnosticreport', null=True, blank=True)
-    
-    # Account to place this charge
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='ChargeItem', blank=True, null=True)
-    # copies  from charge item defination but open for edit if desired
-    note = models.CharField(max_length=1000, blank=True, null=True)
-
-
-    def __str__(self):
-        return f'Test : {self.definitionCanonical}'

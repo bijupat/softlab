@@ -5,7 +5,6 @@ class PatientAdmin(admin.ModelAdmin):
     list_display =('id', 'active', 'gender')
 
 
-
 class ChargeItemDefinitionAdmin(admin.ModelAdmin):
     filter_horizontal = ('observations', 'specimen', 'pricelist_included')
 

@@ -61,24 +61,30 @@ def DeleteTest(request):
         eid = json.loads(request.body.decode('utf-8'))["eid"]
         testid = json.loads(request.body.decode('utf-8'))["testid"]
 
-        ec = Encounter.objects.get(pk=eid)
-        chargeItem = ChargeItem.objects.filter(context=ec)
-        chargeItem.filter(id=testid).delete()
+        #enc = Encounter.objects.get(pk=eid)
+        chargeitem = ChargeItem.objects.filter(id=testid)
+        Observation.objects.filter(chargeitem__in = chargeitem).delete()
+        chargeitem.delete()   
+
         
     
         return HttpResponse(status=200)
 
 @login_required(login_url='/login/')
 def AddTest(request, e_id, t_id):
-
         # geting ecnouter object from it's id
-        ec = Encounter.objects.get(pk=e_id)
+        enc = Encounter.objects.get(pk=e_id)
         # geting chargeItemDefination object by it's id
-        test = ChargeItemDefinition.objects.get(pk=t_id)
+        test = ChargeItemDefinition.objects.get(pk=t_id)        
         # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
-        new_test = ChargeItem(definitionCanonical=test, context=ec, priceOverride = test.value )
+        new_test = ChargeItem(definitionCanonical=test, context=enc, priceOverride = test.value)        
         # Saving new chargeitem object  
         new_test.save()
+        #finding set of observationdefs under test(chargeitemdef)
+        observations = test.observations.all()
+        # adding filtered observationdef to chageitem.observation(new_test.observation) as set
+        new_test.observations.set(observations)
+
 
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
 
@@ -150,7 +156,8 @@ def regi_old_pat(request, pat_id):
             enc.save()
             # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
             # enc.test is chargeitems for the encounter 
-            enc.test.set(form.cleaned_data["test"])
+            chageitemdefinations = form.cleaned_data["test"]
+            enc.test.set(chageitemdefinations)
 
             # filtering chargeitems for encounter and getting its subject and enterer filed with patient and user
             chargeItems = ChargeItem.objects.filter(context=enc)
@@ -158,6 +165,11 @@ def regi_old_pat(request, pat_id):
                 c.subject = old_patient
                 c.enterer = request.user
                 c.account = form.cleaned_data['account']
+                #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
+                # finding set of observations in test(chargeitemdef) by .observations.all()
+                observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
+                # adding filtered observationdef to chageitem.observation(new_test.observation) as set
+                c.observations.set(observations)
                 c.save()
             
             p = enc.test.all().aggregate(Sum('value'))
@@ -199,6 +211,8 @@ def regi_old_pat(request, pat_id):
             if paid:
                 payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
                 payment.save()
+           
+           
             return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
         else:
@@ -219,10 +233,10 @@ def pat_register(request):
             enc.account = form.cleaned_data['account']
             enc.save()
             # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
-            enc.test.set(form.cleaned_data["test"])
+            chageitemdefinations = form.cleaned_data["test"]
+            enc.test.set(chageitemdefinations)
            
-            #create new invoice and save without payment details
-         
+            #create new invoice and save without payment details         
             p = enc.test.all().aggregate(Sum('value'))
             paid = form.cleaned_data["paid"]
             #populate payment data in invoice object
@@ -264,6 +278,11 @@ def pat_register(request):
                 c.subject = new_patient
                 c.enterer = request.user
                 c.account = form.cleaned_data['account']
+                #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
+                # finding set of observations in test(chargeitemdef) by .observations.all()
+                observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
+                # adding filtered observationdef to chageitem.observation(new_test.observation) as set
+                c.observations.set(observations)
                 c.save()
             # next 8 lines implemented for adding priceovcerided field in chage item by default from charge item defination
             price = []
@@ -281,6 +300,7 @@ def pat_register(request):
             if paid:
                 payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
                 payment.save()
+            
 
             return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
@@ -343,9 +363,11 @@ def encounter(request, enc_id):
 @login_required(login_url='/login/')
 def chargeitem(request, chargeitem_id):
     chargeitem = ChargeItem.objects.get(pk=chargeitem_id)
+    
+    observations = Observation.objects.filter(chargeitem=chargeitem)
 
-    c = chargeitem.definitionCanonical.observations.all()
-    return HttpResponse(f'this is chargeitem id {chargeitem.id}, {chargeitem.definitionCanonical} and {c}.')
+    return render(request, 'labsys\obs_by_chgItm.html', {"observations": observations, "chargeitem" : chargeitem} )
+
 
 @login_required(login_url='/login/')
 def find(request):

@@ -1,0 +1,16 @@
+{% extends "labsys/layout.html" %}
+{% block title %}{{chargeitem.definitionCanonical}}{% endblock %}
+{% block body %}
+{% if message %}
+<div>{{ message }}</div>
+{% endif %}
+    <h2>{{chargeitem.definitionCanonical.title}} ({{chargeitem.definitionCanonical.alias|default:""}})</h2>
+    {% for obs in observations %}
+    <hr>
+    {{obs.testfield.test}}
+    
+    {% endfor %}
+    <hr>
+
+
+{% endblock %}
