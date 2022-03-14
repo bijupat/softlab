@@ -243,7 +243,11 @@ class Patient(models.Model):
 
     def __str__(self):
         if self.name:
-            return '{} {} (ID : {}) : {} Yrs/{}'.format(self.name.get().text, self.name.get().family, self.id, self.age, self.gender )
+            for name in self.name.all():
+                if name.use == "U":
+                    fname = name.text
+                    lname = name.family
+            return '{} {} : {} Yrs/{} (ID : {})'.format(fname, lname , self.age, self.gender, self.id)
         else :
             return f'Patient id : {self.id}'
 
@@ -471,8 +475,8 @@ class ObservationDefinition(models.Model):
 
 # Referance range for testlist(observationdefination)
 class QualifiedInterval(models.Model):
-    high = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    low = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    high = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    low = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     text_as_normal =  models.CharField(max_length=500, blank=True, null=True)
     # category can be reference | critical | absolute
     category = models.CharField(max_length=10, choices=qualifiedInterval_category, default="reference")

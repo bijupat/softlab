@@ -1,0 +1,18 @@
+{% extends "labsys/layout.html" %}
+{% block title %}{{chargeitem.definitionCanonical.title}}/{{chargeitem.context.patient}}{% endblock %}
+{% block body %}
+{% if message %}
+<div>{{ message }}</div>
+{% endif %}
+    <h4>{{chargeitem.context.patient}} </h4>
+    <h5>{{chargeitem.definitionCanonical.title}} ({{chargeitem.definitionCanonical.alias|default:""}})</h5>
+    {% for ob in observations %}
+    <hr>
+    {{ob.testfield.test}} : {{ob.get_status_display|capfirst}} at {{ob.timedate}} : Result : {{ob.value|default:"Not Entered"}} {{ob.unit}} ({{ob.high}}-{{ob.low}})
+    <br>
+    {{ob.note}}
+    {% endfor %}
+    <hr>
+
+
+{% endblock %}

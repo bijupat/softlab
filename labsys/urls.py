@@ -19,8 +19,8 @@ urlpatterns = [
     path('search/', views.search, name = 'search'),
     path('pat_enc/<int:pat_id>/', views.pat_enc, name = 'pat_enc'),
     path('regi_old_pat/<int:pat_id>/', views.regi_old_pat, name = 'regi_old_pat'),
-    path('chargeitem/<int:chargeitem_id>/', views.chargeitem, name='chargeitem'),
-
+    path('chargeitem/<int:chargeitem_id>/<str:option>', views.chargeitem, name='chargeitem'),
+    path('observation_edit/', views.ObservationEdit, name = 'observationedit'),
 
     
 

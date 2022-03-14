@@ -85,6 +85,21 @@ def AddTest(request, e_id, t_id):
         # adding filtered observationdef to chageitem.observation(new_test.observation) as set
         new_test.observations.set(observations)
 
+        # add default values to observatioin from ob_def    
+        observations = Observation.objects.filter(chargeitem = new_test)
+        for o in observations:
+            ob_def = o.testfield
+            qualifiedIntervals = ob_def.qualifiedinterval
+            for q in qualifiedIntervals.all():
+                if q.category == "R":
+                    high = q.high
+                    low = q.low
+            o.status = "R"
+            o.unit = ob_def.unit
+            o.high = high
+            o.low = low  
+            o.note = ob_def.note
+            o.save()            
 
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
 
@@ -100,6 +115,15 @@ def AddEditDiscount(request):
         #print(eid)
         #print(discount)
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[eid]))
+
+@login_required(login_url='/login/')
+def ObservationEdit(request):
+    if request.method == "POST":
+        ob = Observation.objects.get(pk=request.POST["ob_id"])
+        ob.value = request.POST["ob_value"]
+        ob.save()
+        
+        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "edit"]))
 
 @login_required(login_url='/login/')
 def AddPayment(request):
@@ -157,20 +181,7 @@ def regi_old_pat(request, pat_id):
             # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
             # enc.test is chargeitems for the encounter 
             chageitemdefinations = form.cleaned_data["test"]
-            enc.test.set(chageitemdefinations)
-
-            # filtering chargeitems for encounter and getting its subject and enterer filed with patient and user
-            chargeItems = ChargeItem.objects.filter(context=enc)
-            for c in chargeItems:
-                c.subject = old_patient
-                c.enterer = request.user
-                c.account = form.cleaned_data['account']
-                #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
-                # finding set of observations in test(chargeitemdef) by .observations.all()
-                observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
-                # adding filtered observationdef to chageitem.observation(new_test.observation) as set
-                c.observations.set(observations)
-                c.save()
+            enc.test.set(chageitemdefinations)            
             
             p = enc.test.all().aggregate(Sum('value'))
             paid = form.cleaned_data["paid"]
@@ -195,15 +206,35 @@ def regi_old_pat(request, pat_id):
             enc.save()
             
 
-            # next 8 lines implemented for adding priceovcerided field in chage item by default from charge item defination
-            price = []
-            for p in enc.test.all():
-                price.append(p.value)
-            test = ChargeItem.objects.filter(context=enc)
-            for t in test:
-                p = price.pop(0)
-                t.priceOverride = p
-                t.save()
+           # filtering charge items for encounter and getting its subject and enterer filed with patient and user
+            chargeItems = ChargeItem.objects.filter(context=enc)
+            for c in chargeItems:
+                c.subject = old_patient
+                c.enterer = request.user
+                c.account = form.cleaned_data['account']
+                #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
+                # finding set of observations in test(chargeitemdef) by .observations.all()
+                observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
+                # adding filtered observationdef to chageitem.observation(new_test.observation) as set
+                c.observations.set(observations)
+                # to add price overide in chargeitem
+                c.priceOverride = c.definitionCanonical.value
+                c.save()
+                    # add default values to observatioin from ob_def    
+            observations = Observation.objects.filter(chargeitem__in = chargeItems)
+            for o in observations:
+                ob_def = o.testfield
+                qualifiedIntervals = ob_def.qualifiedinterval
+                for q in qualifiedIntervals.all():
+                    if q.category == "R":
+                        high = q.high
+                        low = q.low
+                o.status = "R"
+                o.unit = ob_def.unit
+                o.high = high
+                o.low = low  
+                o.note = ob_def.note
+                o.save()
             #pat_address = Address()
             #pat_address.use = "home"
             #pat_address.text = form.cleaned_data["Address"]
@@ -283,24 +314,32 @@ def pat_register(request):
                 observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
                 # adding filtered observationdef to chageitem.observation(new_test.observation) as set
                 c.observations.set(observations)
+                # to add price overide in chargeitem
+                c.priceOverride = c.definitionCanonical.value
                 c.save()
-            # next 8 lines implemented for adding priceovcerided field in chage item by default from charge item defination
-            price = []
-            for p in enc.test.all():
-                price.append(p.value)
-            test = ChargeItem.objects.filter(context=enc)
-            for t in test:
-                p = price.pop(0)
-                t.priceOverride = p
-                t.save()
+            # add default values to observatioin from ob_def    
+            observations = Observation.objects.filter(chargeitem__in = chargeItems)
+            for o in observations:
+                ob_def = o.testfield
+                qualifiedIntervals = ob_def.qualifiedinterval
+                for q in qualifiedIntervals.all():
+                    if q.category == "R":
+                        high = q.high
+                        low = q.low
+                o.status = "R"
+                o.unit = ob_def.unit
+                o.high = high
+                o.low = low  
+                o.note = ob_def.note
+                o.save()            
+
             #pat_address = Address()
             #pat_address.use = "home"
             #pat_address.text = form.cleaned_data["Address"]
             #pat_address.save()
             if paid:
                 payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
-                payment.save()
-            
+                payment.save()          
 
             return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
@@ -361,12 +400,11 @@ def encounter(request, enc_id):
 
 
 @login_required(login_url='/login/')
-def chargeitem(request, chargeitem_id):
-    chargeitem = ChargeItem.objects.get(pk=chargeitem_id)
-    
+def chargeitem(request, chargeitem_id, option):
+    chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
     observations = Observation.objects.filter(chargeitem=chargeitem)
-
-    return render(request, 'labsys\obs_by_chgItm.html', {"observations": observations, "chargeitem" : chargeitem} )
+    
+    return render(request, f'labsys\obs_by_chgItm_{option}.html', {"observations": observations, "chargeitem" : chargeitem} )
 
 
 @login_required(login_url='/login/')

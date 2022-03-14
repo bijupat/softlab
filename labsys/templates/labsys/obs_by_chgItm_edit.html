@@ -1,0 +1,22 @@
+{% extends "labsys/layout.html" %}
+{% block title %}{{chargeitem.definitionCanonical.title}}/{{chargeitem.context.patient}}{% endblock %}
+{% block body %}
+{% if message %}
+<div>{{ message }}</div>
+{% endif %}
+    <h4>{{chargeitem.context.patient}} </h4>
+    <h5>{{chargeitem.definitionCanonical.title}} ({{chargeitem.definitionCanonical.alias|default:""}})</h5>
+    {% for ob in observations %}
+        <form action="{% url 'labsys:observationedit' %}" method="post">
+        {% csrf_token %}
+            <li  class="list-group-item d-flex justify-content-between align-items-center testname">
+            <label for="testname">{{ob.testfield.test}}:</label>
+            {{ob.value|default:"Not Entered"}}
+            <input  style="width:25%" class="form-control" name="ob_value">
+            <input  type= "submit" value = "Update">
+            <input type = "hidden" name= "chargeitem_id" value = "{{chargeitem.id}}">
+            <input type = "hidden" name= "ob_id" value = "{{ob.id}}">
+            </li>
+        </form>
+    {% endfor %}
+{% endblock %}
