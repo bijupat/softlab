@@ -88,6 +88,8 @@ def AddTest(request, e_id, t_id):
         # add default values to observatioin from ob_def    
         observations = Observation.objects.filter(chargeitem = new_test)
         for o in observations:
+            high = "Not Defined"
+            low =  "Not Defined"
             ob_def = o.testfield
             qualifiedIntervals = ob_def.qualifiedinterval
             for q in qualifiedIntervals.all():
@@ -118,11 +120,19 @@ def AddEditDiscount(request):
 
 @login_required(login_url='/login/')
 def ObservationEdit(request):
-    if request.method == "POST":
-        ob = Observation.objects.get(pk=request.POST["ob_id"])
-        ob.value = request.POST["ob_value"]
-        ob.save()
+    if request.method == "POST": 
+        chargeitem_id = request.POST["chargeitem_id"]    
+        chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
+        observations = Observation.objects.filter(chargeitem=chargeitem)
         
+        for ob in observations:
+            if request.POST[str(ob.id)]:
+                ob.value = request.POST[str(ob.id)]
+                ob.status = "P"
+                ob.prelimnary_by = request.user
+                ob.prelimnary_timedate = datetime.now()
+                ob.save()
+            
         return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "edit"]))
 
 @login_required(login_url='/login/')

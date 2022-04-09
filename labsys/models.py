@@ -139,10 +139,10 @@ ObservationDefinition_category =(
 )
 # registered | preliminary | final | amended
 Observation_status= (
-    ("R", "registered"),
-    ("P", "preliminary"),
-    ("F", "final"),
-    ("A", "amended"),
+    ("R", "Registered"),
+    ("P", "Preliminary"),
+    ("F", "Final"),
+    ("A", "Amended"),
 )
 """
 ObservtionDefination.qualifiedinterval.category

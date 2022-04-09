@@ -6,17 +6,30 @@
 {% endif %}
     <h4>{{chargeitem.context.patient}} </h4>
     <h5>{{chargeitem.definitionCanonical.title}} ({{chargeitem.definitionCanonical.alias|default:""}})</h5>
-    {% for ob in observations %}
-        <form action="{% url 'labsys:observationedit' %}" method="post">
-        {% csrf_token %}
+   
+    <form action="{% url 'labsys:observationedit' %}" method="post">
+        {% csrf_token %}   
+        {% for ob in observations %}         
             <li  class="list-group-item d-flex justify-content-between align-items-center testname">
             <label for="testname">{{ob.testfield.test}}:</label>
             {{ob.value|default:"Not Entered"}}
-            <input  style="width:25%" class="form-control" name="ob_value">
-            <input  type= "submit" value = "Update">
-            <input type = "hidden" name= "chargeitem_id" value = "{{chargeitem.id}}">
-            <input type = "hidden" name= "ob_id" value = "{{ob.id}}">
+            <input  style="width:25%" class="form-control" name="{{ob.id}}">
+            <td scope="col">    <a href={% url 'labsys:encounter' chargeitem.context.id   %} class="btn btn-outline-primary btn-sm">Verify</a></td>
+
             </li>
-        </form>
-    {% endfor %}
+        {% endfor %}
+        <input type = "hidden" name= "chargeitem_id" value = "{{chargeitem.id}}">
+        <input type = "hidden" name= "observations" value = "{{observations}}">
+    <div>
+        <table class="table  text-center">
+            <tbody>
+                <tr>
+                    <td scope="col">    <a href={% url 'labsys:encounter' chargeitem.context.id   %} class="btn btn-outline-primary btn-sm">Back</a></td>
+                    <td scope="col">     <input  class="btn btn-outline-primary btn-sm" type= "submit" value = "Update"></td>
+    </form>
+                    <td scope="col">    <a href={% url 'labsys:encounter' chargeitem.context.id   %} class="btn btn-outline-primary btn-sm">Verify All</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
