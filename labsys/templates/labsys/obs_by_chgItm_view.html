@@ -33,13 +33,21 @@
                 </div> 
                 <div class="row row-cols-auto">
                     <div class="col">{{ob.timedate}}</div>
-                    <div class="col">{{ob.prelimnary_timedate}}</div>
-                    <div class="col">{{ob.final_timedate}}</div>
-                    <div class="col">{{ob.amended_timedate}}</div>
-                    <div class="col">{{ob.informed_timedate}}</div>
-                    <div class="col">{{ob.delivered_timedate}}</div>
-
+                    <div class="col">{{ob.prelimnary_timedate|default:"Pending"}}</div>
+                    <div class="col">{{ob.final_timedate|default:"Pending"}}</div>
+                    <div class="col">{{ob.amended_timedate|default:"Pending"}}</div>
+                    <div class="col">{{ob.informed_timedate|default:"Pending"}}</div>
+                    <div class="col">{{ob.delivered_timedate|default:"Pending"}}</div>
                     <div class="col">{{ob.note}} </div>
+                </div> 
+                <div class="row row-cols-auto">
+                    <div class="col">By {{chargeitem.enterer|default:"NA"}}</div>
+                    <div class="col">By {{ob.prelimnary_by|default:"NA"}}</div>
+                    <div class="col">By {{ob.final_by|default:"NA"}}</div>
+                    <div class="col">By {{ob.amended_by|default:"NA"}}</div>
+                    <div class="col">By {{ob.informed_by|default:"NA"}}</div>
+                    <div class="col">By {{ob.delivered_by|default:"NA"}}</div>
+                    <div class="col">  </div>
                 </div> 
             </div>
         </div>

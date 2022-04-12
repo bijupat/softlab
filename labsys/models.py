@@ -142,6 +142,8 @@ Observation_status= (
     ("R", "Registered"),
     ("P", "Preliminary"),
     ("F", "Final"),
+    ("I", "Informed"),
+    ("D", "Delivered"),
     ("A", "Amended"),
 )
 """

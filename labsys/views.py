@@ -1,8 +1,8 @@
 #from labsys.models import Patient
 from multiprocessing import context
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.utils.timezone import datetime 
 from django.db.models import Avg, Max, Min, Sum
 from .forms import EncounterRegistration, PatientRegistration
@@ -14,7 +14,76 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
+from reportlab.pdfgen import canvas
+import io
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
+
+
+def chargeitem_preview(request, *args, **kwargs):
+    pk = kwargs.get('pk')
+    chargeitem = get_object_or_404(ChargeItem, pk=pk) 
+    observations = Observation.objects.filter(chargeitem=chargeitem)
+    is_all_ob_entered = True
+    is_all_ob_final_or_above = True
+    for ob in observations:
+        #checking if ob.value is not than set variable to false, even single observation is not set it will turn to False
+        if not ob.value:
+            is_all_ob_entered = False
+        #checking if ob.status is either P or R set variable to false, even single observation is not set it will turn to False
+        if ob.status == "P" or ob.status == "R":
+            is_all_ob_final_or_above = False
+    # render different HTML template depending on option: edit, view or preview
+    context =  {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
+
+    template_path = 'labsys\obs_by_chgItm_preview.html'
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+
+
+
+    # if dawnload 
+    #response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+    # if display 
+    response['Content-Disposition'] = 'filename="report.pdf"'
+
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+def chargeitem_preview2(request):
+    # Create a file-like buffer to receive PDF data.
+    buffer = io.BytesIO()
+
+    # Create the PDF object, using the buffer as its "file."
+    p = canvas.Canvas(buffer)
+
+    # Draw things on the PDF. Here's where the PDF generation happens.
+    # See the ReportLab documentation for the full list of functionality.
+    template_path = 'labsys\obs_by_chgItm_preview.html'
+    context = {'client': "c"}
+    template = get_template(template_path)
+    html = template.render(context)
+
+    p.drawString(50, 800, html)
+
+    # Close the PDF object cleanly, and we're done.
+    p.showPage()
+    p.save()
+
+    # FileResponse sets the Content-Disposition header so that browsers
+    # present the option to save the file.
+    buffer.seek(0)
+    return FileResponse(buffer,  filename='hello.pdf')
 
 class InvoiceListView(ListView):
     model = Invoice
@@ -126,14 +195,47 @@ def ObservationEdit(request):
         observations = Observation.objects.filter(chargeitem=chargeitem)
         
         for ob in observations:
-            if request.POST[str(ob.id)]:
-                ob.value = request.POST[str(ob.id)]
-                ob.status = "P"
-                ob.prelimnary_by = request.user
-                ob.prelimnary_timedate = datetime.now()
-                ob.save()
+            try:
+                if request.POST[str(ob.id)]:
+                    ob.value = request.POST[str(ob.id)]
+                    ob.status = "P"
+                    ob.prelimnary_by = request.user
+                    ob.prelimnary_timedate = datetime.now()
+                    ob.save()
+            except:
+                pass
+
             
         return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "edit"]))
+
+@login_required(login_url='/login/')
+def ObservationVerifyAll(request):
+    if request.method == "POST": 
+        chargeitem_id = request.POST["chargeitem_id"]    
+        chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
+        observations = Observation.objects.filter(chargeitem=chargeitem)
+        
+        for ob in observations:
+                ob.status = "F"
+                ob.final_by = request.user
+                ob.final_timedate = datetime.now()
+                ob.save()
+            
+        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "view"]))
+
+@login_required(login_url='/login/')
+def ObservationVerify(request, ob_id):
+    
+    observation = Observation.objects.get(pk=ob_id)
+    chagreitem_id = observation.chargeitem.id
+    observation.status = "F"
+    observation.final_by = request.user
+    observation.final_timedate = datetime.now()
+    observation.save()
+
+        
+    return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[chagreitem_id, "edit"]))
+
 
 @login_required(login_url='/login/')
 def AddPayment(request):
@@ -413,8 +515,17 @@ def encounter(request, enc_id):
 def chargeitem(request, chargeitem_id, option):
     chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
     observations = Observation.objects.filter(chargeitem=chargeitem)
-    
-    return render(request, f'labsys\obs_by_chgItm_{option}.html', {"observations": observations, "chargeitem" : chargeitem} )
+    is_all_ob_entered = True
+    is_all_ob_final_or_above = True
+    for ob in observations:
+        #checking if ob.value is not than set variable to false, even single observation is not set it will turn to False
+        if not ob.value:
+            is_all_ob_entered = False
+        #checking if ob.status is either P or R set variable to false, even single observation is not set it will turn to False
+        if ob.status == "P" or ob.status == "R":
+            is_all_ob_final_or_above = False
+    # render different HTML template depending on option: edit, view or preview
+    return render(request, f'labsys\obs_by_chgItm_{option}.html', {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} )
 
 
 @login_required(login_url='/login/')

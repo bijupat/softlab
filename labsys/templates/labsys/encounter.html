@@ -8,24 +8,52 @@
 {% block body %}
 
 
-<div class="card text-left">
+<div class="card">
   <div class="card-header">
-    <h6> {{e.patient}}  
-        {% for tele in e.patient.telecom.all %}
-          <!-- IF TEL USE IS MOBILE TO GET MOBILE NO -->
-          {% if tele.use == "M" %}
-            : : {{tele.get_use_display|title}}: {{tele.value}}
-          {% endif %}          
-          {% if tele.system == "E" %}
-          :: {{tele.get_system_display|title}}  : {{tele.value}}
-          {% endif %}
-        {% endfor %}
-    </h6>
+      <div class="row row-cols-auto">
+          <div class="col" id = "eid">{{e.id}}</div>
+          <div class="col">
+              {% for name in e.patient.name.all %}
+                  {% if name.use == "U" %}
+                      {{name.text}} {{name.family}} 
+                  {% endif %}
+              {% endfor %}</div>
+          <div class="col"> {{e.patient.age}} Yrs / {{e.patient.gender}}</div>
+          
+      </div>
+      <div class="row row-cols-auto">
+        <div class="col largescreen">
+          {{e.timedate|date}}
+        </div>
+          {% for tele in e.patient.telecom.all %}
+              {% if tele.use == "M" %}
+              <div class="col largescreen">
+                  {{tele.get_use_display|title}} : {{tele.value}}
+              </div>
+              {% endif %}
+              {% if tele.system == "E" %}
+              <div class="col largescreen">
+                  {{tele.value}}
+              </div>  
+              {% endif %}
+          {% endfor %}
+      </div>
   </div>
   <div class="card-body">
-    <div class="card-title"><span id ="eid">{{e.id}}</span> : {{e.timedate|date}} : {{e.practitioner|title}}</div>
+      <div class="row row-cols-auto">
+          <div class="col ">{{e.account}}</div>
+          <div class="col">{{e.practitioner|title}}</div>
+          <div class="col">
+             Add more item
+          </div>
+      </div>
   </div>
 </div>
+
+
+<br>
+
+
 <ul class="list-group">
    {% for t in chargeItems %}
   <li class="list-group-item d-flex justify-content-between  ">
@@ -37,6 +65,7 @@
   {% empty %}
   No Test Listed.
   {% endfor %}
+
   <br>
 
 
@@ -63,16 +92,16 @@
     
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
-    Discount
+    Discount: 
     <div>
       <a href=# class="btn btn-outline-primary btn-sm" id="addeditdisc">Add/Edit Discount</a>
     </div>
     <div id="addeditdiscout">
       <form action="{% url 'labsys:addeditdiscount' %}" method="post">
-        <input value="{{e.id}}" name="eidinput" style="display: none">
         {% csrf_token %}
-        <input   name="addeditdiscountinput" id="addeditdiscountinput">
-        <input disabled type= "submit" id="addeditdiscountsubmit" class="btn btn-primary btn-sm">
+        <input  class = "form-control" name="addeditdiscountinput" id="addeditdiscountinput" style="width:20%">
+        <input disabled type= "submit" id="addeditdiscountsubmit" class="btn btn-primary btn-sm ">
+        <input value="{{e.id}}" name="eidinput" style="display: none">
       </form> 
     </div>
     <span> 
@@ -101,16 +130,7 @@
 </ul>
 <br>
 
-<div>
-    <a href={% url 'labsys:index'  %} class="btn btn-outline-info btn-sm btn-block">Go to Today</a>
-    <br>
-    <form action="{% url 'labsys:index' %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-          <input type = "hidden" value = "{{e.timedate|date:"Y-m-d"}}" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
-          <input  id = "datesubmit" class="btn btn-outline-info btn-sm btn-block" type="submit" value = "Back">
-  </form>
-</div>
-<br>
+
 <!-- Charge Item with report details -->
 <div class="list-group-item-bordered">
   <table class="table table-striped table-bordered">
@@ -127,7 +147,7 @@
                   <td scope="col">{{c.definitionCanonical.title}}</td>
                   <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'edit' %} role="button" class="btn btn-outline-primary btn-sm">Edit</a></td>
                   <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'view' %} role="button" class="btn btn-outline-primary btn-sm">View</a></td>
-                  <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'preview' %} role="button" class="btn btn-outline-primary btn-sm">Preview</a></td>
+                  <td scope="col"><a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-primary btn-sm">Preview</a></td>
               </tr>
           {% empty %}
               <tr>
@@ -136,5 +156,15 @@
           {% endfor %}
       </tbody>
   </table>
+</div>
+<br>
+<div>
+  <a href={% url 'labsys:index'  %} class="btn btn-outline-info btn-sm btn-block">Go to Today</a>
+  <br>
+  <form action="{% url 'labsys:index' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+        <input type = "hidden" value = "{{e.timedate|date:"Y-m-d"}}" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
+        <input  id = "datesubmit" class="btn btn-outline-info btn-sm btn-block" type="submit" value = "Back">
+</form>
 </div>
 {% endblock %}

@@ -21,6 +21,9 @@ urlpatterns = [
     path('regi_old_pat/<int:pat_id>/', views.regi_old_pat, name = 'regi_old_pat'),
     path('chargeitem/<int:chargeitem_id>/<str:option>', views.chargeitem, name='chargeitem'),
     path('observation_edit/', views.ObservationEdit, name = 'observationedit'),
+    path('observation_verifyall/', views.ObservationVerifyAll, name = 'observationverifyall'),
+    path('observation_verify/<int:ob_id>/', views.ObservationVerify, name = 'observationverify'),
+    path('chargeitempreview/<pk>/', views.chargeitem_preview, name='chargeitem_preview'),
 
     
 

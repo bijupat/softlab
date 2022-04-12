@@ -37,6 +37,9 @@
                         
                     </div>
                     <div class="row row-cols-auto">
+                        <div class="col largescreen">
+                            {{e.timedate|date}}
+                        </div>
                         {% for tele in e.patient.telecom.all %}
                             {% if tele.use == "M" %}
                             <div class="col largescreen">
@@ -45,7 +48,7 @@
                             {% endif %}
                             {% if tele.system == "E" %}
                             <div class="col largescreen">
-                                {{tele.get_system_display|title}} : {{tele.value}}
+                                {{tele.value}}
                             </div>  
                             {% endif %}
                         {% endfor %}
