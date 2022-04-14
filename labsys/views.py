@@ -34,6 +34,9 @@ def chargeitem_preview(request, *args, **kwargs):
         #checking if ob.status is either P or R set variable to false, even single observation is not set it will turn to False
         if ob.status == "P" or ob.status == "R":
             is_all_ob_final_or_above = False
+    # if all observation not final or above return to encounter:  for server side validation
+    if not is_all_ob_final_or_above or len(observations) == 0:
+        return HttpResponseRedirect(reverse("labsys:encounter", args=[chargeitem.context.id]))        
     # render different HTML template depending on option: edit, view or preview
     context =  {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
 
@@ -507,8 +510,21 @@ def encounter(request, enc_id):
         test_id_set.append(t.id)
     #creating observationdefination object queryset excluding those in set ie already register  for the encounter
     tests = ChargeItemDefinition.objects.exclude(id__in=test_id_set)
+    
+    #to check all charge item  is final, first set varialbe to True
+    is_all_chargeitem_atleast_final= True
+    # itereting through all chargeitems
+    for chargeitem in chargeItems.all():
+        # geting all observationsdefinations from relation manager (reverse relation)
+        observationDefs = chargeitem.observations.all()
+        for obdefination in observationDefs:
+            #getting only those observations with same chargeitem, as it will return observation for all patient for this ob def
+            obs = obdefination.observation.filter(chargeitem=chargeitem)
+            for ob in obs:
+                if ob.status == "P" or ob.status == "R":
+                    is_all_chargeitem_atleast_final = False
 
-    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "payments" : payments, "invoice": invoice, "tests":tests  } )
+    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "payments" : payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final  } )
 
 
 @login_required(login_url='/login/')

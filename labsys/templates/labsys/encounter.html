@@ -136,18 +136,28 @@
   <table class="table table-striped table-bordered">
       <thead>
           <tr>
-              <th scope="col">Report</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
+              <th scope="col">Report</th>              
+              <td scope="col"><a href=# role="button" class="btn btn-outline-primary btn-sm">Edit All</a></td>
+              <td scope="col"><a href=# role="button" class="btn btn-outline-primary btn-sm">View All</a></td>
+              
+              <td scope="col">
+                {% if is_all_chargeitem_atleast_final%}
+                  <a href=# role="button" class="btn btn-outline-primary btn-sm">Preview All</a>
+                {% endif %}
+              </td>
           </tr>
       </thead>
       <tbody>
-          {% for c in chargeItems %}
+          {% for c in chargeItems %}         
               <tr>
                   <td scope="col">{{c.definitionCanonical.title}}</td>
                   <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'edit' %} role="button" class="btn btn-outline-primary btn-sm">Edit</a></td>
                   <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'view' %} role="button" class="btn btn-outline-primary btn-sm">View</a></td>
-                  <td scope="col"><a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-primary btn-sm">Preview</a></td>
+                  <td scope="col">
+                    {% if c.serialize.is_all_atleat_final %}
+                      <a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-primary btn-sm">Preview</a>
+                    {% endif %}
+                  </td>
               </tr>
           {% empty %}
               <tr>

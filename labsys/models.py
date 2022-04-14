@@ -627,13 +627,29 @@ class ChargeItem(models.Model):
     enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
     # Which rendered service is being charged?
     #service = models.ForeignKey(DiagnosticReport, on_delete=models.CASCADE, related_name='chargeitem_diagnosticreport', null=True, blank=True)
-    
+    # heading to the report print like Hemogram / Liver function test implemented to whole  report : to be copied from chargeitem Defination
+
+    #heading = models.CharField(max_length=75, blank=True, null=True)
+
     observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='chargeitem')
 
     # Account to place this charge
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='ChargeItem', blank=True, null=True)
     # copies  from charge item defination but open for edit if desired
     note = models.CharField(max_length=1000, blank=True, null=True)
+
+    def serialize(self):
+        is_all_atleat_final = True
+        observationDefs = self.observations.all()
+        for obdefination in observationDefs:
+            obs = obdefination.observation.filter(chargeitem=self)
+            for ob in obs:
+                if ob.status == "P" or ob.status == "R":
+                    is_all_atleat_final = False
+        return{
+            "is_all_atleat_final": is_all_atleat_final,
+
+        }
 
 
     def __str__(self):
