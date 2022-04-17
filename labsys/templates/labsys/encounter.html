@@ -171,7 +171,7 @@
 <div>
   <a href={% url 'labsys:index'  %} class="btn btn-outline-info btn-sm btn-block">Go to Today</a>
   <br>
-  <form action="{% url 'labsys:index' %}" method="post" enctype="multipart/form-data">
+  <form action="{% url 'labsys:index' %}" method="post">
     {% csrf_token %}
         <input type = "hidden" value = "{{e.timedate|date:"Y-m-d"}}" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
         <input  id = "datesubmit" class="btn btn-outline-info btn-sm btn-block" type="submit" value = "Back">

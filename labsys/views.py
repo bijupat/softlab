@@ -20,7 +20,25 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 
 
+@login_required(login_url='/login/')
+def ObservationDataEdit(request,ob_id):
+    if request.method == "POST":
+        observation  = Observation.objects.get(pk=ob_id)
+        observation.unit = request.POST["unit"]
+        observation.high = request.POST["high"]
+        observation.low = request.POST["low"]
+        observation.note = request.POST["note"]
+        observation.save()
 
+        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[observation.chargeitem.id, "view"]))
+
+    else:
+        observation = Observation.objects.get(pk=ob_id)
+        return render(request, 'labsys\observationdataedit.html', {"observation" :observation})
+
+
+
+@login_required(login_url='/login/')
 def chargeitem_preview(request, *args, **kwargs):
     pk = kwargs.get('pk')
     chargeitem = get_object_or_404(ChargeItem, pk=pk) 
@@ -63,6 +81,7 @@ def chargeitem_preview(request, *args, **kwargs):
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+@login_required(login_url='/login/')
 def chargeitem_preview2(request):
     # Create a file-like buffer to receive PDF data.
     buffer = io.BytesIO()

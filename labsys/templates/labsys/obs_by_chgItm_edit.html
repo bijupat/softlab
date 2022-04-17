@@ -19,7 +19,7 @@
         <hr>
         {% for ob in observations %}    
                 <div class="row row-cols-auto">
-                    <div class="col"><label for="testname">{{ob.testfield.test}}:</label></div>
+                    <div class="col"><a href={% url 'labsys:observationdataedit' ob.id %} ><label for="testname" class="btn btn-outline-secondary btn-sm">{{ob.testfield.test}}</label></a></div>
                     <div class="col">{{ob.value|default:"Not Entered"}}</div>
                     {% if ob.status == "P" or ob.status == "R" %}
                         <div class="col">{{ob.get_status_display}}</div>
@@ -31,7 +31,7 @@
                             {% endif %}
                     {% else %}
                         <div class="col">{{ob.get_status_display}}</div>
-                        <div class="col"><input  style="width:25%" class="form-control" name="{{ob.id}}"></div>
+                        <div class="col"><input   class="form-control" name="{{ob.id}}" size="8"></div>
                         <div class="col"><a href={% url 'labsys:observationverify' ob.id   %} class="btn btn-outline-danger btn-sm">ReVerify</a></div>
                     {% endif %}
                 </div> 
