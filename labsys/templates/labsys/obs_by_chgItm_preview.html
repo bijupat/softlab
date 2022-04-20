@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>{{chargeitem.context.patient.name.get}}</title>
+    <title>{{chargeitem.subject.get_usual_name}}({{chargeitem.context.id}})</title>
     <link rel="Shortcut Icon" href="{% static 'labsys/logo.png' %}">
     <link href="{% static 'labsys\styles.css' %}" rel="stylesheet">
 
@@ -42,37 +42,18 @@
 <!--Top Margin-->
 <p style="margin-bottom:3cm;"> .</p>
 <!--Header-->
+
 <div id = "header">
     <table >
         <tr>
-            <td>
-                <h3>Name : 
-                    {% for name in chargeitem.context.patient.name.all %}
-                        {% if name.use == "U" %}
-                            {{name.text}} {{name.family}} 
-                        {% endif %}
-                    {% endfor %}
-                </h3>
-            </td>
+            <td><h3>Name : {{chargeitem.subject.get_usual_name}} </h3></td>
             <td>Smp No : {{chargeitem.context.id}}</td>
             <td> Ref no : </td>
         </tr>
         <tr>
-            <td><h3>{{chargeitem.context.patient.age}} Y / {{chargeitem.context.patient.get_gender_display}}</h3></td>
-            <td>
-                {% for tele in chargeitem.context.patient.telecom.all %}    
-                    {% if tele.use == "M" %}
-                        {{tele.get_use_display|title}} : {{tele.value}}
-                    {% endif %}
-                {% endfor %}
-            </td>
-            <td>
-                {% for tele in chargeitem.context.patient.telecom.all %}
-                    {% if tele.system == "E" %}
-                        {{tele.value}}
-                    {% endif %}
-                {% endfor %}
-            </td>
+            <td><h3>{{chargeitem.subject.age}} Y / {{chargeitem.subject.get_gender_display}}</h3></td>
+            <td>{{chargeitem.subject.get_mobile}}</td>
+            <td>{{chargeitem.subject.get_email}}</td>
         </tr>
         <tr>
             <td><h3>Ref : {{chargeitem.context.practitioner|title}}</h3></td>
@@ -83,9 +64,12 @@
 </div>
 
 <br/>
-
+{% for key , obs in observations.items %}
+{{key}} : {{obs}}
+<hr>
+{% endfor %}
 <!--Content-->
-<h2 class="textcenter">{{chargeitem.definitionCanonical.heading}}</h2>
+
 <div id = "content">          
     <table class="table">
         <thead>
@@ -97,19 +81,25 @@
             </tr>
         </thead>
         <tbody>
-            {% for ob in observations %}
+            {% for key , obs in observations.items %}
             <tr>
-                <td><h3>{{ob.testfield.test}}</h3></td>
-                <td rowspan = "2"><h3>{{ob.value|default:"Not Entered"}}</h3></td>
-                <td rowspan = "2">{{ob.unit}}</td>
-                <td rowspan = "2">{{ob.low}}-{{ob.high}}</td>
+                <td colspan="4"><h2 class="textcenter">{{key}}</h2></td>
             </tr>
-            <tr>
-                <td>Method : {{ob.testfield.method}}</td>
-            </tr>
-            <tr>
-               <td colspan="4">Note : {{ob.note}}</td>
-             </tr>
+                
+                {% for ob in obs %}
+                    <tr>
+                        <td><h3>{{ob.testfield.test}}</h3></td>
+                        <td rowspan = "2"><h3>{{ob.value|default:"Not Entered"}}</h3></td>
+                        <td rowspan = "2">{{ob.unit}}</td>
+                        <td rowspan = "2">{{ob.low}}-{{ob.high}}</td>
+                    </tr>
+                    <tr>
+                        <td>Method : {{ob.testfield.method}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Note : {{ob.note}}</td>
+                    </tr>
+                {% endfor %}
             {% endfor %}
         </tbody>
     </table>

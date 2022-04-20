@@ -45,6 +45,8 @@ def chargeitem_preview(request, *args, **kwargs):
     observations = Observation.objects.filter(chargeitem=chargeitem)
     is_all_ob_entered = True
     is_all_ob_final_or_above = True
+    obs = {}
+
     for ob in observations:
         #checking if ob.value is not than set variable to false, even single observation is not set it will turn to False
         if not ob.value:
@@ -52,22 +54,53 @@ def chargeitem_preview(request, *args, **kwargs):
         #checking if ob.status is either P or R set variable to false, even single observation is not set it will turn to False
         if ob.status == "P" or ob.status == "R":
             is_all_ob_final_or_above = False
-    # if all observation not final or above return to encounter:  for server side validation
+      
+        # itereting over all chargeitemdefinations associated with observationdef(testfield)
+        for cdef in ob.testfield.chargeitemdef.all():
+            # if present chargeitem is profile
+            if chargeitem.definitionCanonical.is_profile:
+                # if iterating chargeitem(cdef) is not included in profile (present) chargeitem
+                if cdef not in chargeitem.definitionCanonical.includes.all():
+                    # if key not present in obs dict create new key with present chargeitem heading
+                    if chargeitem.definitionCanonical.heading not in obs:
+                        obs[chargeitem.definitionCanonical.heading] = [ob]
+                    # if key is present append it with the observation
+                    elif ob not in obs[chargeitem.definitionCanonical.heading]:
+                        obs[chargeitem.definitionCanonical.heading].append(ob)
+                # else (iterating chargeitem(cdef) is included in profile (present) chargeitem)
+                # in this case we provide same heading as the included chargeitem
+                # ie if CBC chargeitemdef is included in PREOP chargeitemdef for observations in CBC heading (key) will be as per CBC chargeitemdef heading
+                else:
+                    if cdef.heading not in obs:
+                        obs[cdef.heading] = [ob]
+                    elif ob not in obs[cdef.heading]:
+                        obs[cdef.heading].append(ob)
+            # else (present charegeitem is not profile)
+            else:
+                # if itereting chargeitem cdef is not same as present charegeitem
+                if cdef == chargeitem.definitionCanonical:
+                    # if key not present in obs dict create new key with present chargeitem heading
+                    if cdef.heading not in obs:
+                        obs[cdef.heading] = [ob]
+                    # if key is present append it with the observation
+                    elif ob not in obs[cdef.heading]:
+                        obs[cdef.heading].append(ob)
+                
+        # if all observation not final or above return to encounter:  for server side validation
     if not is_all_ob_final_or_above or len(observations) == 0:
-        return HttpResponseRedirect(reverse("labsys:encounter", args=[chargeitem.context.id]))        
-    # render different HTML template depending on option: edit, view or preview
-    context =  {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
+        return HttpResponseRedirect(reverse("labsys:encounter", args=[chargeitem.context.id]))
+         
+    context =  {"observations": obs, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
 
     template_path = 'labsys\obs_by_chgItm_preview.html'
     # Create a Django response object, and specify content_type as pdf
-    response = HttpResponse(content_type='application/pdf')
-
+    response = HttpResponse(content_type='application/pdf') 
 
 
     # if dawnload 
     #response['Content-Disposition'] = 'attachment; filename="report.pdf"'
     # if display 
-    response['Content-Disposition'] = 'filename="report.pdf"'
+    response['Content-Disposition'] = f'filename="{chargeitem.subject.get_usual_name()} ({chargeitem.context.id}).pdf"'
 
     # find the template and render it.
     template = get_template(template_path)
@@ -168,13 +201,18 @@ def AddTest(request, e_id, t_id):
         # geting chargeItemDefination object by it's id
         test = ChargeItemDefinition.objects.get(pk=t_id)        
         # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
-        new_test = ChargeItem(definitionCanonical=test, context=enc, priceOverride = test.value)        
+        new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, priceOverride = test.value)        
         # Saving new chargeitem object  
         new_test.save()
         #finding set of observationdefs under test(chargeitemdef)
-        observations = test.observations.all()
+        obs = test.observations.all()
         # adding filtered observationdef to chageitem.observation(new_test.observation) as set
-        new_test.observations.set(observations)
+        new_test.observations.set(obs)
+        # adding observations from included charge items
+        included_tests = test.includes.all()
+        for t in included_tests:
+            for o in t.observations.all():
+                new_test.observations.add(o)
 
         # add default values to observatioin from ob_def    
         observations = Observation.objects.filter(chargeitem = new_test)

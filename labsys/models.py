@@ -1,3 +1,4 @@
+from xml.etree.ElementInclude import include
 from django.db import models
 #from django.db.models.base import Model
 #from django.db.models.enums import Choices
@@ -242,6 +243,25 @@ class Patient(models.Model):
         if self.birthDate:
             age = date.today().year - self.birthDate.year
             return age
+
+    # defining method that returns usual name
+    def get_usual_name(self):
+        if self.name:
+            for name in self.name.all():
+                if name.use == "U":
+                 return '{} {}'.format(name.text, name.family)
+    # defining method that returns mobile no
+    def get_mobile(self):
+        if self.name:
+            for tele in self.telecom.all():
+                if tele.use == "M":
+                    return '{}'.format(tele.value)
+    # defining method that returns e mail
+    def get_email(self):
+        if self.name:
+            for tele in self.telecom.all():
+                if tele.system == "E":
+                    return '{}'.format(tele.value)
 
     def __str__(self):
         if self.name:
@@ -540,9 +560,9 @@ class ChargeItemDefinition(models.Model):
     # Creation date The date when the resource was created.
     created = models.DateTimeField(auto_now_add=True)
     #A larger definition of which this particular definition is a component or step
-    partOf = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True,  related_name='ChargeItemdef_partof')
+    includes = models.ManyToManyField("self", blank=True,  related_name='chargeitemdef_includes')
     #Completed or terminated request(s) whose function is taken by this new request
-    replaces = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True,  related_name='ChargeItemdef_relaces')
+    replaces = models.ManyToManyField("self", blank=True,  related_name='chargeitemdef_replaces')
     # draft | active | retired | unknown
     status = models.CharField(max_length=75, blank=True, null=True, default='registered')
     # For testing purposes, not real usage

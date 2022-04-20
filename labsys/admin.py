@@ -6,7 +6,7 @@ class PatientAdmin(admin.ModelAdmin):
 
 
 class ChargeItemDefinitionAdmin(admin.ModelAdmin):
-    filter_horizontal = ('observations', 'specimen', 'pricelist_included')
+    filter_horizontal = ('observations', 'specimen', 'pricelist_included', 'includes', 'replaces')
 
 # Register your models here.
 admin.site.register(Period)
