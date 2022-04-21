@@ -11,3 +11,4 @@ pplus/settings.py
 secret_key.txt
 /static/
 *.pyc
+/migrations/
