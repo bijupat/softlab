@@ -9,8 +9,18 @@
 
     <style type="text/css">
         @page {
-            size: A4;
-            margin: 2cm;            
+            size: a4 portrait;
+            @frame header_frame {           /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 50pt; width: 512pt; top: 135pt; height: 40pt;
+            }
+            @frame content_frame {          /* Content Frame */
+                left: 50pt; width: 512pt; top: 180pt; height: 580pt;
+            }
+            @frame footer_frame {           /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+            }
         }
 
         .table, td, th {  
@@ -39,11 +49,10 @@
     </style>
 </head>
 <body>
-<!--Top Margin-->
-<p style="margin-bottom:3cm;"> .</p>
+
 <!--Header-->
 
-<div id = "header">
+<div id="header_content">
     <table >
         <tr>
             <td><h3>Name : {{chargeitem.subject.get_usual_name}} </h3></td>
@@ -64,10 +73,8 @@
 </div>
 
 <br/>
-{% for key , obs in observations.items %}
-{{key}} : {{obs}}
-<hr>
-{% endfor %}
+
+
 <!--Content-->
 
 <div id = "content">          
@@ -100,12 +107,28 @@
                         <td colspan="4">Note : {{ob.note}}</td>
                     </tr>
                 {% endfor %}
+
+                {% for ob in obs %}
+                    <tr>
+                        <td><h3>{{ob.testfield.test}}</h3></td>
+                        <td rowspan = "2"><h3>{{ob.value|default:"Not Entered"}}</h3></td>
+                        <td rowspan = "2">{{ob.unit}}</td>
+                        <td rowspan = "2">{{ob.low}}-{{ob.high}}</td>
+                    </tr>
+                    <tr>
+                        <td>Method : {{ob.testfield.method}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Note : {{ob.note}}</td>
+                    </tr>
+                {% endfor %}
+
             {% endfor %}
         </tbody>
     </table>
 </div>
 <!--Footer-->
-<div class="footer">
+<div id="footer_content">
     Print at :  - {% now "jS F Y H:i" %}
 </div>
 

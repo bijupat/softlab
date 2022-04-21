@@ -493,6 +493,8 @@ def pat_register(request):
             observations = Observation.objects.filter(chargeitem__in = chargeItems)
             for o in observations:
                 ob_def = o.testfield
+                high= ""
+                low=""
                 qualifiedIntervals = ob_def.qualifiedinterval
                 for q in qualifiedIntervals.all():
                     if q.category == "R":
