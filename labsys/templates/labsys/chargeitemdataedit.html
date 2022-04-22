@@ -1,0 +1,71 @@
+{% extends "labsys/layout.html" %}
+{% load static %}
+{% block title %}Test{% endblock %}
+{% block body %}
+<form action="{% url 'labsys:chargeitemdataedit' chargeitem.id %}" method="post">
+  {% csrf_token %}
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <label for="inputpriceOverride">Change Price</label>
+      <input name = "priceOverride" type="text" class="form-control" id="inputpriceOverride" value = "{{chargeitem.priceOverride}}" size="8" >
+    </div>
+    <div class="form-group col-md-9">
+      <label for="inputoverrideReason">Reason for it</label>
+      <input Name = "overrideReason" type="text" class="form-control" id="inputoverrideReason" value = "{{chargeitem.overrideReason}}" style="width:80%">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputnote">Note</label>
+    <input name="note" type="text" class="form-control" id="inputnote" value = "{{chargeitem.note|default:""}}" rows="5" style="width:90%">
+  </div>
+  <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+<br>
+<div class="accordion" id="accordionExample">
+  <div id="heading{{ob.id}}">
+      <button class="btn btn-block btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapse{{ob.id}}" aria-expanded="false" aria-controls="collapse{{ob.id}}">
+          <div class="row row-cols-auto">
+              <div class="col">{{ob.testfield.test}} </div>
+              <div class="col">{{ob.get_status_display}}</div>
+              <div class="col">Result: {{ob.value|default:"Not Entered"}} </div>
+              <div class="col">{{ob.unit}} </div>
+              <div class="col">{{ob.low}}-{{ob.high}} </div>
+          </div>   
+      </button>
+  </div>
+  <div id="collapse{{ob.id}}" class="collapse" aria-labelledby="heading{{ob.id}}" data-parent="#accordionExample">
+      <div class="card-body">
+          <div class="row row-cols-auto">
+              <div class="col">Registered At </div>
+              <div class="col">Preliminary At</div>
+              <div class="col">Final At </div>
+              <div class="col"> Amended At</div>
+              <div class="col"> Informed At</div>
+              <div class="col"> Delivered At</div>
+              <div class="col">Note </div>
+          </div> 
+          <div class="row row-cols-auto">
+              <div class="col">{{ob.timedate}}</div>
+              <div class="col">{{ob.prelimnary_timedate|default:"Pending"}}</div>
+              <div class="col">{{ob.final_timedate|default:"Pending"}}</div>
+              <div class="col">{{ob.amended_timedate|default:"Pending"}}</div>
+              <div class="col">{{ob.informed_timedate|default:"Pending"}}</div>
+              <div class="col">{{ob.delivered_timedate|default:"Pending"}}</div>
+              <div class="col">{{ob.note}} </div>
+          </div> 
+          <div class="row row-cols-auto">
+              <div class="col">By {{chargeitem.enterer|default:"NA"}}</div>
+              <div class="col">By {{ob.prelimnary_by|default:"NA"}}</div>
+              <div class="col">By {{ob.final_by|default:"NA"}}</div>
+              <div class="col">By {{ob.amended_by|default:"NA"}}</div>
+              <div class="col">By {{ob.informed_by|default:"NA"}}</div>
+              <div class="col">By {{ob.delivered_by|default:"NA"}}</div>
+              <div class="col">  </div>
+          </div> 
+      </div>
+  </div>
+</div>
+</br>
+<button onclick="history.back()" class="btn btn-primary">Back</button>
+
+{% endblock %}

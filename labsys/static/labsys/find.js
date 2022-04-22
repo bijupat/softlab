@@ -14,4 +14,3 @@
         document.querySelector('#find_mobno_sub').disabled = false;
         });  
 })()
-

@@ -21,6 +21,22 @@ from xhtml2pdf import pisa
 
 
 @login_required(login_url='/login/')
+def ChargeitemDataEdit(request,ci_id):
+    if request.method == "POST":
+        chargeitem  = ChargeItem.objects.get(pk=ci_id)
+        chargeitem.priceOverride = request.POST["priceOverride"]
+        chargeitem.overrideReason = request.POST["overrideReason"]
+        chargeitem.note = request.POST["note"]
+        chargeitem.priceoverrideby = request.user
+        chargeitem.save()
+
+        return HttpResponseRedirect(reverse("labsys:encounter",  args=[chargeitem.context.id]))
+
+    else:
+        chargeitem = ChargeItem.objects.get(pk=ci_id)
+        return render(request, 'labsys\chargeitemdataedit.html', {"chargeitem" :chargeitem})
+
+@login_required(login_url='/login/')
 def ObservationDataEdit(request,ob_id):
     if request.method == "POST":
         observation  = Observation.objects.get(pk=ob_id)
@@ -190,7 +206,8 @@ def DeleteTest(request):
         Observation.objects.filter(chargeitem__in = chargeitem).delete()
         chargeitem.delete()   
 
-        
+        #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))
+
     
         return HttpResponse(status=200)
 
@@ -201,7 +218,7 @@ def AddTest(request, e_id, t_id):
         # geting chargeItemDefination object by it's id
         test = ChargeItemDefinition.objects.get(pk=t_id)        
         # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
-        new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, priceOverride = test.value)        
+        new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, enterer=request.user, priceOverride = test.value)        
         # Saving new chargeitem object  
         new_test.save()
         #finding set of observationdefs under test(chargeitemdef)
@@ -376,7 +393,6 @@ def regi_old_pat(request, pat_id):
             inv.save()
             enc.invoice = inv
             enc.save()
-            
 
            # filtering charge items for encounter and getting its subject and enterer filed with patient and user
             chargeItems = ChargeItem.objects.filter(context=enc)
@@ -384,11 +400,17 @@ def regi_old_pat(request, pat_id):
                 c.subject = old_patient
                 c.enterer = request.user
                 c.account = form.cleaned_data['account']
+                c.enterer = request.user
                 #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
                 # finding set of observations in test(chargeitemdef) by .observations.all()
                 observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
                 # adding filtered observationdef to chageitem.observation(new_test.observation) as set
                 c.observations.set(observations)
+                # adding observations from included charge items
+                included_tests = c.definitionCanonical.includes.all()
+                for t in included_tests:
+                    for o in t.observations.all():
+                        c.observations.add(o)
                 # to add price overide in chargeitem
                 c.priceOverride = c.definitionCanonical.value
                 c.save()
@@ -397,6 +419,7 @@ def regi_old_pat(request, pat_id):
             for o in observations:
                 ob_def = o.testfield
                 qualifiedIntervals = ob_def.qualifiedinterval
+                high, low = "", ""
                 for q in qualifiedIntervals.all():
                     if q.category == "R":
                         high = q.high
@@ -486,6 +509,11 @@ def pat_register(request):
                 observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
                 # adding filtered observationdef to chageitem.observation(new_test.observation) as set
                 c.observations.set(observations)
+                # adding observations from included charge items
+                included_tests = c.definitionCanonical.includes.all()
+                for t in included_tests:
+                    for o in t.observations.all():
+                        c.observations.add(o)
                 # to add price overide in chargeitem
                 c.priceOverride = c.definitionCanonical.value
                 c.save()

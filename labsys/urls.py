@@ -25,6 +25,7 @@ urlpatterns = [
     path('observation_verify/<int:ob_id>/', views.ObservationVerify, name = 'observationverify'),
     path('chargeitempreview/<pk>/', views.chargeitem_preview, name='chargeitem_preview'),
     path('observation_dataedit/<int:ob_id>/', views.ObservationDataEdit, name = 'observationdataedit'),
+    path('chargeitem_dataedit/<int:ci_id>/', views.ChargeitemDataEdit, name = 'chargeitemdataedit'),
 
     
 

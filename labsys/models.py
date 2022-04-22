@@ -643,6 +643,8 @@ class ChargeItem(models.Model):
     priceOverride = models.PositiveIntegerField(blank=True, null=True)
     # Reason for overriding if done aftert first entry the list price/factor
     overrideReason = models.CharField(max_length=200, blank=True, null=True, default="Registration")
+    #price override by 
+    priceoverrideby = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_priceoverrideby', null=True, blank=True)
     # Individual who was entering
     enterer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chargeitem_enterer', null=True, blank=True)
     # Which rendered service is being charged?

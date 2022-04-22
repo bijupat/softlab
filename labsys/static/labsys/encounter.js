@@ -55,7 +55,7 @@
 
             element.addEventListener("click", function(event){
 
-                event.preventDefault();
+                //event.preventDefault();
                 testid = this.previousElementSibling.innerHTML;
                 test = this.previousElementSibling.previousElementSibling.innerHTML;
                 testprice = this.nextElementSibling.innerHTML;
@@ -71,7 +71,7 @@
                     //console.log(typeof(testname));
                     //console.log(this.parentElement.innerHTML);
                     // delete li element which is parent to this delete button
-                    this.parentElement.remove();
+                    this.parentElement.parentElement.parentElement.parentElement.parentElement.remove();
                     //console.log(document.querySelector('#totalamount').innerHTML)
                     //update new total to html  
                     document.querySelector('#totalamount').innerHTML=previous_total - testprice
