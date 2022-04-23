@@ -211,12 +211,7 @@ class Contact(models.Model):
         else:
             return 'some error'
 
-class Note(models.Model):
-    author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='note')
-    time = models.DateTimeField(auto_now_add=True)
-    text = models.CharField(max_length=500, blank=True, null=True)    
-    def __str__(self):
-            return 'Note by : {} at : {}'.format(self.author.name.get().text, self.time)
+
 
 class Patient(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -660,18 +655,17 @@ class ChargeItem(models.Model):
     # copies  from charge item defination but open for edit if desired
     note = models.CharField(max_length=1000, blank=True, null=True)
 
-    def serialize(self):
+    def is_all_atleat_final(self):
         is_all_atleat_final = True
         observationDefs = self.observations.all()
         for obdefination in observationDefs:
             obs = obdefination.observation.filter(chargeitem=self)
             for ob in obs:
                 if ob.status == "P" or ob.status == "R":
-                    is_all_atleat_final = False
-        return{
-            "is_all_atleat_final": is_all_atleat_final,
-
-        }
+                    return False
+                else:
+                    return True
+ 
 
 
     def __str__(self):
@@ -801,5 +795,11 @@ class PaymentReconciliation(models.Model):
 
 
 
-
+class Note(models.Model):
+    author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='note')
+    time = models.DateTimeField(auto_now_add=True)
+    text = models.CharField(max_length=500, blank=True, null=True)
+  
+    def __str__(self):
+            return 'Note by : {} at : {}'.format(self.author.name.get().text, self.time)
 

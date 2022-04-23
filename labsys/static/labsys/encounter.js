@@ -74,7 +74,6 @@
                     //console.log(this.parentElement.innerHTML);
                     // delete li element which is parent to this delete button
                     document.querySelector(`#heading${testid}`).remove();
-                    document.querySelector(`#collapse${testid}`).remove();
                     // delete from report edit and delelte a row with this test
                     document.querySelector(`#c_report_${testid}`).remove();
 

@@ -42,7 +42,7 @@
         <table class="table  text-center">
             <tbody>
                 <tr>
-                    <td scope="col">    <a onclick="history.back()" class="btn btn-outline-primary btn-sm">Back</a></td>
+                    <td scope="col">    <a href={% url 'labsys:encounter' chargeitem.context.id   %} class="btn btn-outline-primary btn-sm">Back</a></td>
                     {% if is_all_ob_entered %}
                     {% else %}
                     <td scope="col"><input  class="btn btn-outline-primary btn-sm" type= "submit" value = "Update" ></td>

@@ -33,8 +33,8 @@ def ChargeitemDataEdit(request,ci_id):
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[chargeitem.context.id]))
 
     else:
-        chargeitem = ChargeItem.objects.get(pk=ci_id)
-        return render(request, 'labsys\chargeitemdataedit.html', {"chargeitem" :chargeitem})
+        chargeItem = ChargeItem.objects.get(pk=ci_id)
+        return render(request, 'labsys\chargeitemdataedit.html', {"chargeItem" :chargeItem})
 
 @login_required(login_url='/login/')
 def ObservationDataEdit(request,ob_id):
@@ -46,7 +46,7 @@ def ObservationDataEdit(request,ob_id):
         observation.note = request.POST["note"]
         observation.save()
 
-        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[observation.chargeitem.id, "view"]))
+        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[observation.chargeitem.id, "edit"]))
 
     else:
         observation = Observation.objects.get(pk=ob_id)
@@ -205,7 +205,6 @@ def DeleteTest(request):
         chargeitem = ChargeItem.objects.filter(id=testid)
         Observation.objects.filter(chargeitem__in = chargeitem).delete()
         chargeitem.delete()   
-
         #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))
 
     
@@ -282,8 +281,8 @@ def ObservationEdit(request):
             except:
                 pass
 
-            
-        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "edit"]))
+        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "view"]))
+  
 
 @login_required(login_url='/login/')
 def ObservationVerifyAll(request):
@@ -298,7 +297,7 @@ def ObservationVerifyAll(request):
                 ob.final_timedate = datetime.now()
                 ob.save()
             
-        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "view"]))
+        return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[chargeitem_id, "view"]))
 
 @login_required(login_url='/login/')
 def ObservationVerify(request, ob_id):

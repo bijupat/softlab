@@ -54,37 +54,15 @@
 <br>
 
 {% for chargeItem in chargeItems %}
-<div class="accordion" id="accordionExample">
-  <div id="heading{{chargeItem.id}}">
-      <button class="btn btn-light btn-sm btn-block" type="button" data-toggle="collapse" data-target="#collapse{{chargeItem.id}}" aria-expanded="false" aria-controls="collapse{{chargeItem.id}}">
+  <div style="height: 2.1rem" id="heading{{chargeItem.id}}">
           <div class="row row-cols-auto">
-              <div class="col" align="left"><a href={% url 'labsys:chargeitemdataedit' chargeItem.id %}  class="btn btn-link btn-sm">{{chargeItem.definitionCanonical.title}}</a></div>
+              <div class="col-6" align="left"><a href={% url 'labsys:chargeitemdataedit' chargeItem.id %}   class="btn btn-light btn-sm">{{chargeItem.definitionCanonical.title}}</a></div>
               <!--data set properties adde to element that can be acessed in java script-->
               <div class="col"><a id = "{{chargeItem.id}}" data-price="{{chargeItem.priceOverride}}" data-title="{{chargeItem.definitionCanonical.title}}" class="btn btn-outline-danger btn-sm deletetest">Delete Test</a></div>
               <div class="col" align="right">{{chargeItem.priceOverride}}</span></div>
           </div>   
       </button>
   </div>
-
-  <div id="collapse{{chargeItem.id}}" class="collapse" aria-labelledby="heading{{chargeItem.id}}" data-parent="#accordionExample">
-      <div class="card-body">
-          <div class="row row-cols-auto">
-              <div class="col">Registered by</div>
-              <div class="col"> {{chargeItem.enterer}} </div>
-              <div class="col-9">At : {{chargeItem.occurrenceDateTime}} </div>
-          </div> 
-          <div class="row row-cols-auto">
-              <div class="col">Price Edit By</div>
-              <div class="col">{{chargeItem.priceoverrideby|default:"Not Done"}}</div>
-              <div class="col-9">Reason to edit price : {{chargeItem.overrideReason|default:"NA"}}</div>
-          </div>
-          <div class="row row-cols-auto">
-            <div class="col">Note : </div>
-            <div class="col-10">{{chargeItem.note|default:""}} </div>
-        </div>  
-      </div>
-  </div>
-</div>
 {% empty %}
 No Test Listed.
 {% endfor %}
@@ -102,8 +80,7 @@ No Test Listed.
               <a href={% url 'labsys:addtest' e.id t.id %} >{{t.title}}</a>
             {% empty %}
               <a>All Test Added !!</a >
-            {% endfor %}  
-                
+            {% endfor %}                
     </div>
   </div>
 
@@ -156,17 +133,23 @@ No Test Listed.
 
 
 <!-- Charge Item with report details -->
-<div class="list-group-item-bordered">
-  <table class="table table-striped table-bordered">
+
+
+
+
+
+
+<div>
+  <table class="table table-striped table-bordered table-sm">
       <thead>
           <tr>
               <th scope="col">Report</th>              
-              <td scope="col"><a href=# role="button" class="btn btn-outline-primary btn-sm">Edit All</a></td>
-              <td scope="col"><a href=# role="button" class="btn btn-outline-primary btn-sm">View All</a></td>
+              <td scope="col" align="center"><a href=# role="button" class="btn btn-outline-secondary btn-sm">Edit All</a></td>
+              <td scope="col" align="center"><a href=# role="button" class="btn btn-outline-secondary btn-sm">View All</a></td>
               
-              <td scope="col">
-                {% if is_all_chargeitem_atleast_final%}
-                  <a href=# role="button" class="btn btn-outline-primary btn-sm">Preview All</a>
+              <td scope="col" align="center">
+                {% if is_all_chargeitem_atleast_final %}
+                  <a href=# role="button" class="btn btn-outline-secondary btn-sm">Preview All</a>
                 {% endif %}
               </td>
           </tr>
@@ -175,11 +158,11 @@ No Test Listed.
           {% for c in chargeItems %}         
               <tr id ="c_report_{{c.id}}">
                   <td scope="col">{{c.definitionCanonical.title}}</td>
-                  <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'edit' %} role="button" class="btn btn-outline-primary btn-sm">Edit</a></td>
-                  <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'view' %} role="button" class="btn btn-outline-primary btn-sm">View</a></td>
-                  <td scope="col">
-                    {% if c.serialize.is_all_atleat_final %}
-                      <a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-primary btn-sm">Preview</a>
+                  <td scope="col" align="center"><a href={% url 'labsys:chargeitem' c.id 'edit' %} role="button" class="btn btn-outline-secondary btn-sm">Edit</a></td>
+                  <td scope="col" align="center"><a href={% url 'labsys:chargeitem' c.id 'view' %} role="button" class="btn btn-outline-secondary btn-sm">View</a></td>
+                  <td scope="col" align="center">
+                    {% if c.is_all_atleat_final %}
+                      <a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-secondary btn-sm">Preview</a>
                     {% endif %}
                   </td>
               </tr>
