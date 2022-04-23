@@ -55,10 +55,12 @@
 
             element.addEventListener("click", function(event){
 
-                //event.preventDefault();
-                testid = this.previousElementSibling.innerHTML;
-                test = this.previousElementSibling.previousElementSibling.innerHTML;
-                testprice = this.nextElementSibling.innerHTML;
+                event.preventDefault();
+                // acessing chargeitem id from html element ID
+                testid = event.target.id
+                // acecssing data from html element data set properties
+                test = event.target.dataset.title
+                testprice = event.target.dataset.price
                 previous_total = document.querySelector('#totalamount').innerHTML
                 previous_due = document.querySelector('#due').innerHTML
             
@@ -71,7 +73,12 @@
                     //console.log(typeof(testname));
                     //console.log(this.parentElement.innerHTML);
                     // delete li element which is parent to this delete button
-                    this.parentElement.parentElement.parentElement.parentElement.parentElement.remove();
+                    document.querySelector(`#heading${testid}`).remove();
+                    document.querySelector(`#collapse${testid}`).remove();
+                    // delete from report edit and delelte a row with this test
+                    document.querySelector(`#c_report_${testid}`).remove();
+
+                    //this.parentElement.parentElement.parentElement.parentElement.parentElement.remove();
                     //console.log(document.querySelector('#totalamount').innerHTML)
                     //update new total to html  
                     document.querySelector('#totalamount').innerHTML=previous_total - testprice

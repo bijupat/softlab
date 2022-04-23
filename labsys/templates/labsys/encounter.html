@@ -58,41 +58,30 @@
   <div id="heading{{chargeItem.id}}">
       <button class="btn btn-light btn-sm btn-block" type="button" data-toggle="collapse" data-target="#collapse{{chargeItem.id}}" aria-expanded="false" aria-controls="collapse{{chargeItem.id}}">
           <div class="row row-cols-auto">
-              <div class="col" align="left"><a href={% url 'labsys:chargeitemdataedit' chargeItem.id %} class="btn btn-link btn-sm">{{chargeItem.definitionCanonical.title}}</a></div>
-              <div class="col"><span  style="display: none" >{{chargeItem.definitionCanonical.title}}</span><span  style="display: none" >{{chargeItem.id}}</span><a class="btn btn-outline-danger btn-sm deletetest">Delete Test</a><span  style="display: none" >{{chargeItem.priceOverride}}</span></div>
+              <div class="col" align="left"><a href={% url 'labsys:chargeitemdataedit' chargeItem.id %}  class="btn btn-link btn-sm">{{chargeItem.definitionCanonical.title}}</a></div>
+              <!--data set properties adde to element that can be acessed in java script-->
+              <div class="col"><a id = "{{chargeItem.id}}" data-price="{{chargeItem.priceOverride}}" data-title="{{chargeItem.definitionCanonical.title}}" class="btn btn-outline-danger btn-sm deletetest">Delete Test</a></div>
               <div class="col" align="right">{{chargeItem.priceOverride}}</span></div>
           </div>   
       </button>
   </div>
+
   <div id="collapse{{chargeItem.id}}" class="collapse" aria-labelledby="heading{{chargeItem.id}}" data-parent="#accordionExample">
       <div class="card-body">
           <div class="row row-cols-auto">
-              <div class="col">Registered At </div>
-              <div class="col">Preliminary At</div>
-              <div class="col">Final At </div>
-              <div class="col"> Amended At</div>
-              <div class="col"> Informed At</div>
-              <div class="col"> Delivered At</div>
-              <div class="col">Note </div>
+              <div class="col">Registered by</div>
+              <div class="col"> {{chargeItem.enterer}} </div>
+              <div class="col-9">At : {{chargeItem.occurrenceDateTime}} </div>
           </div> 
           <div class="row row-cols-auto">
-              <div class="col">{{ob.timedate}}</div>
-              <div class="col">{{ob.prelimnary_timedate|default:"Pending"}}</div>
-              <div class="col">{{ob.final_timedate|default:"Pending"}}</div>
-              <div class="col">{{ob.amended_timedate|default:"Pending"}}</div>
-              <div class="col">{{ob.informed_timedate|default:"Pending"}}</div>
-              <div class="col">{{ob.delivered_timedate|default:"Pending"}}</div>
-              <div class="col">{{ob.note}} </div>
-          </div> 
+              <div class="col">Price Edit By</div>
+              <div class="col">{{chargeItem.priceoverrideby|default:"Not Done"}}</div>
+              <div class="col-9">Reason to edit price : {{chargeItem.overrideReason|default:"NA"}}</div>
+          </div>
           <div class="row row-cols-auto">
-              <div class="col">By {{chargeitem.enterer|default:"NA"}}</div>
-              <div class="col">By {{ob.prelimnary_by|default:"NA"}}</div>
-              <div class="col">By {{ob.final_by|default:"NA"}}</div>
-              <div class="col">By {{ob.amended_by|default:"NA"}}</div>
-              <div class="col">By {{ob.informed_by|default:"NA"}}</div>
-              <div class="col">By {{ob.delivered_by|default:"NA"}}</div>
-              <div class="col">  </div>
-          </div> 
+            <div class="col">Note : </div>
+            <div class="col-10">{{chargeItem.note|default:""}} </div>
+        </div>  
       </div>
   </div>
 </div>
@@ -184,7 +173,7 @@ No Test Listed.
       </thead>
       <tbody>
           {% for c in chargeItems %}         
-              <tr>
+              <tr id ="c_report_{{c.id}}">
                   <td scope="col">{{c.definitionCanonical.title}}</td>
                   <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'edit' %} role="button" class="btn btn-outline-primary btn-sm">Edit</a></td>
                   <td scope="col"><a href={% url 'labsys:chargeitem' c.id 'view' %} role="button" class="btn btn-outline-primary btn-sm">View</a></td>
