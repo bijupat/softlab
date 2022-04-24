@@ -7,52 +7,53 @@
 {% endblock %}
 {% block body %}
 
+<!--header visible section-->
+    <div data-toggle="collapse" href="#headerCollapse" role="button" aria-expanded="false" aria-controls="headerCollapse">
+      <table class="table table-sm table-secondary">
+        <thead>
+          <tr>
+            <th scope="col">{{e.timedate|date}}</th>
+            <th scope="col" id = "eid">{{e.id}}</th>
+            <th scope="col">{{e.patient.get_usual_name}}</th>
+            <th scope="col">{{e.patient.age}} Yrs / {{e.patient.gender}}</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
 
-<div class="card">
-  <div class="card-header">
-      <div class="row row-cols-auto">
-          <div class="col" id = "eid">{{e.id}}</div>
-          <div class="col">
-              {% for name in e.patient.name.all %}
-                  {% if name.use == "U" %}
-                      {{name.text}} {{name.family}} 
-                  {% endif %}
-              {% endfor %}</div>
-          <div class="col"> {{e.patient.age}} Yrs / {{e.patient.gender}}</div>
-          
-      </div>
-      <div class="row row-cols-auto">
-        <div class="col largescreen">
-          {{e.timedate|date}}
+<!--header hidden section-->
+<div class="collapse multi-collapse" id="headerCollapse">
+  <div class="card">
+    <div class="card-header ">
+        <div class="row row-cols-auto ">
+          <div class="col largescreen"  >Add more item</div>
+            {% for tele in e.patient.telecom.all %}
+                {% if tele.use == "M" %}
+                <div class="col ">
+                    {{tele.get_use_display|title}} : {{tele.value}}
+                </div>
+                {% endif %}
+                {% if tele.system == "E" %}
+                <div class="col ">
+                    {{tele.value}}
+                </div>  
+                {% endif %}
+            {% endfor %}
         </div>
-          {% for tele in e.patient.telecom.all %}
-              {% if tele.use == "M" %}
-              <div class="col largescreen">
-                  {{tele.get_use_display|title}} : {{tele.value}}
-              </div>
-              {% endif %}
-              {% if tele.system == "E" %}
-              <div class="col largescreen">
-                  {{tele.value}}
-              </div>  
-              {% endif %}
-          {% endfor %}
-      </div>
-  </div>
-  <div class="card-body">
-      <div class="row row-cols-auto">
-          <div class="col ">{{e.account}}</div>
-          <div class="col">{{e.practitioner|title}}</div>
-          <div class="col">
-             Add more item
-          </div>
-      </div>
+    </div>
+    <div class="card-body">
+        <div class="row row-cols-auto">
+            <div class="col ">{{e.account}}</div>
+            <div class="col">{{e.practitioner|title}}</div>
+            <div class="col largescreen">
+              Add more item
+            </div>
+        </div>
+    </div>
   </div>
 </div>
-
-
 <br>
-
+<!--chargeitme(test) lists-->
 {% for chargeItem in chargeItems %}
   <div style="height: 2.1rem" id="heading{{chargeItem.id}}">
           <div class="row row-cols-auto">
@@ -66,31 +67,63 @@
 {% empty %}
 No Test Listed.
 {% endfor %}
-
-
-  <br>
-
-
-
-  <div class="dropdown">
-    <button id = "addtestdropbtn" class="dropbtn">Add Test</button>
-    <div id="myDropdown" class="dropdown-content">
-      <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
-            {% for t in tests %}  
-              <a href={% url 'labsys:addtest' e.id t.id %} >{{t.title}}</a>
-            {% empty %}
-              <a>All Test Added !!</a >
-            {% endfor %}                
-    </div>
+<br>
+<!--ADD TEST button-->
+<div class="dropdown">
+  <button id = "addtestdropbtn" class="dropbtn">Add Test</button>
+  <div id="myDropdown" class="dropdown-content">
+    <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
+          {% for t in tests %}  
+            <a href={% url 'labsys:addtest' e.id t.id %} >{{t.title}}</a>
+          {% empty %}
+            <a>All Test Added !!</a >
+          {% endfor %}                
   </div>
+</div>
+<br>
+<!--payment section visible if largescreen (>1000) implemented by class largresecreen-->
 
+<div data-toggle="collapse" class="largescreen" href="#paymentCollapse" role="button" aria-expanded="false" aria-controls="paymentCollapse">
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th scope="col" class="list-group-item-dark text-center">Total : {{total}}</th>
+        <th scope="col" class="list-group-item-warning text-center">Discount : {{ invoice.discount|default:0 }}</th>
+        <th scope="col" class="list-group-item-success text-center">Paid : {{totalpaid}}</th>
+        <th scope="col" class="list-group-item-danger text-center">Due : {{ invoice.due|default:0 }}</th>
+      </tr>
+    </thead>
+  </table>
+</div>
+<!--payment section visible if small screen(<=1000) implemented by adding class smallscreen-->
 
-  <br>
+<div class="smallscreen"data-toggle="collapse"  href="#paymentCollapse" role="button" aria-expanded="false" aria-controls="paymentCollapse">
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th scope="col" class="list-group-item-dark">Total</th>
+        <th scope="col" class="list-group-item-warning">Discount</th>
+        <th scope="col" class="list-group-item-success">Paid</th>
+        <th scope="col" class="list-group-item-danger">Due</th>
+      </tr>
+    </thead>  
+    <tbody>
+      <tr>
+        <th scope="row" class="list-group-item-dark">{{total}}</th>
+        <td class="list-group-item-warning">{{ invoice.discount|default:0 }}</td>
+        <td class="list-group-item-success">{{totalpaid}}</td>
+        <td class="list-group-item-danger">{{ invoice.discount|default:0 }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- payment section collapsible-->
+<div class="collapse multi-collapse" id="paymentCollapse">
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
     Total
     <a href=# class="btn btn-outline-primary btn-sm">Print Bill</a>
     <span id="totalamount">{{total}}</span>
-    
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
     Discount: 
@@ -126,19 +159,14 @@ No Test Listed.
   <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-danger">
     Due &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a href=# class="btn btn-outline-primary btn-sm">Send Reminder</a>
-    <span id = "due">{{ invoice.due|default:0 }}</span>
+    <span id = "due">{{ invoice.discount|default:0 }}</span>
   </li>
 </ul>
-<br>
+</div>
+</br>
 
 
 <!-- Charge Item with report details -->
-
-
-
-
-
-
 <div>
   <table class="table table-striped table-bordered table-sm">
       <thead>
@@ -146,12 +174,9 @@ No Test Listed.
               <th scope="col">Report</th>              
               <td scope="col" align="center"><a href=# role="button" class="btn btn-outline-secondary btn-sm">Edit All</a></td>
               <td scope="col" align="center"><a href=# role="button" class="btn btn-outline-secondary btn-sm">View All</a></td>
-              
-              <td scope="col" align="center">
-                {% if is_all_chargeitem_atleast_final %}
-                  <a href=# role="button" class="btn btn-outline-secondary btn-sm">Preview All</a>
-                {% endif %}
-              </td>
+              {% if is_all_chargeitem_atleast_final %}
+              <td scope="col" align="center"><a href=# role="button" class="btn btn-outline-secondary btn-sm">Preview All</a></td>
+              {% endif %}
           </tr>
       </thead>
       <tbody>
@@ -160,12 +185,10 @@ No Test Listed.
                   <td scope="col">{{c.definitionCanonical.title}}</td>
                   <td scope="col" align="center"><a href={% url 'labsys:chargeitem' c.id 'edit' %} role="button" class="btn btn-outline-secondary btn-sm">Edit</a></td>
                   <td scope="col" align="center"><a href={% url 'labsys:chargeitem' c.id 'view' %} role="button" class="btn btn-outline-secondary btn-sm">View</a></td>
-                  <td scope="col" align="center">
-                    {% if c.is_all_atleat_final %}
-                      <a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-secondary btn-sm">Preview</a>
-                    {% endif %}
-                  </td>
-              </tr>
+                  {% if c.is_all_atleat_final %}
+                  <td scope="col" align="center"><a href={% url 'labsys:chargeitem_preview' c.id  %} role="button" class="btn btn-outline-secondary btn-sm">Preview</a></td>
+                  {% endif %}
+                </tr>
           {% empty %}
               <tr>
                   <td>No Report Listed.</td>
@@ -176,12 +199,14 @@ No Test Listed.
 </div>
 <br>
 <div>
-  <a href={% url 'labsys:index'  %} class="btn btn-outline-info btn-sm btn-block">Go to Today</a>
-  <br>
-  <form action="{% url 'labsys:index' %}" method="post">
-    {% csrf_token %}
-        <input type = "hidden" value = "{{e.timedate|date:"Y-m-d"}}" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
-        <input  id = "datesubmit" class="btn btn-outline-info btn-sm btn-block" type="submit" value = "Back">
+<!--go to today button-->
+<a href={% url 'labsys:index'  %} class="btn btn-outline-info btn-sm btn-block">Go to Today</a>
+<br>
+<!--go to back button-->
+<form action="{% url 'labsys:index' %}" method="post">
+  {% csrf_token %}
+      <input type = "hidden" value = "{{e.timedate|date:"Y-m-d"}}" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
+      <input  id = "datesubmit" class="btn btn-outline-info btn-sm btn-block" type="submit" value = "Back">
 </form>
 </div>
 {% endblock %}

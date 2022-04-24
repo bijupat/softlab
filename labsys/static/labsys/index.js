@@ -9,7 +9,7 @@
     
 
 
-//hiding item with class largescreen in small screen sizes
+//hiding item  in small screen sizes with class largescreen and vice versa
 
 window.onresize = reportWindowSize;
 window.onload = reportWindowSize;
@@ -18,10 +18,18 @@ function reportWindowSize() {
         document.querySelectorAll('.largescreen').forEach(function(element){
             element.style.display = "none";
         });
+        document.querySelectorAll('.smallscreen').forEach(function(element){
+            element.style.display = "block";
+        });
+
     }
     else{
         document.querySelectorAll('.largescreen').forEach(function(element){
             element.style.display = "block";
+        });
+        document.querySelectorAll('.smallscreen').forEach(function(element){
+            element.style.display = "none";
+            console.log(element)
         });
     }
     

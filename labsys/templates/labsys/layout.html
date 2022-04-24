@@ -48,8 +48,13 @@
                         <li class="nav-item"><a class="nav-link" href="#">Payment Update</a></li>
                     </ul>
                     <ul class="navbar-nav ml-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="#">Hey {{request.session.user}} requesting from {{request.get_host}}</a></li>
-                        <li class="nav-item"><a class="nav-link" href={% url 'labsys:logout'  %}>Log Out</a></li>
+                        <li class="nav-item">
+                            <form class="form-inline my-2 my-lg-0">
+                                <input class="form-control mr-sm-2 nav-link" type="search" placeholder="Search" aria-label="Search">
+                                <button class="btn btn-outline-secondary btn-sm my-2 my-sm-0 nav-link" type="submit">Search</button>
+                            </form>
+                        </li>
+                        <li class="nav-item"><a class="nav-link " href={% url 'labsys:logout'  %}>Log Out</a></li>
                     </ul>
                 {% else %}
                     <ul class="navbar-nav ml-auto mt-2">

@@ -610,7 +610,7 @@ def encounter(request, enc_id):
                 if ob.status == "P" or ob.status == "R":
                     is_all_chargeitem_atleast_final = False
 
-    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "payments" : payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final  } )
+    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "totalpaid":totalpaid, "payments" : payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final  } )
 
 
 @login_required(login_url='/login/')
