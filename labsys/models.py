@@ -755,8 +755,6 @@ class DiagnosticReport (models.Model):
     # Entire report as issued Rich text representation of the entire result as issued by the diagnostic service 
     # can be equivalent to layout in pplus rtf data
     presentedForm = models.CharField(max_length=1000, blank=True, null=True)
-
-
     def __str__(self):
         return f' Payment id {self.code}'
 """
@@ -765,7 +763,7 @@ class DiagnosticReport (models.Model):
 class PaymentReconciliation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     #  active | cancelled | draft | entered-in-error
-    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    status = models.CharField(max_length=75, blank=True, null=True, default='active')
     # Creation date The date when the resource was created.
     created = models.DateTimeField(auto_now_add=True)
     # Need to identify the party resonsible for the payment and this resource.

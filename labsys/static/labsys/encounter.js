@@ -2,19 +2,25 @@
     const eid = document.querySelector('#eid').innerHTML;
     //document.querySelector('#addtestinput').style.display = "none";
     document.querySelector('#addeditdiscout').style.display = "none";
- 
-    
-
-   
+    document.querySelector('#addpayment').style.display = "none";
 
     //console.log(eid);
     //console.log(document.querySelector('#addpayment'));
-    //document.querySelector('#addpayment').addEventListener("click", function(event){
-       // event.preventDefault();
-       // alert("add Payment clicked!");        
-    //});
+    document.querySelector('#addpaymentbutton').addEventListener("click", function(event){
+       event.preventDefault();
+       alert("add Payment clicked!");
+       //display addpayment div form
+       document.querySelector('#addpayment').style.display = "block";
+       //hide paymentbutton button
+       document.querySelector('#addpaymentbutton').style.display = "none";       
+    });
 
-
+    //enable add paymentsubmitt button when addpaymentinput selected
+    document.getElementById('addpaymentinput').addEventListener('input', function () {
+        //console.log(document.getElementById('addeditdiscountinput'))
+        //alert("keyup  event detected")
+        document.querySelector('#addpaymentsubmit').disabled = false;
+    });
 
     document.querySelector('#addeditdisc').addEventListener("click", function(event){
         event.preventDefault(); 
@@ -23,8 +29,6 @@
         document.querySelector('#addeditdiscout').style.display = "block";
         //hide addtest button
         document.querySelector('#addeditdisc').style.display = "none";
-
-        
     });
 
     

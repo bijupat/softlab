@@ -8,8 +8,8 @@
 {% block body %}
 
 <!--header visible section-->
-    <div data-toggle="collapse" href="#headerCollapse" role="button" aria-expanded="false" aria-controls="headerCollapse">
-      <table class="table table-sm table-secondary">
+    <div class="card" data-toggle="collapse" href="#headerCollapse" role="button" aria-expanded="false" aria-controls="headerCollapse">
+      <table class=" table table-sm ">
         <thead>
           <tr>
             <th scope="col">{{e.timedate|date}}</th>
@@ -55,9 +55,9 @@
 <br>
 <!--chargeitme(test) lists-->
 {% for chargeItem in chargeItems %}
-  <div style="height: 2.1rem" id="heading{{chargeItem.id}}">
-          <div class="row row-cols-auto">
-              <div class="col-6" align="left"><a href={% url 'labsys:chargeitemdataedit' chargeItem.id %}   class="btn btn-light btn-sm">{{chargeItem.definitionCanonical.title}}</a></div>
+  <div style="height: 2.4rem" id="heading{{chargeItem.id}}">
+          <div class="row row-cols-auto table-bordered" style="height: 2.2rem">
+              <div class="col-6" align="left"><a href={% url 'labsys:chargeitemdataedit' chargeItem.id %}   >{{chargeItem.definitionCanonical.title}}</a></div>
               <!--data set properties adde to element that can be acessed in java script-->
               <div class="col"><a id = "{{chargeItem.id}}" data-price="{{chargeItem.priceOverride}}" data-title="{{chargeItem.definitionCanonical.title}}" class="btn btn-outline-danger btn-sm deletetest">Delete Test</a></div>
               <div class="col" align="right">{{chargeItem.priceOverride}}</span></div>
@@ -87,10 +87,10 @@ No Test Listed.
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th scope="col" class="list-group-item-dark text-center">Total : {{total}}</th>
-        <th scope="col" class="list-group-item-warning text-center">Discount : {{ invoice.discount|default:0 }}</th>
+        <th scope="col" class="list-group-item-dark text-center" >Total : <span id="totalamount">{{total}}</span> </th>
+        <th scope="col" class="list-group-item-warning text-center">Discount : {{invoice.discount|default:0 }}</th>
         <th scope="col" class="list-group-item-success text-center">Paid : {{totalpaid}}</th>
-        <th scope="col" class="list-group-item-danger text-center">Due : {{ invoice.due|default:0 }}</th>
+        <th scope="col" class="list-group-item-danger text-center">Due : <span id="due">{{invoice.due|default:0 }}</span></th>
       </tr>
     </thead>
   </table>
@@ -101,7 +101,7 @@ No Test Listed.
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th scope="col" class="list-group-item-dark">Total</th>
+        <th scope="col" class="list-group-item-dark" id="totalamount" >Total</th>
         <th scope="col" class="list-group-item-warning">Discount</th>
         <th scope="col" class="list-group-item-success">Paid</th>
         <th scope="col" class="list-group-item-danger">Due</th>
@@ -109,60 +109,85 @@ No Test Listed.
     </thead>  
     <tbody>
       <tr>
-        <th scope="row" class="list-group-item-dark">{{total}}</th>
+        <th scope="row" class="list-group-item-dark"><span id="totalamount">{{total}}</span></th>
         <td class="list-group-item-warning">{{ invoice.discount|default:0 }}</td>
         <td class="list-group-item-success">{{totalpaid}}</td>
-        <td class="list-group-item-danger">{{ invoice.discount|default:0 }}</td>
+        <td class="list-group-item-danger"><span id="due">{{invoice.due|default:0 }}</span></td>
       </tr>
     </tbody>
   </table>
 </div>
 
 <!-- payment section collapsible-->
-<div class="collapse multi-collapse" id="paymentCollapse">
-  <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
-    Total
-    <a href=# class="btn btn-outline-primary btn-sm">Print Bill</a>
-    <span id="totalamount">{{total}}</span>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
-    Discount: 
-    <div>
-      <a href=# class="btn btn-outline-primary btn-sm" id="addeditdisc">Add/Edit Discount</a>
+
+<div  class="container collapse multi-collapse" id="paymentCollapse">
+  <div class="row " >
+    <div class="col col-lg-9 col-md-8">
+      <table class="table table-sm table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Recp No</th>
+            <th scope="col">Amount</th>
+            <th scope="col">On</th>
+            <th scope="col">To</th>
+            <th scope="col">Bill No : {{invoice.id}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment in payments %}
+            <tr>
+              <th scope="row">{{payment.id}}</th>
+              <td>{{payment.paymentAmount}}</td>
+              <td>{{payment.paymentDate}}</td>
+              <td>{{payment.received_by}}</td>
+              <td><a href={% url 'labsys:index'  %} class="btn btn-outline-secondary btn-success btn-sm">Print Recpt</a></td>
+            </tr>
+          {% empty %}
+            <td colspan="5"> No Payment Received</td>
+          {% endfor %}                
+            <tr>
+              <td colspan="5">
+                <a href={% url 'labsys:addpayment' %} class="btn btn-outline-success btn-sm btn-block" id="addpaymentbutton">Add Payment</a>
+                <div id="addpayment">
+                  <form action="{% url 'labsys:addpayment' %}" method="post">
+                    {% csrf_token %}
+                    <input  class = "form-control" name="payamount" id="addpaymentinput" style="width:50%">
+                    <input disabled type= "submit" id="addpaymentsubmit" class="btn btn-outline-success btn-sm ">
+                    <input value="{{e.id}}" name="eidinput" style="display: none">
+                  </form> 
+                </div>
+              </td>
+            </tr>
+        </tbody>
+      </table>
     </div>
-    <div id="addeditdiscout">
-      <form action="{% url 'labsys:addeditdiscount' %}" method="post">
-        {% csrf_token %}
-        <input  class = "form-control" name="addeditdiscountinput" id="addeditdiscountinput" style="width:20%">
-        <input disabled type= "submit" id="addeditdiscountsubmit" class="btn btn-primary btn-sm ">
-        <input value="{{e.id}}" name="eidinput" style="display: none">
-      </form> 
+    <div class="col col-lg-1 col-md-1">
+      <table class="table table-sm table-bordered">
+        <tbody>
+          <tr>
+            <th scope="col"><a href=# class="btn btn-outline-secondary btn-sm btn-block">Print Bill</a></th>
+          </tr>
+          <tr>
+            <th scope="col">
+              <div><a href=# class="btn btn-outline-warning btn-sm btn-block" id="addeditdisc">Add/Edit Discount</a></div>
+              <div id="addeditdiscout">
+                <form action="{% url 'labsys:addeditdiscount' %}" method="post">
+                  {% csrf_token %}
+                  <input  class = "form-control" name="addeditdiscountinput" id="addeditdiscountinput" style="width:50%">
+                  <input disabled type= "submit" id="addeditdiscountsubmit" class="btn btn-outline-warning btn-sm ">
+                  <input value="{{e.id}}" name="eidinput" style="display: none">
+                </form> 
+              </div>
+            </th>
+          <tr>
+            <th scope="col"><a href=# class="btn btn-outline-danger btn-sm btn-block">Send Payment Reminder</a></th>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <span> 
-        {{ invoice.discount|default:0 }}
-    </span>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
-    Paid:
-    <a href={% url 'labsys:addpayment' %} class="btn btn-outline-primary btn-sm" id="addpayment">Add Payment</a>
-    <span>
-      {% for payment in payments %}
-        <ul>  
-          <li><a href={% url 'labsys:index'  %} class="btn btn-outline-primary btn-sm">Print Recpt</a> : {{payment.paymentAmount}}</li>
-        </ul>
-      {% empty %}
-        No Payment Received.
-      {% endfor %}   
-    </span>
-  </li>
-  
-  <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-danger">
-    Due &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href=# class="btn btn-outline-primary btn-sm">Send Reminder</a>
-    <span id = "due">{{ invoice.discount|default:0 }}</span>
-  </li>
-</ul>
+  </div>
 </div>
+
 </br>
 
 

@@ -205,9 +205,7 @@ def DeleteTest(request):
         chargeitem = ChargeItem.objects.filter(id=testid)
         Observation.objects.filter(chargeitem__in = chargeitem).delete()
         chargeitem.delete()   
-        #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))
-
-    
+        #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))    
         return HttpResponse(status=200)
 
 @login_required(login_url='/login/')
@@ -315,14 +313,17 @@ def ObservationVerify(request, ob_id):
 
 @login_required(login_url='/login/')
 def AddPayment(request):
-    form = PatientRegistration(request.POST, request.FILES)
-    user = request.user
-    
-    if request.method == 'GET':
-        return render(request, 'labsys\h_filter.html')
-
     if request.method == 'POST':
-        return HttpResponseRedirect(reverse("labsys:encounter", args=[5]))
+        eid = request.POST["eidinput"]
+        ec = Encounter.objects.get(pk=eid)
+        invoice = ec.invoice
+        payment = PaymentReconciliation(request=invoice, received_by=request.user,
+                    paymentAmount=request.POST["payamount"])
+        payment.save()
+        return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))
+            
+    return render(request, 'labsys\h_filter.html')
+
 
 @login_required(login_url='/login/')
 def index(request):
