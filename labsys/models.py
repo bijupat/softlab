@@ -481,12 +481,10 @@ class ObservationDefinition(models.Model):
     vmsg = models.CharField(max_length=30, blank=True, null=True)
     # Validation if must ?.
     vrulemust = models.BooleanField(blank=True, null=True,default=True)
-
     #The low and high values determining the interval. There may be only one of the two
     # it will be implemented from qulified interval class as foreign  key
     class Meta:
         ordering = ["test"]
-
     def __str__(self):
             return 'Test : {} '.format(self.test)
 
@@ -504,8 +502,6 @@ class QualifiedInterval(models.Model):
     gestationalAge = models.CharField(max_length=50, blank=True, null=True)
     #Text based condition for which the reference range is valid.
     condition = models.CharField(max_length=75, blank=True, null=True)
-   
-
     def __str__(self):
             return 'For {} as {} age {} to {} / {}'.format(self.observationdefinition, self.category, self.age_low, self.age_high,  self.gender)
 
@@ -539,12 +535,13 @@ class Invoice(models.Model):
         for e in self.encounter.all():
             chargeItems = ChargeItem.objects.filter(context=e)
             for c in chargeItems:
-                total += c.priceOverride
+                total += c.priceOverride or 0
         self.totalGross = total
         paid = 0
         for p in self.paymentreconciliation.all():
-            paid += p.paymentAmount
+            paid += p.paymentAmount or 0
         self.due = total - (paid + self.discount)
+        self.totalnet = total-self.discount
         return paid
 
 
@@ -670,17 +667,11 @@ class ChargeItem(models.Model):
     note = models.CharField(max_length=1000, blank=True, null=True)
 
     def is_all_atleat_final(self):
-        is_all_atleat_final = True
-        observationDefs = self.observations.all()
-        for obdefination in observationDefs:
-            obs = obdefination.observation.filter(chargeitem=self)
-            for ob in obs:
-                if ob.status == "P" or ob.status == "R":
-                    return False
-                else:
-                    return True
- 
-
+        obs = Observation.objects.filter(chargeitem = self)
+        for ob in obs:
+            if ob.status == "P" or ob.status == "R":
+                return False
+        return True
 
     def __str__(self):
         return f' id : {self.id} Test : {self.definitionCanonical} for Enc : {self.context.id}'

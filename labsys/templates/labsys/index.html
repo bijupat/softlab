@@ -60,11 +60,16 @@
                         <div class="col">{{e.practitioner|title}}</div>
                         <div class="col">
                             <small>
-                                <ol>                              
+                                <ol>
                                     {% for t in e.chargeitem.all %}
-                                        <li> {{t.definitionCanonical.title}} : {{t.priceOverride}}</li>
-                                    {% endfor %}
-                                </ol>
+                                    <li> {{t.definitionCanonical.title}} : {{t.priceOverride}}</li>
+                                    {% empty %}
+                                </ol>                                     
+                                    <ul>                                   
+                                        <li>No Test Added</li>
+                                    </ul>
+                                {% endfor %}
+                            </ol>
                                 <ul>
                                     <li> Total : {{e.invoice.totalGross}}</li>
                                     <li> Disc : {{e.invoice.discount}}</li>

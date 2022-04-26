@@ -381,7 +381,7 @@ def pat_register(request):
         # if form is not valid
         else:
             names = Name.objects.all()
-            return render(request, 'labsys\patient_regi.html', { "form": form, "message": "Payment Error!!!!*!! Click HERE to correct!"})
+            return render(request, 'labsys\patient_regi.html', { "form": form, "message": "In valid Patient Credentials!"})
     # if request method get  
     names = Name.objects.all()    
     return render(request, 'labsys\patient_regi.html', {"names": names, "form": PatientRegistration})
@@ -390,32 +390,30 @@ def pat_register(request):
 
 @login_required(login_url='/login/')
 def encounter(request, enc_id):
-
     e = Encounter.objects.get(pk=enc_id)
     chargeItems = ChargeItem.objects.filter(context= e)
-    chargeItem_list = chargeItems.aggregate(Sum('priceOverride'))
-    total = chargeItem_list['priceOverride__sum'] or 0
-
+    #chargeItem_list = chargeItems.aggregate(Sum('priceOverride'))
+    #total = chargeItem_list['priceOverride__sum'] or 0
     #Geting invoice object for encouter
     invoice = Invoice.objects.get(pk=e.invoice.id)
     # filtering payment objects for particular invoice
-    payments = PaymentReconciliation.objects.filter(request=invoice)
-    paymentset = payments.aggregate(Sum('paymentAmount'))
-    totalpaid = paymentset['paymentAmount__sum'] or 0
-    discount =  invoice.discount or 0
-    invoice.totalGross = total
+    # payments = PaymentReconciliation.objects.filter(request=invoice)
+    # paymentset = payments.aggregate(Sum('paymentAmount'))
+    # totalpaid = paymentset['paymentAmount__sum'] or 0
+    # discount =  invoice.discount or 0
+    # invoice.totalGross = total
     # checking if no test due to all test deleted and there is discount, totalnet  will be minus 
-    if  invoice.totalGross - discount > 0:
-        invoice.totalnet = invoice.totalGross - discount
-    else:
-        invoice.totalnet = 0
-    # checking if no test due to all test deleted and there is discount, due will be minus
-    if  invoice.totalnet-totalpaid > 0: 
-        invoice.due = invoice.totalnet-totalpaid
-    else:
-        invoice.due = 0
-    #saving the invoice
-    invoice.save()    
+    # if  invoice.totalGross - discount > 0:
+    #     invoice.totalnet = invoice.totalGross - discount
+    # else:
+    #     invoice.totalnet = 0
+    # # checking if no test due to all test deleted and there is discount, due will be minus
+    # if  invoice.totalnet-totalpaid > 0: 
+    #     invoice.due = invoice.totalnet-totalpaid
+    # else:
+    #     invoice.due = 0
+    # #saving the invoice
+    # invoice.save()    
 
     #creat set of chargeitemdefinations id included in this encounter(allready added tests)
     test_id_set = []
@@ -430,17 +428,17 @@ def encounter(request, enc_id):
     #to check all charge item  is final, first set varialbe to True
     is_all_chargeitem_atleast_final= True
     # itereting through all chargeitems
-    for chargeitem in chargeItems.all():
-        # geting all observationsdefinations from relation manager (reverse relation)
-        observationDefs = chargeitem.observations.all()
-        for obdefination in observationDefs:
-            #getting only those observations with same chargeitem, as it will return observation for all patient for this ob def
-            obs = obdefination.observation.filter(chargeitem=chargeitem)
-            for ob in obs:
-                if ob.status == "P" or ob.status == "R":
-                    is_all_chargeitem_atleast_final = False
+    # for chargeitem in chargeItems.all():
+    #     geting all observationsdefinations from relation manager (reverse relation)
+    #     observationDefs = chargeitem.observations.all()
+    #     for obdefination in observationDefs:
+    #         getting only those observations with same chargeitem, as it will return observation for all patient for this ob def
+    obs = Observation.objects.filter(chargeitem__in=chargeItems)
+    for ob in obs:
+        if ob.status == "P" or ob.status == "R":
+            is_all_chargeitem_atleast_final = False
 
-    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "total": total, "totalpaid":totalpaid, "payments" : payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final  } )
+    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final} )
 
 
 @login_required(login_url='/login/')
