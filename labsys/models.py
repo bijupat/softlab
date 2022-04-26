@@ -1,11 +1,11 @@
-from xml.etree.ElementInclude import include
+#from xml.etree.ElementInclude import include
 from django.db import models
 #from django.db.models.base import Model
 #from django.db.models.enums import Choices
 from django.contrib.auth.models import AbstractUser
 from datetime import date
 #from django.db.models.fields.related import OneToOneField
-from django.contrib.postgres.fields import JSONField
+#from django.contrib.postgres.fields import JSONField
 
 
 
@@ -533,6 +533,20 @@ class Invoice(models.Model):
     paymentTerms = models.CharField(max_length=200, blank=True, null=True)
     # Comments made about the invoice by the issuer, subject, or other participants.
     note = models.CharField(max_length=200, blank=True, null=True)
+
+    def paid(self):
+        total = 0
+        for e in self.encounter.all():
+            chargeItems = ChargeItem.objects.filter(context=e)
+            for c in chargeItems:
+                total += c.priceOverride
+        self.totalGross = total
+        paid = 0
+        for p in self.paymentreconciliation.all():
+            paid += p.paymentAmount
+        self.due = total - (paid + self.discount)
+        return paid
+
 
     def __str__(self):
         return f' Inovoice id {self.id} for {self.subject}'

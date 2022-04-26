@@ -65,6 +65,12 @@
                                         <li> {{t.definitionCanonical.title}} : {{t.priceOverride}}</li>
                                     {% endfor %}
                                 </ol>
+                                <ul>
+                                    <li> Total : {{e.invoice.totalGross}}</li>
+                                    <li> Disc : {{e.invoice.discount}}</li>
+                                    <li> Paid : {{e.invoice.paid}}</li>
+                                    <li> Due : {{e.invoice.due}}</li>
+                                </ul>
                             </small>
                         </div>
                     </div>

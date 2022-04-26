@@ -2,44 +2,65 @@
 {% load static %}
 {% block title %}Test{% endblock %}
 {% block body %}
-<form action="{% url 'labsys:chargeitemdataedit' chargeItem.id %}" method="post">
-  {% csrf_token %}
-  <div class="form-row">
-    <div class="form-group col-md-3">
-      <label for="inputpriceOverride">Change Price</label>
-      <input name = "priceOverride" type="text" class="form-control" id="inputpriceOverride" value = "{{chargeItem.priceOverride}}" size="8" >
-    </div>
-    <div class="form-group col-md-9">
-      <label for="inputoverrideReason">Reason for it</label>
-      <input Name = "overrideReason" type="text" class="form-control" id="inputoverrideReason" value = "{{chargeItem.overrideReason}}" style="width:80%">
+<div class="card ">
+  <div class="card-header">
+    <div class="row row-cols-auto">
+      <div class="col">{{chargeItem.context.id}}</div>
+      <div class="col"> {{chargeItem.context.timedate|date}}</div>
+      <div class="col">{{chargeItem.subject.get_usual_name}}</div>          
     </div>
   </div>
-  <div class="form-group">
-    <label for="inputnote">Note</label>
-    <input name="note" type="text" class="form-control" id="inputnote" value = "{{chargeItem.note|default:""}}" rows="5" style="width:90%">
+  <div class="card-body">
+    <form action="{% url 'labsys:chargeitemdataedit' chargeItem.id %}" method="post">
+      {% csrf_token %}
+      <h5 class="card-title">{{chargeItem.definitionCanonical.title}}</h5>
+      <p class="card-text">
+        
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="inputpriceOverride">Change Price</label>
+              <input name = "priceOverride" type="text" class="form-control" id="inputpriceOverride" value = "{{chargeItem.priceOverride}}" size="8" >
+            </div>
+            <div class="form-group col-md-9">
+              <label for="inputoverrideReason">Reason for it</label>
+              <input Name = "overrideReason" type="text" class="form-control" id="inputoverrideReason" value = "{{chargeItem.overrideReason}}" style="width:80%">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputnote">Note</label>
+            <input name="note" type="text" class="form-control" id="inputnote" value = "{{chargeItem.note|default:""}}" rows="5" style="width:90%">
+          </div>
+      </p>
+      <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>  
+      </div>
+    </form>
+  <div class="card-footer text-muted text-center">
+    <button onclick="history.back()" class="btn btn-primary btn-sm">Back</button>
+</div>
+</div>
+
+
+<div class="card">
+  <div class="card-body">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col">Registered by : {{chargeItem.enterer}}</th>
+          <th scope="col">At : {{chargeItem.occurrenceDateTime}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Price Edit By : {{chargeItem.priceoverrideby|default:"Not Done"}}</td>
+          <td>Reason to edit price : {{chargeItem.overrideReason|default:"NA"}}</td>
+        </tr>
+        <tr>
+          <td colspan="2">Note : {{chargeItem.note|default:""}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
-</form>
-<br>
+</div>
 
-    <div class="card-body">
-        <div class="row row-cols-auto">
-            <div class="col">Registered by</div>
-            <div class="col"> {{chargeItem.enterer}} </div>
-            <div class="col-9">At : {{chargeItem.occurrenceDateTime}} </div>
-        </div> 
-        <div class="row row-cols-auto">
-            <div class="col">Price Edit By</div>
-            <div class="col">{{chargeItem.priceoverrideby|default:"Not Done"}}</div>
-            <div class="col-9">Reason to edit price : {{chargeItem.overrideReason|default:"NA"}}</div>
-        </div>
-        <div class="row row-cols-auto">
-          <div class="col">Note : </div>
-          <div class="col-10">{{chargeItem.note|default:""}} </div>
-      </div>  
-    </div>
-
-</br>
-<button onclick="history.back()" class="btn btn-primary btn-sm">Back</button>
 
 {% endblock %}

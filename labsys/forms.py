@@ -38,11 +38,6 @@ class PatientRegistration(forms.Form):
     mobile = forms.IntegerField(label="Mobile", validators=[is_mobile],  widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Mobile',}))
     email = forms.EmailField(label="E Mail", required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E Mail',}))
     photo = forms.ImageField(label='Add Image ', required=False,  widget=forms.FileInput(attrs={'class': 'form-control', 'placeholder': 'Photo',}))
-    practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}) )  
-    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
-    account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}))
-    discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
-    paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
 
 class EncounterRegistration(forms.Form):
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  

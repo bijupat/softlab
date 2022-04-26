@@ -1,10 +1,10 @@
 #from labsys.models import Patient
-from multiprocessing import context
+#from multiprocessing import context
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
 from django.http import JsonResponse, FileResponse
 from django.utils.timezone import datetime 
-from django.db.models import Avg, Max, Min, Sum
+from django.db.models import Sum
 from .forms import EncounterRegistration, PatientRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -18,6 +18,7 @@ from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from .utilfunctions import register_encounter
 
 
 @login_required(login_url='/login/')
@@ -251,21 +252,15 @@ def AddTest(request, e_id, t_id):
 @login_required(login_url='/login/')
 def AddEditDiscount(request):
     if request.method == "POST":
-        eid = request.POST["eidinput"]
-        discount = request.POST["addeditdiscountinput"]
-        ec = Encounter.objects.get(pk=eid)
-        invoice = ec.invoice
-        invoice.discount = discount        
+        invoice = Encounter.objects.get(pk=request.POST["eidinput"]).invoice
+        invoice.discount = request.POST["addeditdiscountinput"]        
         invoice.save()
-        #print(eid)
-        #print(discount)
-        return HttpResponseRedirect(reverse("labsys:encounter",  args=[eid]))
+        return HttpResponseRedirect(reverse("labsys:encounter",  args=[request.POST["eidinput"]]))
 
 @login_required(login_url='/login/')
 def ObservationEdit(request):
     if request.method == "POST": 
-        chargeitem_id = request.POST["chargeitem_id"]    
-        chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
+        chargeitem = ChargeItem.objects.get(pk=request.POST["chargeitem_id"])    
         observations = Observation.objects.filter(chargeitem=chargeitem)
         
         for ob in observations:
@@ -353,93 +348,13 @@ def pat_enc(request, pat_id):
 def regi_old_pat(request, pat_id):
     if request.method == "POST":
         form = EncounterRegistration(request.POST)
-        user = request.user
-
         if form.is_valid():
-            old_patient= Patient.objects.get(pk=pat_id)
-            #create new invoice and save without payment details
-            inv = Invoice(subject=old_patient, participant = form.cleaned_data["practitioner"], account = form.cleaned_data['account'] )
-            
-            #create new encounter instance
-            enc = Encounter()
-            # assing it's patient attribute to new_patient instance of Patient Class and save
-            enc.patient = old_patient
-            enc.practitioner = form.cleaned_data["practitioner"]
-            enc.account = form.cleaned_data['account']
-            enc.save()
-            # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
-            # enc.test is chargeitems for the encounter 
-            chageitemdefinations = form.cleaned_data["test"]
-            enc.test.set(chageitemdefinations)            
-            
-            p = enc.test.all().aggregate(Sum('value'))
-            paid = form.cleaned_data["paid"]
-            #populate payment data in invoice object
-            inv.discount = form.cleaned_data["discount"]
-            inv.totalGross = p['value__sum']
-            if not inv.totalGross:
-                inv.totalGross = 0
-            if not inv.discount:
-                inv.discount = 0
-            if not paid:
-                paid = 0
-            inv.totalnet = inv.totalGross - inv.discount
-            inv.due = inv.totalnet-paid
-            if inv.totalnet < 0 or inv.due < 0:
-                enc.delete()
+            # using utilfunction register_encunter if it returns true 
+            if register_encounter(Patient.objects.get(pk=pat_id), form.cleaned_data["practitioner"], form.cleaned_data["test"], form.cleaned_data["discount"], form.cleaned_data["paid"], form.cleaned_data['account'], request.user):
+                return HttpResponseRedirect(reverse("labsys:index"))
+            # register encounter returns false return to same page with partialy filled form
+            else:
                 return render(request, 'labsys/add_enc.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
-
-            # save invoice and encounter only after all validation done
-            inv.save()
-            enc.invoice = inv
-            enc.save()
-
-           # filtering charge items for encounter and getting its subject and enterer filed with patient and user
-            chargeItems = ChargeItem.objects.filter(context=enc)
-            for c in chargeItems:
-                c.subject = old_patient
-                c.enterer = request.user
-                c.account = form.cleaned_data['account']
-                c.enterer = request.user
-                #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
-                # finding set of observations in test(chargeitemdef) by .observations.all()
-                observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
-                # adding filtered observationdef to chageitem.observation(new_test.observation) as set
-                c.observations.set(observations)
-                # adding observations from included charge items
-                included_tests = c.definitionCanonical.includes.all()
-                for t in included_tests:
-                    for o in t.observations.all():
-                        c.observations.add(o)
-                # to add price overide in chargeitem
-                c.priceOverride = c.definitionCanonical.value
-                c.save()
-                    # add default values to observatioin from ob_def    
-            observations = Observation.objects.filter(chargeitem__in = chargeItems)
-            for o in observations:
-                ob_def = o.testfield
-                qualifiedIntervals = ob_def.qualifiedinterval
-                high, low = "", ""
-                for q in qualifiedIntervals.all():
-                    if q.category == "R":
-                        high = q.high
-                        low = q.low
-                o.status = "R"
-                o.unit = ob_def.unit
-                o.high = high
-                o.low = low  
-                o.note = ob_def.note
-                o.save()
-            #pat_address = Address()
-            #pat_address.use = "home"
-            #pat_address.text = form.cleaned_data["Address"]
-            #pat_address.save()
-            if paid:
-                payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
-                payment.save()
-           
-           
-            return HttpResponseRedirect(reverse("labsys:index"))
         # if form is not valid
         else:
             return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })
@@ -450,38 +365,7 @@ def regi_old_pat(request, pat_id):
 def pat_register(request):
     if request.method == "POST":
         form = PatientRegistration(request.POST)
-        user = request.user
         if form.is_valid():
-           #create new encounter instance
-            enc = Encounter()
-            # assing it's patient attribute to new_patient instance of Patient Class and save
-            enc.practitioner = form.cleaned_data["practitioner"]
-            enc.account = form.cleaned_data['account']
-            enc.save()
-            # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
-            chageitemdefinations = form.cleaned_data["test"]
-            enc.test.set(chageitemdefinations)
-           
-            #create new invoice and save without payment details         
-            p = enc.test.all().aggregate(Sum('value'))
-            paid = form.cleaned_data["paid"]
-            #populate payment data in invoice object
-            inv = Invoice(participant = form.cleaned_data["practitioner"], account = form.cleaned_data['account'] )
-            inv.discount = form.cleaned_data["discount"]
-            inv.totalGross = p['value__sum']
-            if not inv.totalGross:
-                inv.totalGross = 0
-            if not inv.discount:
-                inv.discount = 0
-            if not paid:
-                paid = 0
-            inv.totalnet = inv.totalGross - inv.discount
-            inv.due = inv.totalnet-paid
-            if inv.totalnet < 0 or inv.due < 0:
-                enc.delete()
-                names = Name.objects.all()    
-                return render(request, 'labsys\patient_regi.html', {"names": names,"form": form, "message":"Payment Error!! Click HERE to correct!"})      
-                        #pupulate new_patient instance of Patient class
             new_patient = Patient(birthDate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
             new_patient.save()
             #populate new_name instance of Name class
@@ -493,69 +377,14 @@ def pat_register(request):
             #populate new_telecom instance of Name class for emali
             pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
             pat_email.save()
-            inv.subject=new_patient
-            inv.save()     
-            enc.invoice = inv
-            enc.patient = new_patient
-            enc.save()
-            # filtering charge items for encounter and getting its subject and enterer filed with patient and user
-            chargeItems = ChargeItem.objects.filter(context=enc)
-            for c in chargeItems:
-                c.subject = new_patient
-                c.enterer = request.user
-                c.account = form.cleaned_data['account']
-                #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
-                # finding set of observations in test(chargeitemdef) by .observations.all()
-                observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
-                # adding filtered observationdef to chageitem.observation(new_test.observation) as set
-                c.observations.set(observations)
-                # adding observations from included charge items
-                included_tests = c.definitionCanonical.includes.all()
-                for t in included_tests:
-                    for o in t.observations.all():
-                        c.observations.add(o)
-                # to add price overide in chargeitem
-                c.priceOverride = c.definitionCanonical.value
-                c.save()
-            # add default values to observatioin from ob_def    
-            observations = Observation.objects.filter(chargeitem__in = chargeItems)
-            for o in observations:
-                ob_def = o.testfield
-                high= ""
-                low=""
-                qualifiedIntervals = ob_def.qualifiedinterval
-                for q in qualifiedIntervals.all():
-                    if q.category == "R":
-                        high = q.high
-                        low = q.low
-                o.status = "R"
-                o.unit = ob_def.unit
-                o.high = high
-                o.low = low  
-                o.note = ob_def.note
-                o.save()            
-
-            #pat_address = Address()
-            #pat_address.use = "home"
-            #pat_address.text = form.cleaned_data["Address"]
-            #pat_address.save()
-            if paid:
-                payment = PaymentReconciliation(request=inv, paymentAmount= paid, received_by = user)
-                payment.save()          
-
-            return HttpResponseRedirect(reverse("labsys:index"))
+            return HttpResponseRedirect(reverse("labsys:regi_old_pat", args=[new_patient.id]))
         # if form is not valid
         else:
             names = Name.objects.all()
-            return render(request, 'labsys\patient_regi.html', {
-                "names": names,
-                "form": form,
-                "message": "Payment Error!! Click HERE to correct!",
-            })
+            return render(request, 'labsys\patient_regi.html', { "form": form, "message": "Payment Error!!!!*!! Click HERE to correct!"})
     # if request method get  
     names = Name.objects.all()    
-    return render(request, 'labsys\patient_regi.html', {"names": names,
-            "form": PatientRegistration})
+    return render(request, 'labsys\patient_regi.html', {"names": names, "form": PatientRegistration})
 
 
 
