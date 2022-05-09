@@ -35,7 +35,7 @@ def ChargeitemDataEdit(request,ci_id):
 
     else:
         chargeItem = ChargeItem.objects.get(pk=ci_id)
-        return render(request, 'labsys\chargeitemdataedit.html', {"chargeItem" :chargeItem})
+        return render(request, 'labsys/chargeitemdataedit.html', {"chargeItem" :chargeItem})
 
 @login_required(login_url='/login/')
 def ObservationDataEdit(request,ob_id):
@@ -51,7 +51,7 @@ def ObservationDataEdit(request,ob_id):
 
     else:
         observation = Observation.objects.get(pk=ob_id)
-        return render(request, 'labsys\observationdataedit.html', {"observation" :observation})
+        return render(request, 'labsys/observationdataedit.html', {"observation" :observation})
 
 
 
@@ -109,7 +109,7 @@ def chargeitem_preview(request, *args, **kwargs):
          
     context =  {"observations": obs, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
 
-    template_path = 'labsys\obs_by_chgItm_preview.html'
+    template_path = 'labsys/obs_by_chgItm_preview.html'
     # Create a Django response object, and specify content_type as pdf
     response = HttpResponse(content_type='application/pdf') 
 
@@ -141,7 +141,7 @@ def chargeitem_preview2(request):
 
     # Draw things on the PDF. Here's where the PDF generation happens.
     # See the ReportLab documentation for the full list of functionality.
-    template_path = 'labsys\obs_by_chgItm_preview.html'
+    template_path = 'labsys/obs_by_chgItm_preview.html'
     context = {'client': "c"}
     template = get_template(template_path)
     html = template.render(context)
@@ -317,19 +317,19 @@ def AddPayment(request):
         payment.save()
         return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))
             
-    return render(request, 'labsys\h_filter.html')
+    return render(request, 'labsys/h_filter.html')
 
 
 @login_required(login_url='/login/')
 def index(request):
     if request.method == 'GET':
         encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
-        return render(request, 'labsys\index.html', {"encounter" :encounter_today})
+        return render(request, 'labsys/index.html', {"encounter" :encounter_today})
 
     elif request.method == 'POST':
         date = request.POST["date"]
         encounter_date = Encounter.objects.filter(timedate__date=date)
-        return render(request, 'labsys\index.html', {"encounter" :encounter_date, "date" : date})
+        return render(request, 'labsys/index.html', {"encounter" :encounter_date, "date" : date})
 
 
 @login_required(login_url='/login/')
@@ -337,7 +337,7 @@ def pat_enc(request, pat_id):
     date = "All Encounter for This Patient"
     patient = Patient.objects.get(pk=pat_id)
     encounter = Encounter.objects.filter(patient=patient)
-    return render(request, 'labsys\index.html', {"encounter" :encounter, "date" : date})
+    return render(request, 'labsys/index.html', {"encounter" :encounter, "date" : date})
 
 
 
@@ -381,10 +381,10 @@ def pat_register(request):
         # if form is not valid
         else:
             names = Name.objects.all()
-            return render(request, 'labsys\patient_regi.html', { "form": form, "message": "In valid Patient Credentials!"})
+            return render(request, 'labsys/patient_regi.html', { "form": form, "message": "In valid Patient Credentials!"})
     # if request method get  
     names = Name.objects.all()    
-    return render(request, 'labsys\patient_regi.html', {"names": names, "form": PatientRegistration})
+    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration})
 
 
 
@@ -397,7 +397,7 @@ def encounter(request, enc_id):
     #Geting invoice object for encouter
     invoice = Invoice.objects.get(pk=e.invoice.id)
     # filtering payment objects for particular invoice
-    # payments = PaymentReconciliation.objects.filter(request=invoice)
+    payments = PaymentReconciliation.objects.filter(request=invoice)
     # paymentset = payments.aggregate(Sum('paymentAmount'))
     # totalpaid = paymentset['paymentAmount__sum'] or 0
     # discount =  invoice.discount or 0
@@ -438,7 +438,7 @@ def encounter(request, enc_id):
         if ob.status == "P" or ob.status == "R":
             is_all_chargeitem_atleast_final = False
 
-    return render(request, 'labsys\encounter.html', {"e" : e, "chargeItems": chargeItems, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final} )
+    return render(request, 'labsys/encounter.html', {"e" : e, "chargeItems": chargeItems,"payments":payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final} )
 
 
 @login_required(login_url='/login/')
@@ -455,7 +455,7 @@ def chargeitem(request, chargeitem_id, option):
         if ob.status == "P" or ob.status == "R":
             is_all_ob_final_or_above = False
     # render different HTML template depending on option: edit, view or preview
-    return render(request, f'labsys\obs_by_chgItm_{option}.html', {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} )
+    return render(request, f'labsys/obs_by_chgItm_{option}.html', {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} )
 
 
 @login_required(login_url='/login/')

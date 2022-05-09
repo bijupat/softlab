@@ -9,15 +9,15 @@
 
 <!--header visible section-->
     <div class="card" data-toggle="collapse" href="#headerCollapse" role="button" aria-expanded="false" aria-controls="headerCollapse">
-      <table class=" table table-sm ">
-        <thead>
+      <table class=" card-header table table-sm h6">
+        <tbody>
           <tr>
-            <th scope="col">{{e.timedate|date}}</th>
-            <th scope="col" id = "eid">{{e.id}}</th>
-            <th scope="col">{{e.patient.get_usual_name}}</th>
-            <th scope="col">{{e.patient.age}} Yrs / {{e.patient.gender}}</th>
+            <td scope="col">{{e.timedate|date}}</td>
+            <td scope="col" id = "eid">{{e.id}}</td>
+            <td scope="col">{{e.patient.get_usual_name}}</td>
+            <td scope="col">{{e.patient.age}} Yrs / {{e.patient.gender}}</td>
           </tr>
-        </thead>
+        </tbody>
       </table>
     </div>
 
@@ -53,6 +53,8 @@
   </div>
 </div>
 <br>
+
+
 <!--chargeitme(test) lists-->
 {% for chargeItem in chargeItems %}
   <div style="height: 2.4rem" id="heading{{chargeItem.id}}">
@@ -87,10 +89,10 @@ No Test Listed.
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th scope="col" class="list-group-item-dark text-center" >Total : <span id="totalamount">{{total}}</span> </th>
+        <th scope="col" class="list-group-item-dark text-center" >Total : <span id="totalamount">{{e.invoice.totalGross}}</span> </th>
         <th scope="col" class="list-group-item-warning text-center">Discount : {{invoice.discount|default:0 }}</th>
-        <th scope="col" class="list-group-item-success text-center">Paid : {{totalpaid}}</th>
-        <th scope="col" class="list-group-item-danger text-center">Due : <span id="due">{{invoice.due|default:0 }}</span></th>
+        <th scope="col" class="list-group-item-success text-center">Paid : {{e.invoice.paid|default:0}}</th>
+        <th scope="col" class="list-group-item-danger text-center">Due : <span id="due">{{e.invoice.due|default:0 }}</span></th>
       </tr>
     </thead>
   </table>
@@ -109,10 +111,10 @@ No Test Listed.
     </thead>  
     <tbody>
       <tr>
-        <th scope="row" class="list-group-item-dark"><span id="totalamount">{{total}}</span></th>
+        <th scope="row" class="list-group-item-dark"><span id="totalamount">{{e.invoice.totalGross}}</span></th>
         <td class="list-group-item-warning">{{ invoice.discount|default:0 }}</td>
-        <td class="list-group-item-success">{{totalpaid}}</td>
-        <td class="list-group-item-danger"><span id="due">{{invoice.due|default:0 }}</span></td>
+        <td class="list-group-item-success">{{e.invoice.paid|default:0}}</td>
+        <td class="list-group-item-danger"><span id="due">{{e.invoice.due|default:0 }}</span></td>
       </tr>
     </tbody>
   </table>
