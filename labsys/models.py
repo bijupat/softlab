@@ -228,7 +228,6 @@ class Patient(models.Model):
     #A language which may be used to communicate with the patient about his or her health.
     communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patient',blank=True, null=True)
-    DisplayFields = ['id', 'active', 'gender', 'age ']
 
     class Meta:
         ordering = ["id"]
@@ -627,7 +626,7 @@ class Encounter(models.Model):
         ordering = ["timedate"]
     
     def __str__(self):
-            return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.name.get().text, self.timedate)
+            return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.get_usual_name(), self.timedate)
 
 
 

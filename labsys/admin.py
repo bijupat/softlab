@@ -2,11 +2,12 @@ from django.contrib import admin
 from .models import *
 
 class PatientAdmin(admin.ModelAdmin):
-    list_display =('id', 'active', 'gender')
+    list_display =('id', 'get_usual_name','active', 'gender', 'age','get_mobile')
 
 
 class ChargeItemDefinitionAdmin(admin.ModelAdmin):
     filter_horizontal = ('observations', 'specimen', 'pricelist_included', 'includes', 'replaces')
+    list_display =('id', 'heading', 'title','alias', 'is_profile', 'value', 'outsourced_to')
 
 # Register your models here.
 admin.site.register(Period)

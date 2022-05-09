@@ -81,10 +81,10 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Test</th>
+                <th>Parameter</th>
                 <th>Result</th>
                 <th>Unit</th>
-                <th>Normal Range</th>
+                <th>Biological Reference Interval</th>
             </tr>
         </thead>
         <tbody>
@@ -101,10 +101,10 @@
                         <td rowspan = "2">{{ob.low}}-{{ob.high}}</td>
                     </tr>
                     <tr>
-                        <td>Method : {{ob.testfield.method}}</td>
+                        <td>{{ob.testfield.method}} : Sample Type: {{ob.testfield.specimen}}</td>
                     </tr>
                     <tr>
-                        <td colspan="4">Note : {{ob.note}}</td>
+                        <td colspan="4">{% if ob.note %} Note : {{ob.note}} {% endif %}</td>
                     </tr>
                 {% endfor %}
 
@@ -116,10 +116,10 @@
                         <td rowspan = "2">{{ob.low}}-{{ob.high}}</td>
                     </tr>
                     <tr>
-                        <td>Method : {{ob.testfield.method}}</td>
+                        <td>{{ob.testfield.method}}</td>
                     </tr>
                     <tr>
-                        <td colspan="4">Note : {{ob.note}}</td>
+                        <td colspan="4">{% if ob.note %} Note : {{ob.note}} {% endif %}</td>
                     </tr>
                 {% endfor %}
 

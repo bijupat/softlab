@@ -397,7 +397,7 @@ def encounter(request, enc_id):
     #Geting invoice object for encouter
     invoice = Invoice.objects.get(pk=e.invoice.id)
     # filtering payment objects for particular invoice
-    # payments = PaymentReconciliation.objects.filter(request=invoice)
+    payments = PaymentReconciliation.objects.filter(request=invoice)
     # paymentset = payments.aggregate(Sum('paymentAmount'))
     # totalpaid = paymentset['paymentAmount__sum'] or 0
     # discount =  invoice.discount or 0
@@ -438,7 +438,7 @@ def encounter(request, enc_id):
         if ob.status == "P" or ob.status == "R":
             is_all_chargeitem_atleast_final = False
 
-    return render(request, 'labsys/encounter.html', {"e" : e, "chargeItems": chargeItems, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final} )
+    return render(request, 'labsys/encounter.html', {"e" : e, "chargeItems": chargeItems,"payments":payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final} )
 
 
 @login_required(login_url='/login/')
