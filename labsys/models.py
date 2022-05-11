@@ -234,9 +234,8 @@ class Patient(models.Model):
     # implenting age field to be calculated from birth date
     @property
     def age(self):
-        if self.birthDate:
-            age = date.today().year - self.birthDate.year
-            return age
+        if self.birthDate: 
+            return date.today().year - self.birthDate.year
 
     # defining method that returns usual name
     def get_usual_name(self):
@@ -488,13 +487,15 @@ class ObservationDefinition(models.Model):
             return 'Test : {} '.format(self.test)
 
 # Referance range for testlist(observationdefination)
-class QualifiedInterval(models.Model):
+class QualifiedInterval(models.Model):    
     high = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     low = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     text_as_normal =  models.CharField(max_length=500, blank=True, null=True)
     # category can be reference | critical | absolute
     category = models.CharField(max_length=10, choices=qualifiedInterval_category, default="reference")
+    # highest age for the qualified interval EXCLUDING it
     age_high = models.PositiveIntegerField(blank=True, default=150)
+    # Lowest  age for the qualified interval INCLUDING it 
     age_low = models.PositiveIntegerField(blank=True, default=0)
     gender = models.CharField(max_length=20, choices=gender,blank=True, null=True)
     observationdefinition = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='qualifiedinterval', blank=True, null=True)
@@ -721,7 +722,15 @@ class Observation(models.Model):
     # copied from observation defination note  but open to be edited if desired    
     note = models.CharField(max_length=1000, blank=True, null=True)
 
-
+    def refinterval(self):
+        refints = self.testfield.qualifiedinterval.all()
+        self.high, self.low = "", ""
+        for refint in refints:
+            if refint.category == "R":
+                if refint.text_as_normal:
+                    self.high, self.low = refint.text_as_normal, ""
+                elif self.chargeitem.subject.age in range(int(refint.age_low), int(refint.age_high)) and self.chargeitem.subject.gender == refint.gender:
+                    self.high, self. low = refint.high, refint.low
 
     class Meta:
         ordering = ["-timedate"]

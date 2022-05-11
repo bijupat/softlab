@@ -18,7 +18,7 @@ from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from .utilfunctions import register_encounter
+from .utilfunctions import register_encounter, update_observation
 
 
 @login_required(login_url='/login/')
@@ -232,20 +232,7 @@ def AddTest(request, e_id, t_id):
         # add default values to observatioin from ob_def    
         observations = Observation.objects.filter(chargeitem = new_test)
         for o in observations:
-            high = "Not Defined"
-            low =  "Not Defined"
-            ob_def = o.testfield
-            qualifiedIntervals = ob_def.qualifiedinterval
-            for q in qualifiedIntervals.all():
-                if q.category == "R":
-                    high = q.high
-                    low = q.low
-            o.status = "R"
-            o.unit = ob_def.unit
-            o.high = high
-            o.low = low  
-            o.note = ob_def.note
-            o.save()            
+            update_observation(o) 
 
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
 
@@ -338,10 +325,6 @@ def pat_enc(request, pat_id):
     patient = Patient.objects.get(pk=pat_id)
     encounter = Encounter.objects.filter(patient=patient)
     return render(request, 'labsys/index.html', {"encounter" :encounter, "date" : date})
-
-
-
-
         
 # get from old patient registration and post from it self 
 @login_required(login_url='/login/')
@@ -357,8 +340,7 @@ def regi_old_pat(request, pat_id):
                 return render(request, 'labsys/add_enc.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
         # if form is not valid
         else:
-            return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })
-            
+            return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })            
     return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistration })
 
 @login_required(login_url='/login/')

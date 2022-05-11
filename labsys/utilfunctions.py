@@ -1,8 +1,14 @@
 
-from .models import *
+from .models import Observation, Invoice, Encounter, ChargeItem, ChargeItemDefinition, PaymentReconciliation
 from django.db.models import Sum
-from django.shortcuts import render, HttpResponse, get_object_or_404
 
+def update_observation(observation):
+    ob_def = observation.testfield
+    observation.status = "R"
+    observation.unit = ob_def.unit or "" 
+    observation.note = ob_def.note
+    observation.refinterval()
+    observation.save()
 
 """
 register_encounter takes input
@@ -57,26 +63,14 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
         # to add price overide in chargeitem
         c.priceOverride = c.definitionCanonical.value
         c.save()
-            # add default values to observatioin from ob_def    
+    # add default values to observatioin from ob_def    
     observations = Observation.objects.filter(chargeitem__in = chargeItems)
     for o in observations:
-        ob_def = o.testfield
-        qualifiedIntervals = ob_def.qualifiedinterval
-        high, low = "", ""
-        for q in qualifiedIntervals.all():
-            if q.category == "R":
-                high = q.high
-                low = q.low
-        o.status = "R"
-        o.unit = ob_def.unit
-        o.high = high
-        o.low = low  
-        o.note = ob_def.note
-        o.save()
+        update_observation(o)
 
     if Payment:
         payment = PaymentReconciliation(request=inv, paymentAmount= Payment, received_by = User)
-        payment.save()
-    
+        payment.save()    
 
     return True
+
