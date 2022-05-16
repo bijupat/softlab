@@ -89,10 +89,10 @@ No Test Listed.
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th scope="col" class="list-group-item-dark text-center" >Total : <span id="totalamount">{{e.invoice.totalGross}}</span> </th>
+        <th scope="col" class="list-group-item-dark text-center" >Total : <span id="totalamount">{{e.invoice.payments.totalGross}}</span> </th>
         <th scope="col" class="list-group-item-warning text-center">Discount : {{invoice.discount|default:0 }}</th>
-        <th scope="col" class="list-group-item-success text-center">Paid : {{e.invoice.paid|default:0}}</th>
-        <th scope="col" class="list-group-item-danger text-center">Due : <span id="due">{{e.invoice.due|default:0 }}</span></th>
+        <th scope="col" class="list-group-item-success text-center">Paid : {{e.invoice.payments.paid|default:0}}</th>
+        <th scope="col" class="list-group-item-danger text-center">Due : <span id="due">{{e.invoice.payments.due|default:0 }}</span></th>
       </tr>
     </thead>
   </table>
@@ -111,10 +111,10 @@ No Test Listed.
     </thead>  
     <tbody>
       <tr>
-        <th scope="row" class="list-group-item-dark"><span id="totalamount">{{e.invoice.totalGross}}</span></th>
+        <th scope="row" class="list-group-item-dark"><span id="totalamount">{{e.invoice.payments.totalGross}}</span></th>
         <td class="list-group-item-warning">{{ invoice.discount|default:0 }}</td>
-        <td class="list-group-item-success">{{e.invoice.paid|default:0}}</td>
-        <td class="list-group-item-danger"><span id="due">{{e.invoice.due|default:0 }}</span></td>
+        <td class="list-group-item-success">{{e.invoice.payments.paid|default:0}}</td>
+        <td class="list-group-item-danger"><span id="due">{{e.invoice.payments.due|default:0 }}</span></td>
       </tr>
     </tbody>
   </table>

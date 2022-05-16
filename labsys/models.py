@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from datetime import date
 #from django.db.models.fields.related import OneToOneField
 #from django.contrib.postgres.fields import JSONField
+from django.db.models import Sum
 
 
 
@@ -113,6 +114,13 @@ communication = (
     ("T", "Tamil"),
     ("Ur", "Urdu"),
     ("E", "English"),
+)
+#active | cancelled | draft | entered-in-error
+PaymentReconciliation_status = (
+    ("A", "Active"),
+    ("C", "Cancelled"),
+    ("E", "Entered-in-error"),
+    ("D", "Draft"),
 )
 # active | inactive | entered-in-error | on-hold | unknown
 Account_status = (
@@ -518,31 +526,32 @@ class Invoice(models.Model):
     # Participant in creation of this Invoice
     participant = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='invoice', blank=True, null=True)
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='invoice', blank=True, null=True)
-    #lineItem = models.ForeignKey(ObservationDefinition, on_delete=models.PROTECT, related_name='invoice_observationdefination', blank=True, null=True)
-    # Invoice total, discount excluded.
-    totalGross = models.PositiveIntegerField(blank=True, null=True)
     discount = models.PositiveIntegerField(blank=True, null=True)
-    # Invoice total after discount.
-    totalnet = models.PositiveIntegerField(blank=True, null=True)   
-    # Payment details such as banking details, period of payment, deductibles, methods of payment.
-    due = models.PositiveIntegerField(blank=True, null=True)
     paymentTerms = models.CharField(max_length=200, blank=True, null=True)
     # Comments made about the invoice by the issuer, subject, or other participants.
     note = models.CharField(max_length=200, blank=True, null=True)
 
-    def paid(self):
+
+    """
+    payment property returns dict with details of calculated vaues of payment
+    """
+    @property
+    def payments(self):
+        dict = {}
         total = 0
         for e in self.encounter.all():
             chargeItems = ChargeItem.objects.filter(context=e)
             for c in chargeItems:
                 total += c.priceOverride or 0
-        self.totalGross = total
+        dict['totalGross'] = total
         paid = 0
         for p in self.paymentreconciliation.all():
             paid += p.paymentAmount or 0
-        self.due = total - (paid + self.discount)
-        self.totalnet = total-self.discount
-        return paid
+        dict['paid'] = paid
+        dict['due'] = total - (paid + self.discount)
+        dict['totalnet'] = total-self.discount
+        return dict
+        
 
 
     def __str__(self):
@@ -789,7 +798,7 @@ class DiagnosticReport (models.Model):
 class PaymentReconciliation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     #  active | cancelled | draft | entered-in-error
-    status = models.CharField(max_length=75, blank=True, null=True, default='active')
+    status = models.CharField(max_length=75, blank=True, null=True, default='A', choices=PaymentReconciliation_status)
     # Creation date The date when the resource was created.
     created = models.DateTimeField(auto_now_add=True)
     # Need to identify the party resonsible for the payment and this resource.

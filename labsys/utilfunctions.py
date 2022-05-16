@@ -26,11 +26,11 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
     enc.test.set(Tests)    
     p = enc.test.all().aggregate(Sum('value'))
     #populate payment data in invoice object
-    inv.totalGross = p['value__sum'] or 0
-    inv.totalnet = inv.totalGross - (Discount or 0)
-    inv.due = inv.totalnet - (Payment or 0)
+    total = p['value__sum'] or 0
+    totalnet = total - (Discount or 0)
+    due = totalnet - (Payment or 0)
     # if payment logically not correct return with false value
-    if inv.totalnet < 0 or inv.due < 0:
+    if totalnet < 0 or due < 0 :
         enc.delete()
         return False
     # save invoice in encounter only after all validation done

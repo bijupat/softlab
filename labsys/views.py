@@ -4,7 +4,6 @@ from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
 from django.http import JsonResponse, FileResponse
 from django.utils.timezone import datetime 
-from django.db.models import Sum
 from .forms import EncounterRegistration, PatientRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -203,8 +202,6 @@ def DeleteTest(request):
         testid = json.loads(request.body.decode('utf-8'))["testid"]
         invoice = Encounter.objects.get(pk=eid).invoice
         chargeitem = ChargeItem.objects.get(pk=testid)
-        invoice.totalGross -= chargeitem.priceOverride
-        invoice.save()
         Observation.objects.filter(chargeitem = chargeitem).delete()
         chargeitem.delete()
 
@@ -221,10 +218,7 @@ def AddTest(request, e_id, t_id):
         # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
         new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, enterer=request.user, priceOverride = test.value)        
         # Saving new chargeitem object  
-        new_test.save()
-        invoice = enc.invoice
-        invoice.totalGross += test.value
-        invoice.save()
+        new_test.save()        
         #finding set of observationdefs under test(chargeitemdef)
         obs = test.observations.all()
         # adding filtered observationdef to chageitem.observation(new_test.observation) as set
