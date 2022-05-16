@@ -18,7 +18,7 @@ from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from .utilfunctions import register_encounter, update_observation
+from .utilfunctions import register_encounter
 
 
 @login_required(login_url='/login/')
@@ -201,16 +201,19 @@ def DeleteTest(request):
 
         eid = json.loads(request.body.decode('utf-8'))["eid"]
         testid = json.loads(request.body.decode('utf-8'))["testid"]
+        invoice = Encounter.objects.get(pk=eid).invoice
+        chargeitem = ChargeItem.objects.get(pk=testid)
+        invoice.totalGross -= chargeitem.priceOverride
+        invoice.save()
+        Observation.objects.filter(chargeitem = chargeitem).delete()
+        chargeitem.delete()
 
-        #enc = Encounter.objects.get(pk=eid)
-        chargeitem = ChargeItem.objects.filter(id=testid)
-        Observation.objects.filter(chargeitem__in = chargeitem).delete()
-        chargeitem.delete()   
         #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))    
         return HttpResponse(status=200)
 
 @login_required(login_url='/login/')
 def AddTest(request, e_id, t_id):
+    
         # geting ecnouter object from it's id
         enc = Encounter.objects.get(pk=e_id)
         # geting chargeItemDefination object by it's id
@@ -219,6 +222,9 @@ def AddTest(request, e_id, t_id):
         new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, enterer=request.user, priceOverride = test.value)        
         # Saving new chargeitem object  
         new_test.save()
+        invoice = enc.invoice
+        invoice.totalGross += test.value
+        invoice.save()
         #finding set of observationdefs under test(chargeitemdef)
         obs = test.observations.all()
         # adding filtered observationdef to chageitem.observation(new_test.observation) as set
@@ -228,12 +234,11 @@ def AddTest(request, e_id, t_id):
         for t in included_tests:
             for o in t.observations.all():
                 new_test.observations.add(o)
-
         # add default values to observatioin from ob_def    
         observations = Observation.objects.filter(chargeitem = new_test)
         for o in observations:
-            update_observation(o) 
-
+            # calss method pupulate_fm_obdef copies normal and other default values
+            o.populate_fm_obdef()
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
 
 @login_required(login_url='/login/')

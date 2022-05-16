@@ -679,7 +679,7 @@ class ChargeItem(models.Model):
 class Observation(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # registered | preliminary | final | amended + |informed | delivered
-    status = models.CharField(max_length=75, blank=True, null=True, default='registered',  choices= Observation_status)
+    status = models.CharField(max_length=75, blank=True, null=True, default='R',  choices= Observation_status)
     # change staus to preliminary if report entered by operator(entered in pplus)
     prelimnary_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_prelimnary_by', blank=True, null=True)
     # changes to final if reported  is verified by pathologist(verified in pplus)
@@ -722,15 +722,28 @@ class Observation(models.Model):
     # copied from observation defination note  but open to be edited if desired    
     note = models.CharField(max_length=1000, blank=True, null=True)
 
-    def refinterval(self):
+    def populate_fm_obdef(self):
+        self.unit = self.testfield.unit or "" 
+        self.note = self.testfield.note or ""
         refints = self.testfield.qualifiedinterval.all()
         self.high, self.low = "", ""
         for refint in refints:
-            if refint.category == "R":
+            # IF qualified interval category ref interval
+            if refint.category == "R":                
+                # if text_as_normal enter use it pupulate high
                 if refint.text_as_normal:
                     self.high, self.low = refint.text_as_normal, ""
+                # elif text_normal empty select ref int depending on Patient age and Gender
                 elif self.chargeitem.subject.age in range(int(refint.age_low), int(refint.age_high)) and self.chargeitem.subject.gender == refint.gender:
                     self.high, self. low = refint.high, refint.low
+        self.save()
+
+    @property
+    def refint(self):
+        if self.low:
+            return f"{self.low} - {self.high}"
+        else:
+            return {self.high}
 
     class Meta:
         ordering = ["-timedate"]

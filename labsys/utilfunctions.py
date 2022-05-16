@@ -2,13 +2,6 @@
 from .models import Observation, Invoice, Encounter, ChargeItem, ChargeItemDefinition, PaymentReconciliation
 from django.db.models import Sum
 
-def update_observation(observation):
-    ob_def = observation.testfield
-    observation.status = "R"
-    observation.unit = ob_def.unit or "" 
-    observation.note = ob_def.note
-    observation.refinterval()
-    observation.save()
 
 """
 register_encounter takes input
@@ -42,7 +35,6 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
         return False
     # save invoice in encounter only after all validation done
     inv.save()
-    print(inv.account)
     enc.invoice = inv
     enc.save()
 
@@ -66,7 +58,8 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
     # add default values to observatioin from ob_def    
     observations = Observation.objects.filter(chargeitem__in = chargeItems)
     for o in observations:
-        update_observation(o)
+        # using object instance method
+        o.populate_fm_obdef()
 
     if Payment:
         payment = PaymentReconciliation(request=inv, paymentAmount= Payment, received_by = User)
