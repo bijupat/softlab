@@ -7,7 +7,7 @@ class PatientAdmin(admin.ModelAdmin):
 
 class ChargeItemDefinitionAdmin(admin.ModelAdmin):
     filter_horizontal = ('observations', 'specimen', 'pricelist_included', 'includes', 'replaces')
-    list_display =('id', 'heading', 'title','alias', 'is_profile', 'value', 'outsourced_to')
+    list_display =('id', 'title','alias', 'is_profile', 'value', 'outsourced_to')
 
 # Register your models here.
 admin.site.register(Period)
@@ -34,6 +34,7 @@ admin.site.register(PaymentReconciliation)
 admin.site.register(ChargeItemDefinition, ChargeItemDefinitionAdmin)
 admin.site.register(ChargeItem)
 admin.site.register(Device)
+admin.site.register(Headings)
 
 
 

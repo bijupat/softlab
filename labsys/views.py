@@ -105,7 +105,8 @@ def chargeitem_preview(request, *args, **kwargs):
         # if all observation not final or above return to encounter:  for server side validation
     if not is_all_ob_final_or_above or len(observations) == 0:
         return HttpResponseRedirect(reverse("labsys:encounter", args=[chargeitem.context.id]))
-         
+    for key, value in obs.items():
+        print(key)    
     context =  {"observations": obs, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
 
     template_path = 'labsys/obs_by_chgItm_preview.html'

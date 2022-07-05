@@ -565,6 +565,14 @@ class Device(models.Model):
     def __str__(self):
         return f' Test : '
 
+#master data class for headings of priceitem definations
+class Headings(models.Model):
+    heading = models.CharField(max_length=75, blank=True, null=True)
+    note = models.CharField(max_length=75, blank=True, null=True)
+    
+    def __str__(self):
+            return '{}'.format(self.heading)
+
 #The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices
 class ChargeItemDefinition(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -587,9 +595,11 @@ class ChargeItemDefinition(models.Model):
     # observations(test) included in this charge item
     #observations_included = models.ManyToManyField(ObservationDefinition, blank=True,  related_name='chargeitemdef')
     observations = models.ManyToManyField(ObservationDefinition, blank=True, related_name='chargeitemdef')
-
     # heading to the report print like Hemogram / Liver function test implemented to whole  report
-    heading = models.CharField(max_length=75, blank=True, null=True)
+
+    heading = models.ForeignKey(Headings, on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
+ 
+    #heading = models.CharField(max_length=75, blank=True, null=True)
     #Date last changed
     date = models.DateTimeField(blank=True, null=True)
     approvalDate = models.DateTimeField(blank=True, null=True)
