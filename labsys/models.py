@@ -449,6 +449,8 @@ class TestCategory(models.Model):
 class Department(models.Model):
     pass
 
+class Equipments(models.Model):
+    pass
 
 
 
@@ -460,16 +462,21 @@ class ObservationDefinition(models.Model):
     # general name usded in routine practice
     alias = models.CharField(max_length=75, blank=True, null=True)
     # name used in SMS field
-    alias_sms = models.CharField(max_length=20, blank=True, null=True)  
+    alias_sms = models.CharField(max_length=75, blank=True, null=True)  
     method = models.CharField(max_length=75, blank=True, null=True)
     category = models.ForeignKey(TestCategory, on_delete=models.PROTECT, related_name='observationdefination', blank=True, null=True)
     unit = models.CharField(max_length=75, blank=True, null=True)
     # option fields in observation defination, implemented as set or other method-- all options in one field
+    # default value for the observatoin like "Nil" in Urine Sugar
+    default_value = models.CharField(max_length=1000, blank=True, null=True)
     options = models.CharField(max_length=5000, blank=True, null=True)
+    #equipment used for the test
+    equipment = models.ForeignKey(Equipments, on_delete=models.PROTECT, related_name='observationdefination', blank=True, null=True)
+    #test code to communicate with equipment for interphase
+    equipmentcode = models.CharField(max_length=75, blank=True, null=True)
     loinc_code = models.CharField(max_length=75, blank=True, null=True)
     #The low and high values determining the interval. There may be only one of the two
     # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
-    category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
     # Specimen Required for this chargeitem/test/report
     specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='observationdefination', blank=True, null=True)
     # note specific to the observation
@@ -484,7 +491,7 @@ class ObservationDefinition(models.Model):
     # Validation Rule 
     vrule = models.CharField(max_length=200, blank=True, null=True)
     # Validation message if not validated
-    vmsg = models.CharField(max_length=30, blank=True, null=True)
+    vmsg = models.CharField(max_length=200, blank=True, null=True)
     # Validation if must ?.
     vrulemust = models.BooleanField(blank=True, null=True,default=True)
     #The low and high values determining the interval. There may be only one of the two
@@ -492,7 +499,7 @@ class ObservationDefinition(models.Model):
     class Meta:
         ordering = ["test"]
     def __str__(self):
-            return 'Test : {} '.format(self.test)
+            return '{} in {} by {}'.format(self.test, self.specimen, self.method)
 
 # Referance range for testlist(observationdefination)
 class QualifiedInterval(models.Model):    
@@ -572,7 +579,6 @@ class Headings(models.Model):
     
     def __str__(self):
             return '{}'.format(self.heading)
-
 #The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices
 class ChargeItemDefinition(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -590,16 +596,18 @@ class ChargeItemDefinition(models.Model):
     status = models.CharField(max_length=75, blank=True, null=True, default='registered')
     # For testing purposes, not real usage
     experimental = models.BooleanField(blank=True, null=True, default=False)
+    # is it needed to be printed in receipt ?
+    print_in_receipt = models.BooleanField(blank=True, null=True, default=True)
     # is it individula test or profiel ?
     is_profile = models.BooleanField(blank=True, null=True, default=False)
     # observations(test) included in this charge item
     #observations_included = models.ManyToManyField(ObservationDefinition, blank=True,  related_name='chargeitemdef')
     observations = models.ManyToManyField(ObservationDefinition, blank=True, related_name='chargeitemdef')
     # heading to the report print like Hemogram / Liver function test implemented to whole  report
-
+    # TAT for the field
+    tat = models.SmallIntegerField(blank=True, null=True)
     heading = models.ForeignKey(Headings, on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
- 
-    #heading = models.CharField(max_length=75, blank=True, null=True)
+    category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
     #Date last changed
     date = models.DateTimeField(blank=True, null=True)
     approvalDate = models.DateTimeField(blank=True, null=True)
@@ -608,6 +616,8 @@ class ChargeItemDefinition(models.Model):
     #Monetary amount associated with this
     value = models.PositiveIntegerField(blank=True, null=True)
     specimen = models.ManyToManyField(Specimen, related_name='chargeitemdef', blank=True)
+    # which department in lab as per department define in model ie biochem, histo etc
+    dept = models.ForeignKey(Department,  on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
     # if test is outsourced 
     outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
     # use to filter price list in views.py for observations
@@ -618,12 +628,10 @@ class ChargeItemDefinition(models.Model):
     product = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='chargeitem', null=True, blank=True)
     # ordering of obseration if more than one observatin involved
     orderBy= models.SmallIntegerField(blank=True, null=True)  
-
-
     def __str__(self):
         return f'{self.title} Rs  : {self.value}'  
 
-
+        
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
