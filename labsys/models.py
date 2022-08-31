@@ -608,9 +608,9 @@ class ChargeItemDefinition(models.Model):
     tat = models.SmallIntegerField(blank=True, null=True)
     heading = models.ForeignKey(Headings, on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
     category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
-    #Date last changed
-    date = models.DateTimeField(blank=True, null=True)
+    # date on which first approved 
     approvalDate = models.DateTimeField(blank=True, null=True)
+    #Date last changed
     lastReviewDate = models.DateTimeField(blank=True, null=True)
     effectivePeriod = models.ForeignKey(Period,blank=True, null=True, related_name='chargeitemdef', on_delete=models.PROTECT)
     #Monetary amount associated with this
