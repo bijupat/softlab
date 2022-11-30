@@ -200,9 +200,9 @@ class Practitioner(models.Model):
 
     def __str__(self):
         #return self.name.all()
-        if self.name:
+        try:
             return 'Dr {} {}'.format(self.name.get().text.title(), self.name.get().family.title())
-        else :
+        except:
             return f'Practitioner id {self.id}'
 
 # // A contact party (e.g. guardian, partner, friend) for the patient##
@@ -214,9 +214,9 @@ class Contact(models.Model):
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
-        if self.name.get():
+        try:
             return 'Contact id-{}: Relationship {} between {}(Contact) and {}(Patient)'.format(self.id, self.get_relationship_display(), self.name.get().text, self.patient.get().name.get().text)
-        else:
+        except:
             return 'some error'
 
 
@@ -334,7 +334,7 @@ class Name(models.Model):
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='name', blank=True, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='name',blank=True, null=True)
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True)
-
+    
     def serialize(self):
         #if name if for patient it will retun filled dic
         if self.patient:
@@ -356,7 +356,7 @@ class Name(models.Model):
                 "patient_id":"",
                 "mobno": "",            
             }
-
+    
     def __str__(self):
         if self.patient:
             return 'Patient : {} {} having  id {}'.format(self.text, self.family, self.patient.id)
@@ -369,15 +369,15 @@ class Address(models.Model):
     # // home | work | temp | old | billing - purpose of this address
     use = models.CharField(max_length=75, choices=Address_use)
     # // Text representation of the address
-    text = models.CharField(max_length=250)
+    text = models.CharField(max_length=250, blank=True, null=True)
     # // Street name, number, direction & P.O. Box etc.
-    line = models.CharField(max_length=250)
+    line = models.CharField(max_length=250, blank=True, null=True)
     # // Name of city, town etc.
-    city = models.CharField(max_length=75)
-    district = models.CharField(max_length=75, default="Ahmedabad")
-    state = models.CharField(max_length=250, default="Gujarat")
-    postalCode = models.CharField(max_length=250)
-    country = models.CharField(max_length=250, default="India")
+    city = models.CharField(max_length=75, default="Ahmedabad",blank=True, null=True)
+    district = models.CharField(max_length=75, default="Ahmedabad", blank=True, null=True)
+    state = models.CharField(max_length=250, default="Gujarat",blank=True, null=True)
+    postalcode = models.CharField(max_length=250,blank=True, null=True)
+    country = models.CharField(max_length=250, default="India",blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='address', blank=True, null=True)
     practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='address', blank=True, null=True)
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='address',blank=True, null=True)
