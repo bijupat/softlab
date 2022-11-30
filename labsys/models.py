@@ -201,7 +201,7 @@ class Practitioner(models.Model):
     def __str__(self):
         #return self.name.all()
         try:
-            return 'Dr {} {}'.format(self.name.get().text.title(), self.name.get().family.title())
+            return 'Dr {} {}'.format(self.name.get().text.title(), self.name.get().given.title())
         except:
             return f'Practitioner id {self.id}'
 
@@ -250,7 +250,7 @@ class Patient(models.Model):
         if self.name:
             for name in self.name.all():
                 if name.use == "U":
-                 return '{} {}'.format(name.text, name.family)
+                 return '{} {}'.format(name.given, name.family)
     # defining method that returns mobile no
     def get_mobile(self):
         if self.name:
@@ -320,7 +320,7 @@ class Name(models.Model):
     # // usual | official | temp | nickname | anonymous | old | maiden
     use = models.CharField(max_length=7, blank=True, null=True, choices =Name_use, default="U")
     # // Text representation of the full name   
-    text = models.CharField(max_length=75)
+    text = models.CharField(max_length=75, blank=True, null=True)
     # // Family name (often called 'Surname')
     family = models.CharField(max_length=75, blank=True, null=True)
     # // Given names (not always 'first'). Includes middle names

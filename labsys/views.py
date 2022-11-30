@@ -351,7 +351,7 @@ def pat_register(request):
             new_patient = Patient(birthDate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
             new_patient.save()
             #populate new_name instance of Name class
-            pat_name = Name(text=form.cleaned_data["f_name"].title(), patient=new_patient, family=form.cleaned_data["l_name"].title() )
+            pat_name = Name(given=form.cleaned_data["f_name"].title() +" "+ form.cleaned_data["m_name"].title(), patient=new_patient, family=form.cleaned_data["l_name"].title() )
             pat_name.save()
             #populate new_tele instance of Name class
             pat_mobile = Telecom(patient=new_patient, system="P", use = "M", value = request.POST["mobile"])
