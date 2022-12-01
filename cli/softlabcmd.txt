@@ -1,0 +1,3 @@
+
+C:\docs\brij\softlab\softlabvenv\Scripts\activate 
+cd C:\docs\brij\softlab\softlab

@@ -201,9 +201,14 @@ class Practitioner(models.Model):
     def __str__(self):
         #return self.name.all()
         try:
-            return 'Dr {} {}'.format(self.name.get().text.title(), self.name.get().given.title())
+            return 'Dr {} {}'.format(self.name.get().given.title(), self.name.get().family.title())
         except:
-            return f'Practitioner id {self.id}'
+            pass
+        finally:
+            try:
+                return 'Dr {}'.format( self.name.get().given.title()) 
+            except:
+                return f'Practitioner id {self.id}'
 
 # // A contact party (e.g. guardian, partner, friend) for the patient##
 class Contact(models.Model):
@@ -343,7 +348,7 @@ class Name(models.Model):
                 if t.use == "M":
                     mobno = t.value
             return{
-                "fname": self.text,
+                "fname": self.given,
                 "lname": self.family,
                 "patient_id": self.patient.id,
                 "mobno": mobno,    
@@ -359,11 +364,11 @@ class Name(models.Model):
     
     def __str__(self):
         if self.patient:
-            return 'Patient : {} {} having  id {}'.format(self.text, self.family, self.patient.id)
+            return 'Patient : {} {} having  id {}'.format(self.given, self.family, self.patient.id)
         if self.practitioner:
-            return 'Practitioner : {} {} having  id {}'.format(self.text, self.family, self.practitioner.id)
+            return 'Practitioner : {} {} having  id {}'.format(self.given, self.family, self.practitioner.id)
         if self.contact:
-            return 'Contact : {} {} having  id {}'.format(self.text, self.family, self.contact.id)
+            return 'Contact : {} {} having  id {}'.format(self.given, self.family, self.contact.id)
 
 class Address(models.Model):
     # // home | work | temp | old | billing - purpose of this address

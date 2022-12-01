@@ -1,0 +1,3 @@
+C:\docs\brij\PPENT\ppent-venv\Scripts\activate
+cd C:\docs\brij\PPENT\pplus
+py manage.py runserver

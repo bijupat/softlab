@@ -1,0 +1,2 @@
+C:\docs\brij\softwaretools\tools-env\Scripts\activate 
+cd C:\docs\brij\softwaretools\migrations
