@@ -9,6 +9,10 @@ class ChargeItemDefinitionAdmin(admin.ModelAdmin):
     filter_horizontal = ('observations', 'specimen', 'pricelist_included', 'includes', 'replaces')
     list_display =('id', 'title','alias', 'is_profile', 'value', 'outsourced_to')
 
+class AppointmentAdmin(admin.ModelAdmin):
+    filter_horizontal = ('participants',)
+    #list_display =('id', 'title','alias', 'is_profile', 'value', 'outsourced_to')
+
 # Register your models here.
 admin.site.register(Period)
 admin.site.register(Name)
@@ -35,8 +39,7 @@ admin.site.register(ChargeItemDefinition, ChargeItemDefinitionAdmin)
 admin.site.register(ChargeItem)
 admin.site.register(Device)
 admin.site.register(Headings)
-
-
+admin.site.register(Appointment)
 
 
 

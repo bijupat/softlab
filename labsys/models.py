@@ -166,6 +166,21 @@ qualifiedInterval_category= (
     ("C", "critical"),
     ("A", "absolute"),
 )
+
+appointment_status=(
+    ("P", "proposed"),
+    ("PE", "pending"),
+    ("B", "booked"),
+    ("A", "arrived"),
+    ("F", "fulfilled"),
+    ("C", "cancelled"),
+    ("N", "noshow"),
+    ("E", "entered-in-error"),
+    ("CH", "checked-in"),
+    ("W", "waitlist"),
+)
+
+
 class User(AbstractUser) :
     pass
 
@@ -230,8 +245,8 @@ class Patient(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     active = models.BooleanField(blank=True, null=True, default=True)
     #name = models.ForeignKey(name, on_delete=models.PROTECT, related_name='Patient_Name')
-    birthDate = models.DateField(blank=True, null=True)
-    deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
+    birthdate = models.DateField(blank=True, null=True)
+    deceasedboolean = models.BooleanField(blank=True, null=True, default=False)
     gender = models.CharField(max_length= 10, choices=gender,blank=True, null=True)
     #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
     photo = models.ImageField(blank=True, null=True)
@@ -247,8 +262,8 @@ class Patient(models.Model):
     # implenting age field to be calculated from birth date
     @property
     def age(self):
-        if self.birthDate: 
-            return date.today().year - self.birthDate.year
+        if self.birthdate: 
+            return date.today().year - self.birthdate.year
 
     # defining method that returns usual name
     def get_usual_name(self):
@@ -270,13 +285,7 @@ class Patient(models.Model):
                     return '{}'.format(tele.value)
 
     def __str__(self):
-        if self.name:
-            for name in self.name.all():
-                if name.use == "U":
-                    fname = name.text
-                    lname = name.family
-            return '{} {} : {} Yrs/{} (ID : {})'.format(fname, lname , self.age, self.gender, self.id)
-        else :
+  
             return f'Patient id : {self.id}'
 
 class Organization (models.Model):
@@ -341,7 +350,7 @@ class Name(models.Model):
     #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True)
     
     def serialize(self):
-        #if name if for patient it will retun filled dic
+        #if name if for patient it will retun filled dict
         if self.patient:
             mobno = ""
             for t in self.patient.telecom.all():
@@ -474,6 +483,7 @@ class ObservationDefinition(models.Model):
     # option fields in observation defination, implemented as set or other method-- all options in one field
     # default value for the observatoin like "Nil" in Urine Sugar
     default_value = models.CharField(max_length=1000, blank=True, null=True)
+    # select option for html
     options = models.CharField(max_length=5000, blank=True, null=True)
     #equipment used for the test
     equipment = models.ForeignKey(Equipments, on_delete=models.PROTECT, related_name='observationdefination', blank=True, null=True)
@@ -858,4 +868,68 @@ class Note(models.Model):
   
     def __str__(self):
             return 'Note by : {} at : {}'.format(self.author.name.get().text, self.time)
+    
+
+class Slot(models.Model):
+    pass
+    def __str__(self):
+            return 'Slot id {}'.format(self.id)
+    
+
+class AppointmentResponse(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    def __str__(self):
+            return 'AppointmentResponse id {}'.format(self.id)
+    
+
+# last element (CODEBEL CONCEPT) of Resource Appointment in FHIR VER 5 That defines recurrent appointment
+class RecurrenceTemplate(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+
+    def __str__(self):
+            return 'RecurrenceTemplate id {}'.format(self.id)
+    
+class Appointment(models.Model):
+    #  active | cancelled | draft | entered-in-error
+    status = models.CharField(max_length=75, blank=True, null=True, default='B', choices=appointment_status)
+    cancelationreason = models.CharField(max_length=75, blank=True, null=True)
+    #The specialty of a practitioner that would be required to perform the service requested in this appointment eg ecg, mer 
+    specialty =  models.CharField(max_length=75, blank=True, null=True)
+    # Used to make informed decisions if needing to re-prioritize
+    priority = models.BooleanField(blank=True, null=True, default=False)
+    # Shown on a subject line in a meeting request, or appointment list
+    description = models.CharField(max_length=75, blank=True, null=True)
+    replaces = models.ForeignKey("self", on_delete=models.PROTECT, related_name='replaces_appointment', blank=True, null=True)
+    #Connection details of a virtual service (e.g. conference call)
+    virtualService = models.CharField(max_length=75, blank=True, null=True)
+    #The previous appointment in a series
+    previousappointment = models.ForeignKey("self", on_delete=models.PROTECT, related_name='previousappointment_appointment', blank=True, null=True)
+    #The originating appointment in a recurring set of appointments
+    originatingappointment = models.ForeignKey("self", on_delete=models.PROTECT, related_name='originatingappointment_appointment', blank=True, null=True)
+    # When appointment is to take place 
+    start = models.DateTimeField(blank=True, null=True)
+    # When appointment is to conclude     
+    end = models.DateTimeField(blank=True, null=True)
+    #The slots that this appointment is filling
+    slot = models.ForeignKey(Slot, on_delete=models.PROTECT, related_name='replaces', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='replaces', blank=True, null=True)
+    # The date that this appointment was initially created
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    # When the appointment was cancelled
+    cancellationdate = models.DateTimeField(blank=True, null=True)
+    # Detailed information and instructions for the patient
+    patientinstruction = models.CharField(max_length=75, blank=True, null=True)
+    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointment', null=True, blank=True)
+    #users needed during appointment
+    participants = models.ManyToManyField(User, related_name='appointment', blank=True)
+    # Indicates that this appointment varies from a recurrence pattern
+    occurrencechanged = models.BooleanField(blank=True, null=True, default=False)
+    recurrencetemplate = models.ForeignKey(RecurrenceTemplate, on_delete=models.CASCADE, related_name='appointment', null=True, blank=True)
+    # indicate organisation (TPA) associated with patient
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='appointment', null=True, blank=True)
+    
+    def __str__(self):
+            return 'Appointment for : {} at : {}'.format(self.subject, self.start)
+    
+
 
