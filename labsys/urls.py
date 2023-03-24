@@ -18,7 +18,7 @@ urlpatterns = [
     path('find/', views.find, name = 'find'),
     path('search/', views.search, name = 'search'),
     path('pat_enc/<int:pat_id>/', views.pat_enc, name = 'pat_enc'),
-    path('regi_old_pat/<int:pat_id>/', views.regi_old_pat, name = 'regi_old_pat'),
+    path('regi_encounter/<int:pat_id>/', views.regi_encounter, name = 'regi_encounter'),
     path('chargeitem/<int:chargeitem_id>/<str:option>', views.chargeitem, name='chargeitem'),
     path('observation_edit/', views.ObservationEdit, name = 'observationedit'),
     path('observation_verifyall/', views.ObservationVerifyAll, name = 'observationverifyall'),
@@ -26,7 +26,8 @@ urlpatterns = [
     path('chargeitempreview/<pk>/', views.chargeitem_preview, name='chargeitem_preview'),
     path('observation_dataedit/<int:ob_id>/', views.ObservationDataEdit, name = 'observationdataedit'),
     path('chargeitem_dataedit/<int:ci_id>/', views.ChargeitemDataEdit, name = 'chargeitemdataedit'),
+    path('addappointment/', views.addappointment, name = 'addappointment'),
 
-    
+   
 
 ]

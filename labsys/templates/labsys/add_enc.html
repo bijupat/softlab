@@ -26,7 +26,7 @@
 <br>
 {% endif %}
 <div>
-    <form action="{% url 'labsys:regi_old_pat' pat_id %}" method="post" >
+    <form action="{% url 'labsys:regi_encounter' pat_id %}" method="post" >
         {% csrf_token %}
 
         <div class="form-row">

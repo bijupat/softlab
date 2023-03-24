@@ -328,7 +328,7 @@ def pat_enc(request, pat_id):
         
 # get from old patient registration and post from it self 
 @login_required(login_url='/login/')
-def regi_old_pat(request, pat_id):
+def regi_encounter(request, pat_id):
     if request.method == "POST":
         form = EncounterRegistration(request.POST)
         if form.is_valid():
@@ -347,8 +347,9 @@ def regi_old_pat(request, pat_id):
 def pat_register(request):
     if request.method == "POST":
         form = PatientRegistration(request.POST)
+        register = request.POST["register"]
         if form.is_valid():
-            new_patient = Patient(birthDate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
+            new_patient = Patient(birthdate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
             new_patient.save()
             #populate new_name instance of Name class
             pat_name = Name(given=form.cleaned_data["f_name"].title() +" "+ form.cleaned_data["m_name"].title(), patient=new_patient, family=form.cleaned_data["l_name"].title() )
@@ -359,15 +360,26 @@ def pat_register(request):
             #populate new_telecom instance of Name class for emali
             pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
             pat_email.save()
-            return HttpResponseRedirect(reverse("labsys:regi_old_pat", args=[new_patient.id]))
+            
+            if register == "encounter":
+                return HttpResponseRedirect(reverse("labsys:regi_encounter", args=[new_patient.id]))
+            elif register == "appointment":
+                return HttpResponse(f" you are to register  {register}")
+            else:
+                return HttpResponse(f" you are to bug  {register}")
+
         # if form is not valid
         else:
-            names = Name.objects.all()
-            return render(request, 'labsys/patient_regi.html', { "form": form, "message": "In valid Patient Credentials!"})
+            #names = Name.objects.all()
+            return render(request, 'labsys/patient_regi.html', { "form": form, "message": "Click to correct Invalid Patient Credentials!"})
     # if request method get  
     names = Name.objects.all()    
-    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration})
+    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "encounter"})
 
+@login_required(login_url='/login/')
+def addappointment(request):
+    names = Name.objects.all()
+    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "appointment"})
 
 
 @login_required(login_url='/login/')

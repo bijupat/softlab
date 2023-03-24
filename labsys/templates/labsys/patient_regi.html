@@ -3,7 +3,6 @@
 {% block head %}
   <script src="{% static 'labsys\patient_regi.js' %}" defer></script>
   <link href="{% static 'labsys\patient_regi.css' %}" rel="stylesheet">
-
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
   <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet"/>
@@ -58,6 +57,7 @@
             <div class="form-group col-md-5">{{form.photo}}</div>
         </div>
         -->
+        <input id = "register" type = "hidden" value = "{{register}}" name="register" >
         <button type="submit" id = "new_pat_save_btn" class="btn btn-primary btn-sm btn-block">Add More Details</button>
     </form>
     

@@ -139,6 +139,7 @@ $(".chosen-select").chosen({
     fname = document.querySelector("#fname").value
     lname = document.querySelector("#lname").value
     mobno = document.querySelector("#mobno").value
+    register = document.querySelector("#register").value
     // checking if any one of the field has 3 charaters
     data = { fname: fname, lname: lname, mobno : mobno  }
     option = {
@@ -155,7 +156,7 @@ $(".chosen-select").chosen({
         names.forEach(name=>{ 
           let tr = document.createElement("tr");
           tr.innerHTML = `<td class="view-message text-left">${name.patient_id}</td>
-                        <td class="view-message text-center "><a href= 'regi_old_pat/${name.patient_id}'>${name.fname} ${name.lname} </a> </td>
+                        <td class="view-message text-center "><a href= 'regi_${register}/${name.patient_id}'>${name.fname} ${name.lname} </a> </td>
                         <td class="view-message text-right">${name.mobno}</td>`;
           element.append(tr)
           

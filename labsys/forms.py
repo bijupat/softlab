@@ -1,5 +1,5 @@
 from django import forms
-from .models import Account, ChargeItemDefinition, Practitioner, gender, ObservationDefinition
+from .models import Account, ChargeItemDefinition, Practitioner, gender, ObservationDefinition, Slot , User, RecurrenceTemplate, Organization
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -45,6 +45,17 @@ class EncounterRegistration(forms.Form):
     account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
     discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
+
+
+class AppointmentRegistration (forms.Form): 
+        description = forms.CharField(label="Description",  widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Description' }))
+        start = forms.DateTimeField(label="start at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'Appointment Starts' }))
+        end = forms.DateTimeField(label="end at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'Appointment Ends' }))
+        slot = forms.ModelChoiceField(queryset=Slot.objects.all(), label = "Slot", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+        account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+        participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+        recurrencetemplate = forms.ModelChoiceField(queryset=RecurrenceTemplate.objects.all(), label = "Recurrance ", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+        organization = forms.ModelChoiceField(queryset=Organization.objects.all(), label = "TPA ", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
 
 
 class dummy (forms.Form):
