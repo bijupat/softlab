@@ -156,6 +156,7 @@ $(".chosen-select").chosen({
         names.forEach(name=>{ 
           let tr = document.createElement("tr");
           tr.innerHTML = `<td class="view-message text-left">${name.patient_id}</td>
+                        // register is value for what to register appointment or encouter?
                         <td class="view-message text-center "><a href= 'regi_${register}/${name.patient_id}'>${name.fname} ${name.lname} </a> </td>
                         <td class="view-message text-right">${name.mobno}</td>`;
           element.append(tr)
