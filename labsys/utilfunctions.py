@@ -67,3 +67,8 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
 
     return True
 
+"""
+
+"""
+def register_appointment():
+    pass

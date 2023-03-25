@@ -1,0 +1,12 @@
+{% extends "labsys/layout.html" %}
+{% block title %}Login{% endblock %}
+{% block body %}
+
+
+{% for appointment in  appointments %}
+{{appointment}}
+{% empty %}
+No Appointment listed !!
+{% endfor %}
+
+{% endblock %}

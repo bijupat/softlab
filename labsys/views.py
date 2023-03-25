@@ -4,7 +4,7 @@ from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
 from django.http import JsonResponse, FileResponse
 from django.utils.timezone import datetime 
-from .forms import EncounterRegistration, PatientRegistration
+from .forms import EncounterRegistration, PatientRegistration, AppointmentRegistration
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
@@ -17,7 +17,7 @@ from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from .utilfunctions import register_encounter
+from .utilfunctions import register_encounter, register_appointment
 
 
 @login_required(login_url='/login/')
@@ -341,7 +341,7 @@ def regi_encounter(request, pat_id):
         # if form is not valid
         else:
             return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })            
-    return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistration })
+    #return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistration })
 
 @login_required(login_url='/login/')
 def pat_register(request):
@@ -360,11 +360,13 @@ def pat_register(request):
             #populate new_telecom instance of Name class for emali
             pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
             pat_email.save()
-            
+            # if register value is encouter (New patient for encounter registration)
             if register == "encounter":
-                return HttpResponseRedirect(reverse("labsys:regi_encounter", args=[new_patient.id]))
+                return render(request, 'labsys/add_enc.html', { "pat_id":new_patient.id, "form": EncounterRegistration })
+                #return HttpResponseRedirect(reverse("labsys:regi_encounter", args=[new_patient.id]))
+            # if register value is appointment (New patient for appointment registrtation)
             elif register == "appointment":
-                return HttpResponse(f" you are to register  {register}")
+                return render(request, 'labsys/add_appointment.html', { "pat_id":new_patient.id, "form": AppointmentRegistration })
             else:
                 return HttpResponse(f" you are to bug  {register}")
 
@@ -377,9 +379,29 @@ def pat_register(request):
     return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "encounter"})
 
 @login_required(login_url='/login/')
-def addappointment(request):
+def regi_appointment(request, pat_id):
+    if request.method == "POST":
+        form = AppointmentRegistration(request.POST)
+        if form.is_valid():
+            # using utilfunction register_encunter if it returns true 
+            if register_appointment(Patient.objects.get(pk=pat_id), form.cleaned_data["practitioner"], form.cleaned_data["test"], form.cleaned_data["discount"], form.cleaned_data["paid"], form.cleaned_data['account'], request.user):
+                return HttpResponseRedirect(reverse("labsys:appointments"))
+            # register encounter returns false return to same page with partialy filled form
+            else:
+                return render(request, 'labsys/add_enc.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
+        # if form is not valid
+        else:
+            return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form }) 
+    # if request method get
     names = Name.objects.all()
     return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "appointment"})
+
+# consider passing date later on also need to specify date on line 387
+@login_required(login_url='/login/')
+def appointments(request):
+        appointment_today = Appointment.objects.filter(start__date=datetime.today().date())
+        return render(request, 'labsys/appointment.html', {'appointments':appointment_today})
+
 
 
 @login_required(login_url='/login/')

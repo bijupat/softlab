@@ -71,8 +71,9 @@
                               Appointment
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                              <a class="dropdown-item" href="#">View</a>
-                              <a class="dropdown-item" href={% url 'labsys:addappointment' %}>Add</a>
+                              <a class="dropdown-item" href={% url 'labsys:appointments' %}>View</a>
+                                      <!-- 0 passed as dummy as regi_appointment takes on argument patient id -->
+                              <a class="dropdown-item" href={% url 'labsys:regi_appointment' 0 %}>Add</a>
                               <div class="dropdown-divider"></div>
                               <a class="dropdown-item" href="#">Something else here</a>
                             </div>

@@ -26,7 +26,9 @@ urlpatterns = [
     path('chargeitempreview/<pk>/', views.chargeitem_preview, name='chargeitem_preview'),
     path('observation_dataedit/<int:ob_id>/', views.ObservationDataEdit, name = 'observationdataedit'),
     path('chargeitem_dataedit/<int:ci_id>/', views.ChargeitemDataEdit, name = 'chargeitemdataedit'),
-    path('addappointment/', views.addappointment, name = 'addappointment'),
+    path('regi_appointment/<int:pat_id>/', views.regi_appointment, name = 'regi_appointment'),
+    path('appointments', views.appointments, name = 'appointments')
+
 
    
 
