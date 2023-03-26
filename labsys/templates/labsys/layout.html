@@ -42,8 +42,8 @@
             <div class="collapse navbar-collapse" id="navbar">
                 {% if user.is_authenticated %}
                     <ul class="navbar-nav mr-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href={% url 'labsys:index' %}>Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href={% url 'labsys:PatReg' %}>Add New</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'labsys:index' %}">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'labsys:PatReg'%}">Add New</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               Search
@@ -71,9 +71,8 @@
                               Appointment
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                              <a class="dropdown-item" href={% url 'labsys:appointments' %}>View</a>
-                                      <!-- 0 passed as dummy as regi_appointment takes on argument patient id -->
-                              <a class="dropdown-item" href={% url 'labsys:regi_appointment' 0 %}>Add</a>
+                              <a class="dropdown-item" href="{% url 'labsys:appointments' %}">View</a>
+                              <a class="dropdown-item" href="#">Add</a>
                               <div class="dropdown-divider"></div>
                               <a class="dropdown-item" href="#">Something else here</a>
                             </div>
@@ -98,12 +97,12 @@
                                 <button class="btn btn-outline-secondary btn-sm my-2 my-sm-0 nav-link" type="submit">Search</button>
                             </form>
                         </li>
-                        <li class="nav-item"><a class="nav-link " href={% url 'labsys:logout'  %}>Log Out</a></li>
+                        <li class="nav-item"><a class="nav-link " href="{% url 'labsys:logout'  %}">Log Out</a></li>
                     </ul>
                 {% else %}
                     <ul class="navbar-nav ml-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href={% url 'labsys:register' %}>Register</a></li>
-                        <li class="nav-item"><a class="nav-link" href={% url 'labsys:login' %}>Log In</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'labsys:register' %}">Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'labsys:login' %}">Log In</a></li>
                     </ul>
                 {% endif %}
             </div>

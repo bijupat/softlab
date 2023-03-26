@@ -9,7 +9,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name = 'logout'),
     path('register/', views.register, name = 'register'),
     path('encounter/<int:enc_id>/', views.encounter, name='encounter'),
-    path('pat_register', views.pat_register, name = 'PatReg' ),
+    path('pat_register/', views.pat_register, name = 'PatReg' ),
     path('invoice/', views.InvoiceListView.as_view(), name = 'invoice'),
     path('addpayment/', views.AddPayment, name = 'addpayment'),
     path('deletetest/', views.DeleteTest, name = 'deletetest'),
@@ -18,7 +18,7 @@ urlpatterns = [
     path('find/', views.find, name = 'find'),
     path('search/', views.search, name = 'search'),
     path('pat_enc/<int:pat_id>/', views.pat_enc, name = 'pat_enc'),
-    path('regi_encounter/<int:pat_id>/', views.regi_encounter, name = 'regi_encounter'),
+    path('regi_Encounter/<int:pat_id>/', views.regi_encounter, name = 'regi_encounter'),
     path('chargeitem/<int:chargeitem_id>/<str:option>', views.chargeitem, name='chargeitem'),
     path('observation_edit/', views.ObservationEdit, name = 'observationedit'),
     path('observation_verifyall/', views.ObservationVerifyAll, name = 'observationverifyall'),
@@ -26,10 +26,6 @@ urlpatterns = [
     path('chargeitempreview/<pk>/', views.chargeitem_preview, name='chargeitem_preview'),
     path('observation_dataedit/<int:ob_id>/', views.ObservationDataEdit, name = 'observationdataedit'),
     path('chargeitem_dataedit/<int:ci_id>/', views.ChargeitemDataEdit, name = 'chargeitemdataedit'),
-    path('regi_appointment/<int:pat_id>/', views.regi_appointment, name = 'regi_appointment'),
+    path('regi_Appointment/<int:pat_id>/', views.regi_appointment, name = 'regi_appointment'),
     path('appointments', views.appointments, name = 'appointments')
-
-
-   
-
 ]

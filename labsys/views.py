@@ -337,11 +337,13 @@ def regi_encounter(request, pat_id):
                 return HttpResponseRedirect(reverse("labsys:index"))
             # register encounter returns false return to same page with partialy filled form
             else:
-                return render(request, 'labsys/add_enc.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
+                return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
         # if form is not valid
         else:
-            return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form })            
-    #return render(request, 'labsys/add_enc.html', { "pat_id":pat_id, "form": EncounterRegistration })
+            return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id,"form": form })            
+    # if request method get
+    return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": EncounterRegistration })
+
 
 @login_required(login_url='/login/')
 def pat_register(request):
@@ -360,23 +362,17 @@ def pat_register(request):
             #populate new_telecom instance of Name class for emali
             pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
             pat_email.save()
-            # if register value is encouter (New patient for encounter registration)
-            if register == "encounter":
-                return render(request, 'labsys/add_enc.html', { "pat_id":new_patient.id, "form": EncounterRegistration })
-                #return HttpResponseRedirect(reverse("labsys:regi_encounter", args=[new_patient.id]))
-            # if register value is appointment (New patient for appointment registrtation)
-            elif register == "appointment":
-                return render(request, 'labsys/add_appointment.html', { "pat_id":new_patient.id, "form": AppointmentRegistration })
-            else:
-                return HttpResponse(f" you are to bug  {register}")
-
+            # converting string to variable using eval()
+            form_context = eval(f'{register}Registration')
+           # retunt template and context according to the value of register
+            return render(request, f'labsys/add_{register}.html', {"pat_id":new_patient.id, "form": form_context})
         # if form is not valid
         else:
-            #names = Name.objects.all()
             return render(request, 'labsys/patient_regi.html', { "form": form, "message": "Click to correct Invalid Patient Credentials!"})
-    # if request method get  
-    names = Name.objects.all()    
-    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "encounter"})
+    # if request method is get  
+    names = Name.objects.all()
+    # pass value of register as enconter to register encounter
+    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
 
 @login_required(login_url='/login/')
 def regi_appointment(request, pat_id):
@@ -388,14 +384,23 @@ def regi_appointment(request, pat_id):
                 return HttpResponseRedirect(reverse("labsys:appointments"))
             # register encounter returns false return to same page with partialy filled form
             else:
-                return render(request, 'labsys/add_enc.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
+                return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
         # if form is not valid
         else:
-            return render(request, 'labsys/add_enc.html', {"pat_id":pat_id,"form": form }) 
+            return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form }) 
+   
+   
+    # if request method get
+    return render(request, 'labsys/add_Appointment.html', { "pat_id":pat_id, "form": AppointmentRegistration })
+
+
+   
+    """
     # if request method get
     names = Name.objects.all()
-    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "appointment"})
-
+    # pass value of register as "Appointment" to specify pat_register function to renter template/context
+    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
+    """
 # consider passing date later on also need to specify date on line 387
 @login_required(login_url='/login/')
 def appointments(request):
