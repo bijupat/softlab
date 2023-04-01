@@ -9,7 +9,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name = 'logout'),
     path('register/', views.register, name = 'register'),
     path('encounter/<int:enc_id>/', views.encounter, name='encounter'),
-    path('pat_register/', views.pat_register, name = 'PatReg' ),
+    #path('pat_register/', views.pat_register, name = 'PatReg' ),
     path('invoice/', views.InvoiceListView.as_view(), name = 'invoice'),
     path('addpayment/', views.AddPayment, name = 'addpayment'),
     path('deletetest/', views.DeleteTest, name = 'deletetest'),
@@ -27,5 +27,7 @@ urlpatterns = [
     path('observation_dataedit/<int:ob_id>/', views.ObservationDataEdit, name = 'observationdataedit'),
     path('chargeitem_dataedit/<int:ci_id>/', views.ChargeitemDataEdit, name = 'chargeitemdataedit'),
     path('regi_Appointment/<int:pat_id>/', views.regi_appointment, name = 'regi_appointment'),
-    path('appointments', views.appointments, name = 'appointments')
+    path('appointments', views.appointments, name = 'appointments'),
+    path('pat_register/<int:register>/', views.pat_register, name = 'pat_register')
+
 ]

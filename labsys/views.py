@@ -345,8 +345,9 @@ def regi_encounter(request, pat_id):
     return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": EncounterRegistration })
 
 
+"""
 @login_required(login_url='/login/')
-def pat_register(request):
+def pat_register2(request):
     if request.method == "POST":
         form = PatientRegistration(request.POST)
         register = request.POST["register"]
@@ -373,6 +374,42 @@ def pat_register(request):
     names = Name.objects.all()
     # pass value of register as enconter to register encounter
     return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
+
+"""
+@login_required(login_url='/login/')
+def pat_register(request, register= -1):
+    if request.method == "POST":
+        form = PatientRegistration(request.POST)
+        register = request.POST["register"]
+        if form.is_valid():
+            new_patient = Patient(birthdate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
+            new_patient.save()
+            #populate new_name instance of Name class
+            pat_name = Name(given=form.cleaned_data["f_name"].title() +" "+ form.cleaned_data["m_name"].title(), patient=new_patient, family=form.cleaned_data["l_name"].title() )
+            pat_name.save()
+            #populate new_tele instance of Name class
+            pat_mobile = Telecom(patient=new_patient, system="P", use = "M", value = request.POST["mobile"])
+            pat_mobile.save()
+            #populate new_telecom instance of Name class for emali
+            pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
+            pat_email.save()
+            # converting string to variable using eval()
+            form_context = eval(f'{register}Registration')
+        # retunt template and context according to the value of register
+            return render(request, f'labsys/add_{register}.html', {"pat_id":new_patient.id, "form": form_context})
+        # if form is not valid
+        else:
+            return render(request, 'labsys/patient_regi.html', { "form": form, "message": "Click to correct Invalid Patient Credentials!"})
+    #if request method is GET
+    names = Name.objects.all()
+    # pass value of register as enconter to register encounter as value of register is 0
+    if register == 0:
+        return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
+    # pass value of register as enconter to register encounter as value of register is 1
+    if register == 1:
+        return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
+
+
 
 @login_required(login_url='/login/')
 def regi_appointment(request, pat_id):

@@ -43,7 +43,7 @@
                 {% if user.is_authenticated %}
                     <ul class="navbar-nav mr-auto mt-2">
                         <li class="nav-item"><a class="nav-link" href="{% url 'labsys:index' %}">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'labsys:PatReg'%}">Add New</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'labsys:pat_register' 0 %}">Add New</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               Search
@@ -71,8 +71,8 @@
                               Appointment
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                              <a class="dropdown-item" href="{% url 'labsys:appointments' %}">View</a>
-                              <a class="dropdown-item" href="#">Add</a>
+                              <a class="dropdown-item" href="{% url 'labsys:appointments' %}">View</a> 
+                              <a class="dropdown-item" href="{% url 'labsys:pat_register' 1 %}">Add</a>
                               <div class="dropdown-divider"></div>
                               <a class="dropdown-item" href="#">Something else here</a>
                             </div>

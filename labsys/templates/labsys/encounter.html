@@ -76,7 +76,7 @@ No Test Listed.
   <div id="myDropdown" class="dropdown-content">
     <input type="text" autofocus autocomplete="off" placeholder="Search.." id="myInput" >
           {% for t in tests %}  
-            <a href={% url 'labsys:addtest' e.id t.id %} >{{t.title}}</a>
+            <a href="{% url 'labsys:addtest' e.id t.id %}" >{{t.title}}</a>
           {% empty %}
             <a>All Test Added !!</a >
           {% endfor %}                
