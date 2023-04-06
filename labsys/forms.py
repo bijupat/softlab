@@ -48,14 +48,15 @@ class EncounterRegistration(forms.Form):
 
 
 class AppointmentRegistration (forms.Form): 
-        description = forms.CharField(label="Description",  widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Description' }))
-        start = forms.DateTimeField(label="start at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'Appointment Starts' }))
-        end = forms.DateTimeField(label="end at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'Appointment Ends' }))
+        description = forms.CharField(label="Description",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 5, 'style':"width:100%;" }))
+        start = forms.DateTimeField(label="Start at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
+        end = forms.DateTimeField(label="End at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
         slot = forms.ModelChoiceField(queryset=Slot.objects.all(), label = "Slot", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
         account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
-        participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
-        recurrencetemplate = forms.ModelChoiceField(queryset=RecurrenceTemplate.objects.all(), label = "Recurrance ", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
-        organization = forms.ModelChoiceField(queryset=Organization.objects.all(), label = "TPA ", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+        participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}))
+        recurrencetemplate = forms.ModelChoiceField(queryset=RecurrenceTemplate.objects.all(), label = "Recurrance ", widget=forms.Select(attrs={'class': 'form-control selectpicker' ,'data-live-search':'true'}))
+        organization = forms.ModelChoiceField(queryset=Organization.objects.all(), label = "TPA ", widget=forms.Select(attrs={'class': 'form-control selectpicker ','data-live-search':'true'}))
+        test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}))
 
 
 class dummy (forms.Form):

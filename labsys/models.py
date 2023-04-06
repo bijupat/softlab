@@ -644,7 +644,7 @@ class ChargeItemDefinition(models.Model):
     # ordering of obseration if more than one observatin involved
     orderBy= models.SmallIntegerField(blank=True, null=True)  
     def __str__(self):
-        return f'{self.title} Rs  : {self.value}'  
+        return self.title  
 
         
 class Encounter(models.Model):
