@@ -17,8 +17,7 @@ from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from .utilfunctions import register_encounter, register_appointment
-
+from .utilfunctions import register_encounter
 
 @login_required(login_url='/login/')
 def ChargeitemDataEdit(request,ci_id):
@@ -416,17 +415,31 @@ def regi_appointment(request, pat_id):
     if request.method == "POST":
         form = AppointmentRegistration(request.POST)
         if form.is_valid():
-            # using utilfunction register_encunter if it returns true 
-            if register_appointment(Patient.objects.get(pk=pat_id), form.cleaned_data["practitioner"], form.cleaned_data["test"], form.cleaned_data["discount"], form.cleaned_data["paid"], form.cleaned_data['account'], request.user):
+            new_appointment = Appointment()
+            new_appointment.priority = form.cleaned_data["priority"]
+            new_appointment.description = form.cleaned_data["description"]
+            new_appointment.start = form.cleaned_data["start"]
+            new_appointment.end = form.cleaned_data["end"]
+            new_appointment.slot = form.cleaned_data["slot"]
+            new_appointment.account = form.cleaned_data["account"]
+            new_appointment.created = datetime.now()
+            new_appointment.created_by = request.user
+            new_appointment.patientinstruction = form.cleaned_data["patientinstruction"]
+            new_appointment.subject = Patient.objects.get(pk=pat_id)
+            new_appointment.organization = form.cleaned_data["organization"]
+            try:
+                new_appointment.save()
+                # new appointment need to saved as needs to have a value for field "id" before this many-to-many relationship can be used.
+                new_appointment.participants.set(form.cleaned_data["participants"])
+                print("try executed")
                 return HttpResponseRedirect(reverse("labsys:appointments"))
-            # register encounter returns false return to same page with partialy filled form
-            else:
-                return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
+            except:
+                print("excetp executed")
+
+                return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":"Appointment not Saved"})
         # if form is not valid
         else:
-            return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form }) 
-   
-   
+            return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form, "message":form.errors })   
     # if request method get
     return render(request, 'labsys/add_Appointment.html', { "pat_id":pat_id, "form": AppointmentRegistration })
 

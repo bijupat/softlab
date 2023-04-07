@@ -1,5 +1,5 @@
 
-from .models import Observation, Invoice, Encounter, ChargeItem, ChargeItemDefinition, PaymentReconciliation
+from .models import Observation, Invoice, Encounter, ChargeItem, ChargeItemDefinition, PaymentReconciliation, Appointment
 from django.db.models import Sum
 
 
@@ -67,8 +67,3 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
 
     return True
 
-"""
-
-"""
-def register_appointment():
-    pass

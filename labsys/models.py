@@ -899,34 +899,36 @@ class Appointment(models.Model):
     priority = models.BooleanField(blank=True, null=True, default=False)
     # Shown on a subject line in a meeting request, or appointment list
     description = models.CharField(max_length=75, blank=True, null=True)
-    replaces = models.ForeignKey("self", on_delete=models.PROTECT, related_name='replaces_appointment', blank=True, null=True)
+    replaces = models.ForeignKey("self", on_delete=models.PROTECT, related_name='replaces_appointments', blank=True, null=True)
     #Connection details of a virtual service (e.g. conference call)
     virtualService = models.CharField(max_length=75, blank=True, null=True)
     #The previous appointment in a series
-    previousappointment = models.ForeignKey("self", on_delete=models.PROTECT, related_name='previousappointment_appointment', blank=True, null=True)
+    previousappointment = models.ForeignKey("self", on_delete=models.PROTECT, related_name='previousappointment_appointments', blank=True, null=True)
     #The originating appointment in a recurring set of appointments
-    originatingappointment = models.ForeignKey("self", on_delete=models.PROTECT, related_name='originatingappointment_appointment', blank=True, null=True)
+    originatingappointment = models.ForeignKey("self", on_delete=models.PROTECT, related_name='originatingappointment_appointments', blank=True, null=True)
     # When appointment is to take place 
     start = models.DateTimeField(blank=True, null=True)
     # When appointment is to conclude     
     end = models.DateTimeField(blank=True, null=True)
     #The slots that this appointment is filling
-    slot = models.ForeignKey(Slot, on_delete=models.PROTECT, related_name='replaces', blank=True, null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='replaces', blank=True, null=True)
+    slot = models.ForeignKey(Slot, on_delete=models.PROTECT, related_name='appointments', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='appointments', blank=True, null=True)
     # The date that this appointment was initially created
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    # the user who creatd appointment
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='appointment_created_by', blank=True, null=True)
     # When the appointment was cancelled
     cancellationdate = models.DateTimeField(blank=True, null=True)
     # Detailed information and instructions for the patient
     patientinstruction = models.CharField(max_length=75, blank=True, null=True)
-    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointment', null=True, blank=True)
+    subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     #users needed during appointment
-    participants = models.ManyToManyField(User, related_name='appointment', blank=True)
+    participants = models.ManyToManyField(User, related_name='appointment_participants', blank=True)
     # Indicates that this appointment varies from a recurrence pattern
     occurrencechanged = models.BooleanField(blank=True, null=True, default=False)
-    recurrencetemplate = models.ForeignKey(RecurrenceTemplate, on_delete=models.CASCADE, related_name='appointment', null=True, blank=True)
+    recurrencetemplate = models.ForeignKey(RecurrenceTemplate, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     # indicate organisation (TPA) associated with patient
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='appointment', null=True, blank=True)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     
     def __str__(self):
             return 'Appointment for : {} at : {}'.format(self.subject, self.start)

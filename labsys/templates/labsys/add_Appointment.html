@@ -39,13 +39,17 @@
             <div class="form-group col-md-6">{{form.slot.label}} : {{form.slot}}<span style="color:red;">{{ form.slot.errors }}</span></div>
         </div>
         <div class="form-row">
-            <div class="form-group col-md-6">{{form.start.label}} : {{form.start}}<span style="color:red;">{{ form.start.errors }}</span></div>
-            <div class="form-group col-md-6">{{form.end.label}} : {{form.end}}<span style="color:red;">{{ form.end.errors }}</span></div>
+            <div class="form-group col-md-4">{{form.start.label}} : {{form.start}}</div>
+            <div class="form-group col-md-4">{{form.end.label}} : {{form.end}}</div>
+            <div class="form-group col-md-4">Is High Priority : {{form.priority}}</div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-12">{{form.description}}</div>
         </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">{{form.patientinstruction}}</div>
+        </div>
         <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
-    </form>
+    </form> 
 </div>
 {% endblock %}
