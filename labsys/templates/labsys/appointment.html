@@ -1,12 +1,45 @@
 {% extends "labsys/layout.html" %}
-{% block title %}Login{% endblock %}
+{% load static %}
+{% block title %}Appointments{% endblock %}
+{% block head %}
+  <script src="{% static 'labsys\index.js' %}" defer></script>
+{% endblock %}
 {% block body %}
-
+<div>
+  <form action="{% url 'labsys:appointments' %}" method="post" >
+      {% csrf_token %}
+      <div class="input-group flex-nowrap">
+          <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
+          <input class="form-control" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
+          <input disabled id = "datesubmit" class="btn btn-primary btn-sm" type="submit">
+      </div>
+  </form>
+  <br>
+</div>
+<h6>Appointment Listed For  : {{date|default:"Today"}}</h6>
+<br>
 
 {% for appointment in  appointments %}
-{{appointment}}
+
+<div class="card" >
+  <div class="card-header">
+    <h5 class="card-title">{{appointment.subject.get_usual_name}} : {{appointment.subject.age}}/{{appointment.subject.gender}} : {{appointment.subject.get_mobile}}</h5>
+    <p class="card-text">Start at {{appointment.start}} end at {{appointment.end}} {% if appointment.priority %}<span style="color:red;">High Priority</span>{% endif %}</p>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">Staff Involved : {% for p in appointment.participants.all %} {{p.first_name}} & {% empty %} No User {% endfor %}</li>
+    <li class="list-group-item">Tests : {% for t in appointment.tests.all %} {{t}}, {% empty %} No test {% endfor %}</li>
+    <li class="list-group-item">Booked at : {{appointment.created}} by {{appointment.created_by.get_full_name}}</li>
+    <li class="list-group-item">{{appointment.organization}} : {{appointment.account}}</li>
+    <li class="list-group-item">Discription : {{appointment.description}}</li>
+    <li class="list-group-item">Instruction for Patient : {{appointment.patientinstruction}}</li>
+ </ul>
+</div>
+<br>
 {% empty %}
 No Appointment listed !!
 {% endfor %}
 
 {% endblock %}
+
+

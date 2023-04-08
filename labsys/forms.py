@@ -53,12 +53,13 @@ class AppointmentRegistration (forms.Form):
         end = forms.DateTimeField(label="End at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
         slot = forms.ModelChoiceField(queryset=Slot.objects.all(), required=False, label = "Slot", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
         account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
-        participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker', 'data-live-search':'true'}))
+        participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker chosen-select', 'data-live-search':'true'}))
         recurrencetemplate = forms.ModelChoiceField(queryset=RecurrenceTemplate.objects.all(), required=False, label = "Recurrance ", widget=forms.Select(attrs={'class': 'form-control selectpicker' ,'data-live-search':'true'}))
         organization = forms.ModelChoiceField(queryset=Organization.objects.all(), label = "TPA ", widget=forms.Select(attrs={'class': 'form-control selectpicker ','data-live-search':'true'}))
-        test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}))
+        tests = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker chosen-select', 'data-live-search':'true'}))
         patientinstruction = forms.CharField(label="Patient Instruction",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Patient Instruction', 'rows': 5, 'style':"width:100%;" }))
-        priority = forms.BooleanField(label="Is High Priority",  widget=forms.CheckboxInput(attrs={'class': 'form-control',  }))
+        priority = forms.BooleanField(label="Is High Priority",required=False, widget=forms.CheckboxInput(attrs={'class': 'form-control',  }))
+
 class dummy (forms.Form):
     title = forms.CharField(label="Title", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title' }))
     price = forms.FloatField(label="Price", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Price' }))

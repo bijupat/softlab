@@ -301,7 +301,7 @@ class Organization (models.Model):
 
 
     def __str__(self):
-            return 'Organizasion  : {}'.format(self.name)
+            return 'Organization  : {}'.format(self.name)
 
 
 
@@ -929,7 +929,7 @@ class Appointment(models.Model):
     recurrencetemplate = models.ForeignKey(RecurrenceTemplate, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     # indicate organisation (TPA) associated with patient
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
-    
+    tests = models.ManyToManyField(ChargeItemDefinition, related_name = 'appointments')
     def __str__(self):
             return 'Appointment for : {} at : {}'.format(self.subject, self.start)
     

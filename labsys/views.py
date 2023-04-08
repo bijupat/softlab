@@ -308,15 +308,13 @@ def AddPayment(request):
 
 @login_required(login_url='/login/')
 def index(request):
-    if request.method == 'GET':
-        encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
-        return render(request, 'labsys/index.html', {"encounter" :encounter_today})
-
-    elif request.method == 'POST':
+    if request.method == 'POST':
         date = request.POST["date"]
         encounter_date = Encounter.objects.filter(timedate__date=date)
         return render(request, 'labsys/index.html', {"encounter" :encounter_date, "date" : date})
-
+    #if request method is get
+    encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
+    return render(request, 'labsys/index.html', {"encounter" :encounter_today})
 
 @login_required(login_url='/login/')
 def pat_enc(request, pat_id):
@@ -431,12 +429,12 @@ def regi_appointment(request, pat_id):
                 new_appointment.save()
                 # new appointment need to saved as needs to have a value for field "id" before this many-to-many relationship can be used.
                 new_appointment.participants.set(form.cleaned_data["participants"])
+                new_appointment.tests.set(form.cleaned_data["tests"])
                 print("try executed")
                 return HttpResponseRedirect(reverse("labsys:appointments"))
-            except:
+            except Exception as error:
                 print("excetp executed")
-
-                return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":"Appointment not Saved"})
+                return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":error})
         # if form is not valid
         else:
             return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form, "message":form.errors })   
@@ -451,11 +449,15 @@ def regi_appointment(request, pat_id):
     # pass value of register as "Appointment" to specify pat_register function to renter template/context
     return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
     """
-# consider passing date later on also need to specify date on line 387
 @login_required(login_url='/login/')
 def appointments(request):
-        appointment_today = Appointment.objects.filter(start__date=datetime.today().date())
-        return render(request, 'labsys/appointment.html', {'appointments':appointment_today})
+    if request.method == 'POST':
+        date = request.POST["date"]
+        appointment_date = Appointment.objects.filter(start__date=date)
+        return render(request, 'labsys/appointment.html', {"appointments" :appointment_date, "date" : date})
+    #if requestmethod is get load today's appointment by default
+    appointment_today = Appointment.objects.filter(start__date=datetime.today().date())
+    return render(request, 'labsys/appointment.html', {'appointments':appointment_today})
 
 
 
