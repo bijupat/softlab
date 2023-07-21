@@ -6,6 +6,7 @@
 {% endblock %}
 {% block body %}
 <div>
+  
   <form action="{% url 'labsys:appointments' %}" method="post" >
       {% csrf_token %}
       <div class="input-group flex-nowrap">
@@ -23,12 +24,23 @@
 
 <div class="card" >
   <div class="card-header">
-    <h5 class="card-title">{{appointment.subject.get_usual_name}} : {{appointment.subject.age}}/{{appointment.subject.gender}} : {{appointment.subject.get_mobile}}</h5>
+    <!-- span with id appointid is used in java to calculate total values of tests listed  -->
+    <h5 class="card-title"> <span scope="col" id = "appointid">{{appointment.id}}</span> : {{appointment.subject.get_usual_name}} : {{appointment.subject.age}}/{{appointment.subject.gender}} : {{appointment.subject.get_mobile}}</h5>
     <p class="card-text">Start at {{appointment.start}} end at {{appointment.end}} {% if appointment.priority %}<span style="color:red;">High Priority</span>{% endif %}</p>
   </div>
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">Staff Involved : {% for p in appointment.participants.all %} {{p.first_name}} & {% empty %} No User {% endfor %}</li>
-    <li class="list-group-item">Tests : {% for t in appointment.tests.all %} {{t}}, {% empty %} No test {% endfor %}</li>
+    <li class="list-group-item">Staff Involved : {% for p in appointment.participants.all %} {{p.first_name}}  {% empty %} No User {% endfor %}</li>
+    <!-- class test-value_appid and id total-value_appid created to get total from innterHTML using JS-->
+    <li class="list-group-item">Tests :
+      <ul>
+        {% for t in appointment.tests.all %} 
+          <li>{{t}} : <span class = "test-value_{{appointment.id}}">{{t.value}}</span></li>        
+        {% empty %}         
+          <li>No Test Selected.></li>
+        {% endfor %}
+        <li>Total : Rs  <span id ="total-value_{{appointment.id}}"></span></li>
+      </ul>
+    </li>
     <li class="list-group-item">Booked at : {{appointment.created}} by {{appointment.created_by.get_full_name}}</li>
     <li class="list-group-item">{{appointment.organization}} : {{appointment.account}}</li>
     <li class="list-group-item">Discription : {{appointment.description}}</li>
@@ -39,7 +51,4 @@
 {% empty %}
 No Appointment listed !!
 {% endfor %}
-
 {% endblock %}
-
-

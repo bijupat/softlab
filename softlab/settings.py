@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['122.179.129.85', '127.0.0.1']
 
 INSTALLED_APPS = [
     'labsys',
+    'website',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

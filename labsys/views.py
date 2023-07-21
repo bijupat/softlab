@@ -19,7 +19,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from .utilfunctions import register_encounter
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def ChargeitemDataEdit(request,ci_id):
     if request.method == "POST":
         chargeitem  = ChargeItem.objects.get(pk=ci_id)
@@ -35,7 +35,7 @@ def ChargeitemDataEdit(request,ci_id):
         chargeItem = ChargeItem.objects.get(pk=ci_id)
         return render(request, 'labsys/chargeitemdataedit.html', {"chargeItem" :chargeItem})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def ObservationDataEdit(request,ob_id):
     if request.method == "POST":
         observation  = Observation.objects.get(pk=ob_id)
@@ -53,7 +53,7 @@ def ObservationDataEdit(request,ob_id):
 
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def chargeitem_preview(request, *args, **kwargs):
     pk = kwargs.get('pk')
     chargeitem = get_object_or_404(ChargeItem, pk=pk) 
@@ -130,7 +130,7 @@ def chargeitem_preview(request, *args, **kwargs):
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def chargeitem_preview2(request):
     # Create a file-like buffer to receive PDF data.
     buffer = io.BytesIO()
@@ -161,7 +161,7 @@ class InvoiceListView(ListView):
     context_object_name = 'invoice_Obj'
 
 @csrf_exempt
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def search(request):
     fname = json.loads(request.body.decode('utf-8'))["fname"]
     lname = json.loads(request.body.decode('utf-8'))["lname"]
@@ -176,16 +176,16 @@ def search(request):
         return JsonResponse([name.serialize() for name in names], safe=False)
     else:
         if fname and lname:
-            name_found = Name.objects.filter(text__icontains=fname).filter(family__icontains=lname)
-            names = name_found.order_by("-text").all()
+            name_found = Name.objects.filter(given__icontains=fname).filter(family__icontains=lname)
+            names = name_found.order_by("-given").all()
             return JsonResponse([name.serialize() for name in names], safe=False)
         if fname and not lname:
-            name_found = Name.objects.filter(text__icontains=fname)
-            names = name_found.order_by("-text").all()
+            name_found = Name.objects.filter(given__icontains=fname)
+            names = name_found.order_by("-given").all()
             return JsonResponse([name.serialize() for name in names], safe=False)
         if lname and not fname:
             name_found = Name.objects.filter(family__icontains=lname)
-            names = name_found.order_by("-text").all()
+            names = name_found.order_by("-given").all()
             return JsonResponse([name.serialize() for name in names], safe=False)
         
 
@@ -194,7 +194,7 @@ def search(request):
 
 
 @csrf_exempt
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def DeleteTest(request):
     if request.method == "POST":
 
@@ -208,7 +208,7 @@ def DeleteTest(request):
         #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))    
         return HttpResponse(status=200)
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def AddTest(request, e_id, t_id):
     
         # geting ecnouter object from it's id
@@ -235,7 +235,7 @@ def AddTest(request, e_id, t_id):
             o.populate_fm_obdef()
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[e_id]))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def AddEditDiscount(request):
     if request.method == "POST":
         invoice = Encounter.objects.get(pk=request.POST["eidinput"]).invoice
@@ -243,7 +243,7 @@ def AddEditDiscount(request):
         invoice.save()
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[request.POST["eidinput"]]))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def ObservationEdit(request):
     if request.method == "POST": 
         chargeitem = ChargeItem.objects.get(pk=request.POST["chargeitem_id"])    
@@ -263,7 +263,7 @@ def ObservationEdit(request):
         return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "view"]))
   
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def ObservationVerifyAll(request):
     if request.method == "POST": 
         chargeitem_id = request.POST["chargeitem_id"]    
@@ -278,7 +278,7 @@ def ObservationVerifyAll(request):
             
         return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[chargeitem_id, "view"]))
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def ObservationVerify(request, ob_id):
     
     observation = Observation.objects.get(pk=ob_id)
@@ -292,7 +292,7 @@ def ObservationVerify(request, ob_id):
     return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[chagreitem_id, "edit"]))
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def AddPayment(request):
     if request.method == 'POST':
         eid = request.POST["eidinput"]
@@ -306,7 +306,7 @@ def AddPayment(request):
     return render(request, 'labsys/h_filter.html')
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def index(request):
     if request.method == 'POST':
         date = request.POST["date"]
@@ -316,7 +316,7 @@ def index(request):
     encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
     return render(request, 'labsys/index.html', {"encounter" :encounter_today})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def pat_enc(request, pat_id):
     date = "All Encounter for This Patient"
     patient = Patient.objects.get(pk=pat_id)
@@ -324,7 +324,7 @@ def pat_enc(request, pat_id):
     return render(request, 'labsys/index.html', {"encounter" :encounter, "date" : date})
         
 # get from old patient registration and post from it self 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def regi_encounter(request, pat_id):
     if request.method == "POST":
         form = EncounterRegistration(request.POST)
@@ -343,7 +343,7 @@ def regi_encounter(request, pat_id):
 
 
 """
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def pat_register2(request):
     if request.method == "POST":
         form = PatientRegistration(request.POST)
@@ -373,7 +373,7 @@ def pat_register2(request):
     return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
 
 """
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def pat_register(request, register= -1):
     if request.method == "POST":
         form = PatientRegistration(request.POST)
@@ -408,7 +408,7 @@ def pat_register(request, register= -1):
 
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def regi_appointment(request, pat_id):
     if request.method == "POST":
         form = AppointmentRegistration(request.POST)
@@ -449,7 +449,7 @@ def regi_appointment(request, pat_id):
     # pass value of register as "Appointment" to specify pat_register function to renter template/context
     return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
     """
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def appointments(request):
     if request.method == 'POST':
         date = request.POST["date"]
@@ -461,7 +461,7 @@ def appointments(request):
 
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def encounter(request, enc_id):
     e = Encounter.objects.get(pk=enc_id)
     chargeItems = ChargeItem.objects.filter(context= e)
@@ -514,7 +514,7 @@ def encounter(request, enc_id):
     return render(request, 'labsys/encounter.html', {"e" : e, "chargeItems": chargeItems,"payments":payments, "invoice": invoice, "tests":tests, "is_all_chargeitem_atleast_final": is_all_chargeitem_atleast_final} )
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def chargeitem(request, chargeitem_id, option):
     chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
     observations = Observation.objects.filter(chargeitem=chargeitem)
@@ -531,7 +531,7 @@ def chargeitem(request, chargeitem_id, option):
     return render(request, f'labsys/obs_by_chgItm_{option}.html', {"observations": observations, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} )
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/lab/login/')
 def find(request):
     if request.method == "POST":
         fname = request.POST.get('find_fname')

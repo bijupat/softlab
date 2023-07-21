@@ -150,7 +150,7 @@ $(".chosen-select").chosen({
         },
         body: JSON.stringify(data) // body data type must match "Content-Type" header
         };
-      fetch('/search/', option)
+      fetch('/lab/search/', option)
       .then(response => response.json())
       .then(names => {
         names.forEach(name=>{ 

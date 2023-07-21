@@ -28,5 +28,4 @@ urlpatterns = [
     path('regi_Appointment/<int:pat_id>/', views.regi_appointment, name = 'regi_appointment'),
     path('appointments', views.appointments, name = 'appointments'),
     path('pat_register/<int:register>/', views.pat_register, name = 'pat_register')
-
 ]
