@@ -59,9 +59,14 @@ Contact_relationship =(
     ("MI", "Mother in law"),
     ("BI", "Brother in law"),
     ("SI", "Sister in law"),
-    ("O", "Other(specify with name)")
+    ("O", "Other(specify with name)"),
  )
-
+obdef_or_cidef_status= (
+     ("d", "draft"),
+     ("a", "active"),
+     ("r", "retired"),
+     ("u", "unknown"),
+)
 
 """
 Male.	Male
@@ -368,7 +373,7 @@ class Name(models.Model):
                 "fname": "",
                 "lname": "",
                 "patient_id":"",
-                "mobno": "",            
+                "mobno": "",        
             }
     
     def __str__(self):
@@ -472,10 +477,12 @@ class Equipments(models.Model):
 #master list of observations(Testlist)
 class ObservationDefinition(models.Model):
     # use loinic Consumer Name if possible
-    test = models.CharField(max_length=75, blank=True, null=True)
+    test = models.CharField(max_length=500, blank=True, null=True)
     # general name usded in routine practice
     alias = models.CharField(max_length=75, blank=True, null=True)
     # name used in SMS field
+    # draft | active | retired | unknown
+    status = models.CharField(max_length=20, blank=True, null=True, choices=obdef_or_cidef_status, default = "a")
     alias_sms = models.CharField(max_length=75, blank=True, null=True)  
     method = models.CharField(max_length=75, blank=True, null=True)
     category = models.ForeignKey(TestCategory, on_delete=models.PROTECT, related_name='observationdefination', blank=True, null=True)
@@ -608,7 +615,7 @@ class ChargeItemDefinition(models.Model):
     #Completed or terminated request(s) whose function is taken by this new request
     replaces = models.ManyToManyField("self", blank=True,  related_name='chargeitemdef_replaces')
     # draft | active | retired | unknown
-    status = models.CharField(max_length=75, blank=True, null=True, default='registered')
+    status = models.CharField(max_length=20, blank=True, null=True, choices=obdef_or_cidef_status, default = "a")
     # For testing purposes, not real usage
     experimental = models.BooleanField(blank=True, null=True, default=False)
     # is it needed to be printed in receipt ?
@@ -622,7 +629,7 @@ class ChargeItemDefinition(models.Model):
     # TAT for the field
     tat = models.SmallIntegerField(blank=True, null=True)
     heading = models.ForeignKey(Headings, on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
-    category = models.CharField(max_length=75, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
+    category = models.CharField(max_length=20, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
     # date on which first approved 
     approvalDate = models.DateTimeField(blank=True, null=True)
     #Date last changed

@@ -35,8 +35,17 @@ function reportWindowSize() {
     
 }
 
+// calculation total of test price in appointment.html
+window.onload = add_test_value;
+function add_test_value(){
+    const appointid = document.querySelector('#appointid').innerHTML;
+    var value = 0;
+    document.querySelectorAll(`.test-value_${appointid}`).forEach(function(element){
+        value = Number(element.innerText) + Number(value);
+        document.getElementById(`total-value_${appointid}`).innerText = value
+    });
 
-    
+}    
     
     
         

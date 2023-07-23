@@ -8,7 +8,6 @@
     //console.log(document.querySelector('#addpayment'));
     document.querySelector('#addpaymentbutton').addEventListener("click", function(event){
        event.preventDefault();
-       alert("add Payment clicked!");
        //display addpayment div form
        document.querySelector('#addpayment').style.display = "block";
        //hide paymentbutton button
@@ -96,7 +95,7 @@
                         },
                         body: JSON.stringify(data) // body data type must match "Content-Type" header
                         };
-                    fetch('/deletetest/', option);
+                    fetch('/lab/deletetest/', option);
                   } else {
                     // Do nothing!
                   }
