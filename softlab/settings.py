@@ -27,9 +27,9 @@ with open(os.path.join(BASE_DIR,'secret_key.txt')) as f:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['122.179.129.85', '127.0.0.1']
+ALLOWED_HOSTS = ['122.179.129.85', '127.0.0.1', 'mahidiagnostics.in', 'www.mahidiagnostics.in' ]
 
 
 # Application definition
