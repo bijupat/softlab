@@ -3,38 +3,14 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Shortcut Icon -->
-    <link rel="Shortcut Icon" href="{% static 'labsys/logo.png' %}">
 
-    <style>
-      /* rows */
-      div.dropdown-multicol{
-          width: 30em;
-        }
-        div.dropdown-row>a.dropdown-item{
-          display:inline-block;
-          width: 32%;
-        }
-        
-        /* Columns */
-        div.dropdown-multicol2{
-          width: 30em;
-        }
-        div.dropdown-multicol2>div.dropdown-col{
-          display:inline-block;
-          width: 32%;
-        }
-        
-        /*
-        Or just:
-        div.dropdown-row>a.dropdown-item{
-          display:inline-block;
-          width: 10em;
-        }
-        
-        (Former may be more convenient for responsive)
-        */
-    </style>
+    {% block head %}  {% endblock head %}  
+    <!-- Shortcut Icon -->
+    <link rel="Shortcut Icon" href="{% static 'website/mahi_icon.jpeg' %}">
+    <link href="{% static 'website/layout.css' %}" rel="stylesheet">
+    <script src="{% static 'website/a076d05399.js' %}" defer></script>
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -47,6 +23,7 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #563d7c">
+      <a class="navbar-brand" href="#"><img src="{% static 'website\mahiicon.jpeg' %}" alt="" style="width:40px; height:40px; border-radius: 10px;" class="d-inline-block align-top" alt=""></a>
         <a class="navbar-brand" href="#"><h4>Mahi Diagnostics</h4></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -55,7 +32,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto" >
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" id = "home_nav" href="#">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item dropdown" style="position: initial">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -85,9 +62,9 @@
               </a>
               <div class="dropdown-menu dropdown-multicol2 " aria-labelledby="dropdownMenuButton" style="width: 100%">
                 <div class="dropdown-col">
-                  <a class="dropdown-item" href="#">Oranges</a>
-                  <a class="dropdown-item" href="#">Bananas</a>
-                  <a class="dropdown-item" href="#">Apples</a>
+                  <a class="dropdown-item" href="#">Book a Home Collection</a>
+                  <a class="dropdown-item" href="#">Inquire Price</a>
+                  <a class="dropdown-item" href="#">Book Visit</a>
                 </div>
                 <div class="dropdown-col">
                   <a class="dropdown-item" href="#">Popular Tests/Packages</a>
@@ -95,7 +72,7 @@
                   <a class="dropdown-item" href="#">All Packages</a>
                 </div>
                 <div class="dropdown-col">
-                  <a class="dropdown-item" href="#">Patient Login</a>
+                  <a class="dropdown-item" href="#">Doctor Login</a>
                   <a class="dropdown-item" href="#">Special Offers</a>
                   <a class="dropdown-item" href="#">Feedback</a>
                 </div>
@@ -107,7 +84,7 @@
               </a>
               <div class="dropdown-menu dropdown-multicol2 " aria-labelledby="dropdownMenuButton" style="width: 100%">
                 <div class="dropdown-col">
-                  <a class="dropdown-item" href="#">HMIS</a>
+                  <a class="dropdown-item" href="/lab/">HMIS</a>
                   <a class="dropdown-item" href="#">Inquiry Manangement</a>
                   <a class="dropdown-item" href="#">Visit Management</a>
                 </div>
@@ -124,10 +101,10 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
+              <a class="nav-link" href="#">Infrastructure</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Contact Us</a>
+              <a id="contactus_nav" class="nav-link" href="#">Contact Us</a>
             </li>
           </ul>
           <form class="form-inline my-2 my-lg-0">
