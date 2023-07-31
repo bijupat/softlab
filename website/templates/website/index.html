@@ -4,17 +4,54 @@
 {% block title %}Index{% endblock title%}
 
 {% block head %}
-
+<script src="{% static 'website\index.js' %}" defer></script>
 {% endblock head%}
 
 {% block body %}
 
-<div class="jumbotron">
+<!--id homepage is used to hide it when contact us or other alike menu clicked-->
+<div class ="navmenu" id="homepage">
+  <div class="jumbotron">
     <h1 class="display-4">Welcome to Mahi Diagnostics !</h1>
     <p class="lead">Mahi Diagnostics is an accredited pathological laboratory providing diagnostic and clinical testing services in Ahmedabad. Our mission is to give cost-effective and accurate diagnostic services without compromising on quality. Mahi Diagnostics is committed to good professional practices and quality in its testing services in accordance with applicable national and international norms.</p>
     <hr class="my-4">
     <p>We work with integrity and follow professional ethics in all our operations. We implement and comply with quality systems as per ISO 9001-2000, ISO 15189, applicable GLP, CLSI and WHO guidelines to generate technically valid results and data. We follow a strict strategy to ensure that all personnel involved in the operations are familiar with the policies and procedures of quality management system and implement the same in work.</p>
   </div>
+</div>
+
+
+
+<div id="infra_div" class ="navmenu" style="display: none; ">
+  <div class="jumbotron">
+    <h1 class="display-4">Contact us:</h1>
+     
+    <p class="lead">Ground Floor 14, Shakti Arcade, Sola, Science City Road, Ahmedabad. 380060</p>
+    <p>
+      <i aria-hidden="true" class="fas fa-map-marker" style='color:red'></i> 
+      <a target="_blank"  href="https://goo.gl/maps/i65UASX8qo6rfqM29" ><span aria-hidden="true"></span><span>Get directions</span></a>
+    </p>
+  </div>
+
+</div>
+
+
+
+<!--id index is used to hide it when contact us or other alike menu clicked-->
+<div id="contactus_div" class ="navmenu" style="display: none; ">
+  <div class="jumbotron">
+    <h1 class="display-4">Contact us:</h1>
+     
+    <p class="lead">Ground Floor 14, Shakti Arcade, Sola, Science City Road, Ahmedabad. 380060</p>
+    <p>
+      <i aria-hidden="true" class="fas fa-map-marker" style='color:red'></i> 
+      <a target="_blank"  href="https://goo.gl/maps/i65UASX8qo6rfqM29" ><span aria-hidden="true"></span><span>Get directions</span></a>
+    </p>
+    <hr class="my-4">
+<p><i class="fas fa-mobile-alt" style='color:red'></i> <a href="tel:+917016944046">+91-7016944046</a></p>
+<p><i aria-hidden="true" class="fas fa-phone-alt" style='color:red'></i> <a href="tel:+917948114799">+91-79-48414799</a></p>
+<p><i aria-hidden="true" class="fa fa-envelope" style='color:red'></i> <a href="mailto:bijupat@yahoo.com">mahilab22@gmail.com</a></p>
+  </div>
+</div>
 
 {% endblock body %}
 
