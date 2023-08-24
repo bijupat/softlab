@@ -1,0 +1,56 @@
+{% extends "website/layout.html" %}
+{% load static %}
+
+{% block title %}Get Price{% endblock title%}
+
+{% block head %}
+<link href="{% static 'website/get_price.css' %}" rel="stylesheet">
+<script src="{% static 'website\get_price.css' %}" defer></script>
+{% endblock head%}
+
+{% block body %}
+<div class = "tablediv">
+    <form>
+        <div class="testselecgt">
+            <label for="browser">Choose your Test:</label>
+            <input list="browsers" name="browser" id="browser">
+            <datalist id="browsers">
+              <option value="Edge">
+              <option value="Firefox">
+              <option value="Chrome">
+              <option value="Opera">
+              <option value="Safari">
+            </datalist>
+        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>        
+        <button type="submit" class="btn btn-primary">Add Test</button>
+      </form>
+</div>
+<div class = "tablediv">
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Test</th>
+            <th scope="col">Amout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>CBC</td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <th scope="row">1</th>
+            <td>Total</td>
+            <td>100</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+
+
+
+
+{% endblock body %}

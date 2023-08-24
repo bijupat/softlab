@@ -7,4 +7,5 @@ app_name = 'website'
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path('get_price/', views.get_price, name = 'getprice'),
 ]
