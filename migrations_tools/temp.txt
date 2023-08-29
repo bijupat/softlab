@@ -1,0 +1,36 @@
+2023-06-15 14:10:00 :4237 : I-196-22 : Momammad Shahan  Parwala 13.0000 Years/M:  :  
+Patient Already in Database
+451
+RefDr Already in Database 
+493
+     chargeitem : LIC J FMR
+TestKey  :  1978025
+InvKey  :  137767
+RepoKey  :  148169
+Test  :  weight gm
+TestID  :  weight
+Result  :  
+Options  :  
+Analyzer  :  
+AnaTest  :  
+Normals  :  None
+OPRKey  :  None
+nLow  :  None
+nHigh  :  None
+Dept  :  MEDICAL
+EOrder  :  1
+Formula  :  
+VRule  :  35<[weight] and [weight]<130
+VMsg  :  check weight
+PrintInCard  :  False
+Uploaded  :  False
+Test4SMS  :  Wt(gm)
+SMSStatus  :  
+CalcTest  :  False
+VRuleMust  :  True
+Visible2All  :  True
+TATinMM  :  30
+____________
+obdef None
+***************************************************************************************************
+Finally, BOTH connection closed.

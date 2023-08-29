@@ -1,0 +1,34 @@
+2023-06-15 13:54:00 :4236 : I-195-22 : Sapna  Agrawal 51.0000 Years/F:  :  
+Patient Already in Database
+450
+RefDr Already in Database 
+493
+     chargeitem : LIC TSH
+TestKey  :  1977984
+InvKey  :  137765
+RepoKey  :  148167
+Test  :  Time
+TestID  :  time
+Result  :  
+Options  :  B|4:00 PM|A|8:00 AM
+Analyzer  :  
+AnaTest  :  
+Normals  :  None
+OPRKey  :  None
+nLow  :  None
+nHigh  :  None
+Dept  :  GEN
+EOrder  :  1
+Formula  :  
+VRule  :  
+VMsg  :  
+PrintInCard  :  False
+Uploaded  :  False
+Test4SMS  :  
+SMSStatus  :  
+CalcTest  :  False
+VRuleMust  :  False
+Visible2All  :  True
+TATinMM  :  0
+____________
+New ObDef Added

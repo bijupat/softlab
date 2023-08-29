@@ -4,49 +4,49 @@
 {% block title %}Get Price{% endblock title%}
 
 {% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet">
 <link href="{% static 'website/get_price.css' %}" rel="stylesheet">
-<script src="{% static 'website\get_price.css' %}" defer></script>
+<script src="{% static 'website\get_price.js' %}" defer></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.full.min.js" defer></script>
+
 {% endblock head%}
 
 {% block body %}
+
+
 <div class = "tablediv">
-    <form>
-        <div class="testselecgt">
-            <label for="browser">Choose your Test:</label>
-            <input list="browsers" name="browser" id="browser">
-            <datalist id="browsers">
-              <option value="Edge">
-              <option value="Firefox">
-              <option value="Chrome">
-              <option value="Opera">
-              <option value="Safari">
-            </datalist>
-        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>        
-        <button type="submit" class="btn btn-primary">Add Test</button>
-      </form>
+  <div class="testselecgt" >
+    <select name="test" id="test_select"  >
+      <option hidden data-price=0 >Select test...</option>
+      {% for pli in  context %}
+      <option data-price={{pli.Price}}>{{pli.Test}}</option>
+      {% endfor %}
+    </select>
+    <small id="emailHelp" class="form-text text-muted">For Additional Discount send Inquiry</small>
+  </div>        
+  <button id="addtest" class="btn btn-primary">Add Test</button>
+  <button id="resetlist" class="btn btn-primary">Reset</button>
+
+
 </div>
-<div class = "tablediv">
+
+<div id = "tablediv" class = "tablediv">
     <table class="table table-hover">
         <thead>
           <tr>
-            <th scope="col">#</th>
             <th scope="col">Test</th>
             <th scope="col">Amout</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <th scope="row">1</th>
-            <td>CBC</td>
-            <td>100</td>
-          </tr>
-          <tr>
-            <th scope="row">1</th>
-            <td>Total</td>
-            <td>100</td>
-          </tr>
+        <tbody id = "pricetablebody">
         </tbody>
+        <tfoot>
+          <tr>
+            <td>Total</td>
+            <td id="total">0</td>
+          </tr>
+        </tfoot>
       </table>
 </div>
 

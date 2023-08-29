@@ -1,0 +1,38 @@
+Add chargeitemdefination and observationdefinations
+Add users
+
+
+Find name
+	if:
+		already name and given under patient fetch patient id
+	else:
+		add new patient
+		add name with patientid
+		add telecome with patientid		
+		return patientid
+
+find ref dr
+	if:
+		already name under refdr return refdrid
+	else:
+		add new refdr
+		add name with refdrid
+		add telecome with refdrid		
+		return refdrid
+
+find chargeitemdefinations(tests)
+
+find user
+
+add encounter with 
+
+	user C:\docs\brij\softlab\softlab\labsys\utilfunctions.py register_encounter function for ref
+	needed ref are :
+	
+	Patient, Practitioner, Tests, Discount, Payment, Account, User
+
+
+add results and status in observations
+
+
+	
