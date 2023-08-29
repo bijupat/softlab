@@ -1,21 +1,74 @@
 /* rows */
-div.dropdown-multicol{
+  div.dropdown-multicol{
     width: 30em;
+
   }
   div.dropdown-row>a.dropdown-item{
     display:inline-block;
     width: 32%;
-  }
-  
+  }  
   /* Columns */
   div.dropdown-multicol2{
     width: 30em;
+    border-radius: 20px;
+    padding: 0px;
+    margin: 0 px;
+    /*
+    background-color: #563d7c;
+    border: #563d7c;
+    align-content: center;
+    */
   }
   div.dropdown-multicol2>div.dropdown-col{
     display:inline-block;
     width: 32%;
   }
+
+  /*dropdawn menu in layout.html navbarmenu */
+  a.dropdown-item{
+    border: #563d7c;
+    color: #563d7c;
+    border-style: solid;
+    padding : 0px;
+    border-width: 1px;
+    background-color: #ffffff;
+    margin: 4px;
+    border-radius: 20px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+  }
+  a.dropdown-item:hover {
+    background-color : #563d7c;
+    color : #ffffff;
+    font-weight: bold;
+
+
+  }
   
+  /*nav  menu in index.html in aboutus section*/
+  a.flex-sm-fill{
+    border: #563d7c;
+    color: #563d7c;
+    border-style: solid;
+    padding : 0px;
+    border-width: 1px;
+    background-color: #ffffff;
+    margin: 4px;
+    border-radius: 20px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+  }
+  a.flex-sm-fill:hover {
+    background-color : #563d7c;
+    color : #ffffff;
+    font-weight: bold;
+
+
+  }
   /*
   Or just:
   div.dropdown-row>a.dropdown-item{
@@ -25,3 +78,4 @@ div.dropdown-multicol{
   
   (Former may be more convenient for responsive)
   */
+

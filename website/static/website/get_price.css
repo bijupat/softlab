@@ -1,0 +1,18 @@
+.tablediv{
+    border: #563d7c;
+    color: #563d7c;
+    border-style: solid;
+    padding : 4px;
+    border-width: 1px;
+    background-color: #ffffff;
+    margin: 50px;
+    border-radius: 20px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.testselecgt{
+    padding : 40px;
+
+}
