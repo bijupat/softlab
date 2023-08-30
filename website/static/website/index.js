@@ -22,7 +22,7 @@
             });
             // get id of div to be displayed from dataset attr of element
             let id = element.dataset.divid;
-            console.log(id);
+            //console.log(id);
             document.querySelector(`#${id}`).style.display = "block";
 
         });

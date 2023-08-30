@@ -12,6 +12,10 @@
     text-overflow: ellipsis;
 }
 
+#test_select{
+    width:100%;
+
+}
 .testselecgt{
     padding : 40px;
 
