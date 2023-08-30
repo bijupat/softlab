@@ -4,7 +4,7 @@ $(function () {
 
 
 (function(){   
-    
+    document.querySelector('#tablediv').style.display = "none";
     document.querySelector('#addtest').addEventListener("click", function(event){
         event.preventDefault();
         //console.log(event.target);
@@ -23,6 +23,8 @@ $(function () {
         total = document.querySelector("#total").innerHTML;
         total = parseInt(total) + parseInt(price);
         document.querySelector("#total").innerHTML = total;
+        document.querySelector('#tablediv').style.display = "block";
+
 
     });
 
@@ -45,6 +47,7 @@ $(function () {
                   </tfoot>
                 </table>`
       document.querySelector('#tablediv').innerHTML= htmltext;
+      document.querySelector('#tablediv').style.display = "none";
     });
     
 
