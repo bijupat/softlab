@@ -1,0 +1,36 @@
+{% extends "website/layout.html" %}
+{% load static %}
+
+{% block title %}Profiles{% endblock title%}
+
+{% block head %}
+
+{% endblock head%}
+
+{% block body %}
+
+<div style = "padding:10px; margin:10px ;">
+    <div class="row" style = "padding:10px; margin:10px ;">
+        {% for profile in  context %}
+        <div class="col-sm-4">
+        <div class="card" style = "padding:10px; margin:10px ;">
+            <div class="card-body">
+            <h5 class="card-title">{{profile.Profile}}</h5>
+            <p class="card-text">
+                <ul class="list-group">
+                    {% for test in profile.Test|split:"/" %}
+                    <li class="list-group-item">{{ test }}</li>
+                    {% endfor %}
+                </ul>
+            </p>
+            <p class="card-text">Rs : {{profile.Price}}</p>
+            <a href= "{% url 'website:contactus' %}" class="btn btn-primary">Contact Us</a>
+            </div>
+        </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock body %}
+
+

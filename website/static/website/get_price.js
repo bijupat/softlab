@@ -12,7 +12,7 @@ $(function () {
         let selected_option = element.options[element.selectedIndex]
         let price = selected_option.getAttribute("data-price");
         let test = selected_option.value;
-        let first_option = element.options[0];
+        //let first_option = element.options[0];
 
         //console.log(test, price);
         element = document.querySelector("#pricetablebody");
