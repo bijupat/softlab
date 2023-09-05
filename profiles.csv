@@ -1,0 +1,26 @@
+Profile,Test,Price
+Dengue (Rapid),Dengue Ns1Ag(Rapid)/Dengue IgM(Rapid)/Dengue IgG(Rapid),500
+Fever Profile With Dengue(Rapid),"CBC/SGPT/CRP/Dengue Ns1Ag, IgG, IgM (Rapid)/ MP Antigen/Widal/Urine RM",1100
+Fever Profile With Dengue(ELISA),"CBC/SGPT/CRP/Dengue Ns1Ag, IgG, IgM (ELISA)/ MP Antigen/Widal/Urine RM",1800
+Fever Profile With Dengue(RTPCR),CBC/SGPT/CRP/Dengue RTPCR/ MP Antigen/Widal/Urine RM,2250
+Fever Profile ,"CBC, MP/SGPT/WIDAL/URINE RM",350
+Health Scan Level I,CBC/FBS/RBS/Total Cholesterol/Creatinine/SGPT/Urine RM,450
+Health Scan Level II,CBC/Diabetes Testing (Only Fasting)/Kidney Function testing/Lipid profileLiver Function Testing/Urine RM,850
+Health Scan Level III,CBC/Diabetes Testing/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/Urine RM,1200
+Health Scan Level IV,"CBC/Diabetes Testing/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/ Electrolytes/Thyroid Check (Female)/Prostate Check (Male)/ Urine RM
+","2000 (Female) 2100
+(Male)
+"
+"Arthritic Profile
+(Bone & Joint Check
+",CBC ESR/CALCIUM /URIC ACID/RA (RF) Quantitative,550
+RENAL FUNCTION TEST,"UREA/CREATININE/PROTEIN (Albumin, Globulin, AG)/Electrolytes",400
+LIVER FUNCTION TEST(without PT),"SGPT/SGOT/Alkaline Phosphates/PROTEIN (Albumin, Globulin, AG)/Bilirubin (Total, Direct & Indirect) /URINE RM",450
+LIVER FUNCTION TEST (With PT),"SGPT/SGOT/Alkaline Phosphates/PROTEIN (Albumin, Globulin, AG)/Bilirubin (Total, Direct & Indirect) /PT/URINE RM",550
+PRE-OP PROFILE (MINOR),CBC/RBS /CREATININE/HIV & HBSAG/BLOOD GROUP/URINE RM,500
+PRE-OP PROFILE (MAJOR),"CBC/RBS /CREATININE/SGPT/PT/NA, K /HIV & HBSAG/BLOOD GROUP/URINE RM",800
+ANTENATALPROFILE,CBC/RBS /CREATININE/HIV & HBSAG/BLOOD GROUP/URINE RM,500
+Medical Horoscope,CBC /Thalassaemias Screening (Based on RBC indices)/Infectious Disease Check/Blood Group/Urine RM,"800 Single 1500Couple
+"
+Diabetic profile,Diabetic testing/Lipid profile/GlycoHb (HBA1c)/Urine microalbumin/Kidney Function Check/Urine RM,850
+Cardiac profile,Diabetic testing/Lipid profile/Sgpt/Kidney Function Check/Homocysteine/Hscrp,1500
