@@ -25,7 +25,7 @@ def get_price(request):
     if request.method == "POST":
         pass    
     context = []
-    with open(os.path.join(BASE_DIR,'price.csv')) as file:
+    with open(os.path.join(BASE_DIR,'pricelist.csv')) as file:
         reader = csv.DictReader(file)
         for row in reader:
             context.append(row)

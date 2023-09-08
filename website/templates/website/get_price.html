@@ -17,16 +17,16 @@
 
 <div class = "tablediv">
   <div class="testselecgt" >
-    <select name="test" id="test_select"  >
-      <option hidden data-price=0 >Select test...</option>
+    <select name="test" id="test_select" autofocus  >
+      <option hidden default data-aapm =0 data-price=0 >Select test...</option>
       {% for pli in  context %}
-      <option data-price={{pli.Price}}>{{pli.Test}}</option>
+      <option data-aapm={{pli.Aapm}} data-price={{pli.Price}}>{{pli.Test}}</option>
       {% endfor %}
     </select>
     <small id="emailHelp" class="form-text text-muted">For Additional Discount send Inquiry</small>
   </div>        
   <button id="addtest" class="btn btn-primary">Add Test</button>
-  <button id="resetlist" class="btn btn-primary">Reset</button>
+  <a  href="{% url 'website:getprice' %}" class="btn btn-primary">Reset</a>
 </div>
 
 <div id = "tablediv" class = "tablediv">
@@ -34,15 +34,19 @@
         <thead>
           <tr>
             <th scope="col">Test</th>
-            <th scope="col">Amout</th>
+            <th scopce="col">Reg Price</th>
+            <th scope="col">Discount</th>
+            <th scope="col">Net Price</th>
           </tr>
         </thead>
         <tbody id = "pricetablebody">
         </tbody>
         <tfoot>
-          <tr>
+          <tr  id = "trtotal">
             <td>Total</td>
-            <td id="total">0</td>
+            <td id ="totalreg">0</td>
+            <td id="totaldisc">0</td>            
+            <td id="totalnet">0</td>
           </tr>
         </tfoot>
       </table>

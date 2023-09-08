@@ -5,7 +5,7 @@
     padding : 4px;
     border-width: 1px;
     background-color: #ffffff;
-    margin: 50px;
+    margin: 20px;
     border-radius: 20px;
     text-align: center;
     overflow: hidden;
@@ -13,10 +13,16 @@
 }
 
 #test_select{
-    width:100%;
+    display: inline-block; 
+    width: 300px;
+    text-align: left;
 
 }
 .testselecgt{
-    padding : 40px;
+    padding : 20px;
 
+}
+
+#trtotal{
+    background-color: rgb(214, 205, 232);
 }
