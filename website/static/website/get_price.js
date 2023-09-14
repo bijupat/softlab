@@ -36,6 +36,7 @@ $(function () {
         totalnet = document.querySelector("#totalnet").innerHTML;
         totalnet = parseInt(totalnet) + parseInt(netprice);
         document.querySelector("#totalnet").innerHTML = totalnet;
+        
         document.querySelector('#tablediv').style.display = "block";
 
         //hide the selected option         
