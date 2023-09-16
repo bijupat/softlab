@@ -6,9 +6,11 @@ Fever Profile With Dengue(RTPCR),CBC/SGPT/CRP/Dengue RTPCR/ MP Antigen/Widal/Uri
 Fever Profile ,"CBC, MP/SGPT/WIDAL/URINE RM",350
 Health Scan Level I,CBC/FBS/RBS/Total Cholesterol/Creatinine/SGPT/Urine RM,450
 Health Scan Level II,CBC/Diabetes Testing (Only Fasting)/Kidney Function testing/Lipid profile/Liver Function Testing/Urine RM,850
-Health Scan Level III,CBC/Diabetes Testing/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/Urine RM,1200
-Health Scan Level IV,"CBC/Diabetes Testing/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/ Electrolytes/Thyroid Check (Female)/Prostate Check (Male)/ Urine RM
-","2000 (Female) 2100
+Health Scan Level III,CBC/FBS & PPBS/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/Urine RM,1200
+Health Scan Level IV,"CBC/FBS & PPBS/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/ Electrolytes/TSH/PSA/ Urine RM
+",
+Comprehensive Health Scan,"CBC/FBS & PPBS/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/ Electrolytes/T3, T4, TSH/PSA/Vit B12 & D3/HIV & HbsAg/Urine RM
+","2500 (Female) 2600
 (Male)
 "
 "Arthritic Profile
