@@ -60,8 +60,20 @@ def aboutus(request):
 
     return render(request, 'website/aboutus.html')
 
+def privacy(request):
+    if request.method == "POST":
+        pass
+
+    return render(request, 'website/privacy.html')
+
 def camp(request):
     if request.method == "POST":
         pass
 
     return render(request, 'website/camp.html')
+
+def termsconditions(request):
+    if request.method == "POST":
+        pass
+
+    return render(request, 'website/termsconditions.html')
