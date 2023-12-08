@@ -8,7 +8,9 @@ Health Scan Level I,CBC/FBS/RBS/Total Cholesterol/Creatinine/SGPT/Urine RM,450
 Health Scan Level II,CBC/Diabetes Testing (Only Fasting)/Kidney Function testing/Lipid profile/Liver Function Testing/Urine RM,850
 Health Scan Level III,CBC/FBS & PPBS/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/Urine RM,1200
 Health Scan Level IV,"CBC/FBS & PPBS/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/ Electrolytes/TSH/PSA/ Urine RM
-",
+","2000 (Female) 2100
+(Male)
+"
 Comprehensive Health Scan,"CBC/FBS & PPBS/Kidney Function testing/Lipid profile/Liver Function Testing/Bone & Joint Check/ Electrolytes/T3, T4, TSH/PSA/Vit B12 & D3/HIV & HbsAg/Urine RM
 ","2500 (Female) 2600
 (Male)
