@@ -4,6 +4,9 @@
 {% block title %}Get Price{% endblock title%}
 
 {% block head %}
+
+
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet">
 <link href="{% static 'website/get_price.css' %}" rel="stylesheet">
 <script src="{% static 'website\get_price.js' %}" defer></script>
@@ -14,6 +17,11 @@
 
 {% block body %}
 
+<div class="tablediv">
+  <a type="button" href="{% url 'website:profiles' %}" class="btn btn-outline-secondary">View Profiles</a>
+  <a type="button" href="{% url 'website:pricelistview' %}" class="btn btn-outline-secondary">Dawnload Price List</a>
+  <a type="button" href="{% url 'website:profilespreview' %}" class="btn btn-outline-secondary">Dawnload Prolies</a>
+</div>
 
 <div class = "tablediv">
   <div class="testselecgt" >
@@ -25,8 +33,8 @@
     </select>
     <small id="emailHelp" class="form-text text-muted">For Additional Discount send Inquiry</small>
   </div>        
-  <button id="addtest" class="btn btn-primary">Add Test</button>
-  <a  href="{% url 'website:getprice' %}" class="btn btn-primary">Reset</a>
+  <button id="addtest" class="btn btn-outline-secondary">Add Test</button>
+  <a  href="{% url 'website:getprice' %}" class="btn btn-outline-secondary">Reset</a>
 </div>
 
 <div id = "tablediv" class = "tablediv">

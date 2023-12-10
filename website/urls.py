@@ -15,5 +15,7 @@ urlpatterns = [
     path('camp/', views.camp, name = 'camp'),
     path('privacy/', views.privacy, name = 'privacy'),
     path('termsconditions/', views.termsconditions, name = 'termsconditions'),
+    path('profilespreview/', views.profilespreview, name='profilespreview'),
+    path('pricelistview/', views.pricelistview, name='pricelistview'),
 
 ]

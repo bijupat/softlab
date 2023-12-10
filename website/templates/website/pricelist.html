@@ -1,0 +1,117 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+    <!-- Need to add all head elements as this file donot inherit from layout.html -->
+
+    <title>Mahi Diagnostics Pricelist</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+
+
+
+    <!-- Shortcut Icon -->
+    <link rel="Shortcut Icon"  href="{% static 'website/mahi_icon.jpeg' %}">
+
+    <style type="text/css">
+        @page {
+            size: a4 portrait;
+            
+            /* Static Frame */
+            @frame header_frame {          
+                -pdf-frame-content: header_content;
+                left: 50pt; width: 512pt; top: 20pt; height: 50pt;
+                text-align: center;
+            }
+            /* Content Frame */
+            
+            @frame col1_frame {             /* Content frame 1 */
+                left: 50pt; width: 260pt; top: 70pt; height: 740pt;
+            }
+            @frame col2_frame {             /* Content frame 2 */
+                left: 320pt; width: 260pt; top: 70pt; height: 740pt;
+            }
+            /* Another static Frame */
+            @frame footer_frame {           
+                -pdf-frame-content: footer_content;
+                left: 50pt; width: 512pt; top: 805pt; height: 20pt;
+            }
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 1px;
+            margin: 1px;
+
+        }
+        .test{
+            width: 260px;
+            text-align: left;
+
+        }
+
+        .price{
+            width: 50px;
+            text-align: center;
+
+        }
+
+        #header_content{
+            text-align: center;
+            color: red;
+            font-family:Arial, Helvetica, sans-serif;
+            font-size:12px;
+        }
+
+
+        #footer_content{
+            text-align: center;
+            color: purple;
+            padding: 1px;
+            margin: 1px;
+        }
+        .header{
+            font-size:25px;
+            font-weight:bold;
+
+        }
+
+    </style>
+</head>
+<body>
+
+<!--Header-->
+<div id="header_content">
+        <span class = "header">Mahi Diagnostics</span>
+        <br>
+        Ground Floor 14, Shakti Arcade, Sola, Science City Road, Ahmedabad. 380060
+        <br>
+        +91-7016944046
+</div>
+
+<!--Content-->
+<div>
+    <table>
+        <tr>
+            <th class="test">Test</th>
+            <th class="price">Price</th>
+        </tr>
+        {% for pli in  context %}
+        <tr>
+            <td class="test">{{pli.Test}}</td>
+            <td class="price">{{pli.Price}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+<!-- Content for Static Frame 'footer_frame' -->
+<div id="footer_content">
+    This is valid as on {% now "jS F Y" %}. For latest please visit www.mahidiagnostics.in
+</div>
+
+</body>
+</html>
+            

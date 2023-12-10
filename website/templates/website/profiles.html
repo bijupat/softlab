@@ -4,10 +4,18 @@
 {% block title %}Profiles{% endblock title%}
 
 {% block head %}
+<link href="{% static 'website/get_price.css' %}" rel="stylesheet">
 
 {% endblock head%}
 
 {% block body %}
+
+
+<div class="tablediv">
+    <a type="button" href="{% url 'website:getprice' %}" class="btn btn-outline-secondary">Inquire Price</a>
+    <a type="button" href="{% url 'website:pricelistview' %}" class="btn btn-outline-secondary">Dawnload Price List</a>
+    <a type="button" href="{% url 'website:profilespreview' %}" class="btn btn-outline-secondary">Dawnload Prolies</a>
+</div>
 
 <div style = "padding:10px; margin:10px ;">
     <div class="row" style = "padding:10px; margin:10px ;">
