@@ -17,5 +17,6 @@ urlpatterns = [
     path('termsconditions/', views.termsconditions, name = 'termsconditions'),
     path('profilespreview/', views.profilespreview, name='profilespreview'),
     path('pricelistview/', views.pricelistview, name='pricelistview'),
+    path('managevisit/', views.manage_visit, name='managevisit'),
 
 ]

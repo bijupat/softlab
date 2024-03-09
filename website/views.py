@@ -1,11 +1,15 @@
 from django.shortcuts import render, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-import csv
-import os
+#from django.views.decorators.csrf import csrf_exempt
+import csv, requests, os
+#import os
 from django.template.defaulttags import register
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django_xhtml2pdf.utils import pdf_decorator
+from .forms import  PatientRegistration
+#from django.http import HttpResponseRedirect
+#from django.urls import reverse
+from .models import Patient, Appointment
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -88,14 +92,49 @@ def profiles(request):
 
 def book_visit(request):
     if request.method == "POST":
-        pass
+        form = PatientRegistration(request.POST)
+        if form.is_valid():
+            fname = form.cleaned_data["f_name"].title()
+            mname = form.cleaned_data["m_name"].title()
+            lname = form.cleaned_data["l_name"].title()
+            gender = form.cleaned_data["gender"]
+            birth_date = form.cleaned_data["birth_date"]
+            mobile = form.cleaned_data["mobile"]
+            email = form.cleaned_data["email"].lower()
+            visit_time = form.cleaned_data["visit_time"]
+            tests = form.cleaned_data["tests"].title()
+            address = form.cleaned_data["address"].title()
+            new_patient = Patient(f_name = fname, m_name = mname, l_name = lname, mobile = mobile, email = email, gender = gender,  birthDate = birth_date , address = address )
+            new_patient.save()
+            new_appointment = Appointment(time = visit_time, subject = new_patient, tests = tests )
+            new_appointment.save()
+            SMSText = f"Respected {fname} {lname}, Your Appointment on {visit_time} for blood tests {tests} is booked. Address: {address} Call 7016944046 if any query MEDI LAB"
+            #SMSText = f"Patient Name: {fname} {lname} Ref No: {visit_time} Reports is: {tests} Call: {mobile} For Any Query Contact,MEDILAB DIAGNOSTIC"
+            url_pat = f"https://onlysms.co.in/api/sms.aspx?UserID=MediLB&UserPass=Gurudev@101&MobileNo=91{mobile}&GSMID=MEDIDC&PEID=1301161848129500767&Message={SMSText}&UNICODE=TEXT"            
+            url_lab = f"https://onlysms.co.in/api/sms.aspx?UserID=MediLB&UserPass=Gurudev@101&MobileNo=919909016867&GSMID=MEDIDC&PEID=1301161848129500767&Message={SMSText}&UNICODE=TEXT"            
+            print(SMSText)
+            print(url_lab)
+            responce = requests.get(url_lab) 
+            print(responce.status_code)
+            print(responce.text)
+            return render(request, 'website/thankyou.html',{"patient": form.cleaned_data,})
+        # if form is not valid
+        else:
+            return render(request, 'website/book_visit.html', {"form": form, "message":form.errors })   
+    # if request method get
+    return render(request, 'website/book_visit.html',{ "form": PatientRegistration, })
 
-    return render(request, 'website/book_visit.html')
+def manage_visit(request):
+    if request.method == "POST":
+        pass
+    
+    appointments  = Appointment.objects.all()
+    return render(request, 'website/view_visit.html',{"appointments": appointments})
 
 def contactus(request):
     if request.method == "POST":
         pass
-
+    
     return render(request, 'website/contactus.html')
 
 def aboutus(request):

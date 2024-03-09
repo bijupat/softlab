@@ -439,7 +439,7 @@ def regi_appointment(request, pat_id):
         else:
             return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form, "message":form.errors })   
     # if request method get
-    return render(request, 'labsys/add_Appointment.html', { "pat_id":pat_id, "form": AppointmentRegistration })
+    return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": AppointmentRegistration })
 
 
    

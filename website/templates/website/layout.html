@@ -63,10 +63,10 @@
                 </div>
                 <div class="dropdown-col">
                   <a class="dropdown-item navmenu"  href="{% url 'website:profiles' %}">Common Profiles</a>
-                  <!--
-                  <a class="dropdown-item navmenu" href="{% url 'website:bookvisit' %}">Book a Home Collection</a>
-                  <a class="dropdown-item navmenu" href="#">Special Offers</a>
-                  <a class="dropdown-item navmenu" href="#">Feedback</a>
+                   <!--
+                    <a class="dropdown-item navmenu" href="{% url 'website:bookvisit' %}">Book a Home Collection</a>
+                    <a class="dropdown-item navmenu" href="#">Special Offers</a>
+                    <a class="dropdown-item navmenu" href="#">Feedback</a>
                   -->
                 </div>
               </div>
@@ -115,7 +115,7 @@
                   -->
                 </div>
                 <div class="dropdown-col">
-                  <a class="dropdown-item navmenu" href="#">Manage Visit</a>
+                  <a class="dropdown-item navmenu" href="{% url 'website:managevisit' %}">Manage Visit</a>
                   <!--
                   <a class="dropdown-item navmenu" href="#">Special Offers</a>
                   <a class="dropdown-item navmenu" href="#">Feedback</a>
@@ -128,8 +128,9 @@
               <a class="nav-link navmenu" data-divid="divaboutus" href="{% url 'website:aboutus' %}">About Us</a>
             </li>
             <li class="nav-item">
-              <a id="contactus_nav" data-divid="divcontactus"class="nav-link navmenu" href="{% url 'website:contactus' %}">Contact Us</a>
+              <a id="contactus_nav" data-divid="divcontactus" class="nav-link navmenu" href="{% url 'website:contactus' %}">Contact Us</a>
             </li>
+
           </ul>
           <!-- 
             <form class="form-inline my-2 my-lg-0">
@@ -138,7 +139,10 @@
           </form>
            -->
         </div>
+        <a href="{% url 'website:bookvisit' %}" class="nav-link navmenu btn btn-outline-warning" ><img src="{% static 'website/calendar-icon.png' %}"> Book Home Collection </a>
+
       </nav>
+
     {% block body %}  {% endblock body %}  
     
   

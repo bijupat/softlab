@@ -8,8 +8,6 @@ from datetime import date
 #from django.contrib.postgres.fields import JSONField
 from django.db.models import Sum
 
-
-
 # phone | fax | email | pager | url | sms | other
 Telecom_system =(
     ("P", "phone"),
@@ -289,8 +287,7 @@ class Patient(models.Model):
                 if tele.system == "E":
                     return '{}'.format(tele.value)
 
-    def __str__(self):
-  
+    def __str__(self):  
             return f'Patient id : {self.id}'
 
 class Organization (models.Model):
@@ -897,7 +894,7 @@ class RecurrenceTemplate(models.Model):
             return 'RecurrenceTemplate id {}'.format(self.id)
     
 class Appointment(models.Model):
-    #  active | cancelled | draft | entered-in-error
+    #  proposed | pending | booked | arrived | fulfilled | cancelled | noshow | entered-in-error | checked-in | waitlist|
     status = models.CharField(max_length=75, blank=True, null=True, default='B', choices=appointment_status)
     cancelationreason = models.CharField(max_length=75, blank=True, null=True)
     #The specialty of a practitioner that would be required to perform the service requested in this appointment eg ecg, mer 
