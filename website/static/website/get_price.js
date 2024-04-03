@@ -10,10 +10,10 @@ $(function () {
         //console.log(event.target);
         let element = document.querySelector('#test_select')
         let selected_option = element.options[element.selectedIndex]
-        let netprice = selected_option.getAttribute("data-price");
-        let regprice = selected_option.getAttribute("data-aapm");
-        let disc = parseInt(regprice) - parseInt(netprice);
-
+        let netprice = parseInt(selected_option.getAttribute("data-price"));
+        let regprice = parseInt (selected_option.getAttribute("data-aapm"));
+        let disc = parseInt(regprice- netprice);
+        console.log(disc)
         let test = selected_option.value;
         //let first_option = element.options[0];
 
@@ -25,16 +25,16 @@ $(function () {
                         <td>${disc}</td>
                         <td>${netprice}</td>`;
         element.append(tr);
-        totalreg = document.querySelector("#totalreg").innerHTML;
-        totalreg = parseInt(totalreg) + parseInt(regprice);
+        totalreg = parseInt(document.querySelector("#totalreg").innerHTML);
+        totalreg = totalreg + regprice;
         document.querySelector("#totalreg").innerHTML = totalreg;
 
-        totaldisc = document.querySelector("#totaldisc").innerHTML;
-        totaldisc = parseInt(totaldisc) + parseInt(disc);
+        totaldisc = parseInt(document.querySelector("#totaldisc").innerHTML);
+        totaldisc = totaldisc + disc;
         document.querySelector("#totaldisc").innerHTML = totaldisc;
 
-        totalnet = document.querySelector("#totalnet").innerHTML;
-        totalnet = parseInt(totalnet) + parseInt(netprice);
+        totalnet = parseInt(document.querySelector("#totalnet").innerHTML);
+        totalnet = totalnet + netprice;
         document.querySelector("#totalnet").innerHTML = totalnet;
         
         document.querySelector('#tablediv').style.display = "block";
