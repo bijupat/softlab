@@ -1,63 +1,86 @@
 {% extends "labsys/layout.html" %}
-{% block title %}{{chargeitem.definitionCanonical.title}}/{{chargeitem.context.patient}}{% endblock %}
+{% block title %}
+    {{ chargeitem.definitionCanonical.title }}/{{ chargeitem.context.patient }}
+{% endblock title %}
 {% block body %}
-    {% if message %}
-    <div>{{ message }}</div>
-    {% endif %}
-    <h4>{{chargeitem.context.patient}} </h4>
-    <h5>{{chargeitem.definitionCanonical.title}} ({{chargeitem.definitionCanonical.alias|default:""}})</h5>
+    {% if message %}<div>{{ message }}</div>{% endif %}
+    <h4>{{ chargeitem.context.patient }}</h4>
+    <h5>{{ chargeitem.definitionCanonical.title }} ({{ chargeitem.definitionCanonical.alias|default:"" }})</h5>
     <hr>
     <form action="{% url 'labsys:observationedit' %}" method="post">
         {% csrf_token %}
         <div class="row row-cols-auto">
             <div class="col">Test</div>
             <div class="col">Result</div>
-            <div class="col">Status</div>   
-            <div class="col"> </div>   
-            <div class="col"> </div>   
+            <div class="col">Status</div>
+            <div class="col"></div>
+            <div class="col"></div>
         </div>
         <hr>
-        {% for ob in observations %}    
-                <div class="row row-cols-auto">
-                    <div class="col"><a href="{% url 'labsys:observationdataedit' ob.id %}" >{{ob.testfield.test}}</a></div>
-                    <div class="col">{{ob.value|default:"Not Entered"}}</div>
-                    {% if ob.status == "P" or ob.status == "R" %}
-                        <div class="col">{{ob.get_status_display}}</div>
-                        <div class="col"><input  style="width:25%" class="form-control" name="{{ob.id}}"></div>
-                            {% if ob.value %}
-                            <div class="col"><a href="{% url 'labsys:observationverify' ob.id   %}" class="btn btn-outline-primary btn-sm">Verify</a></div>
-                            {% else %}
-                            <div class="col"><button type="button" class="btn btn-outline-danger btn-sm" disabled>Verify</button></div>
-                            {% endif %}
+        {% for ob in observations %}
+            <div class="row row-cols-auto">
+                <div class="col">
+                    <a href="{% url 'labsys:observationdataedit' ob.id %}">{{ ob.testfield.test }}</a>
+                </div>
+                <div class="col">{{ ob.value|default:"Not Entered" }}</div>
+                {% if ob.status == "P" or ob.status == "R" %}
+                    <div class="col">{{ ob.get_status_display }}</div>
+                    <div class="col">
+                        <input style="width:25%" class="form-control" name="{{ ob.id }}">
+                    </div>
+                    {% if ob.value %}
+                        <div class="col">
+                            <a href="{% url 'labsys:observationverify' ob.id %}"
+                               class="btn btn-outline-primary btn-sm">Verify</a>
+                        </div>
                     {% else %}
-                        <div class="col">{{ob.get_status_display}}</div>
-                        <div class="col"><input   class="form-control" name="{{ob.id}}" size="8"></div>
-                        <div class="col"><a href="{% url 'labsys:observationverify' ob.id   %}" class="btn btn-outline-danger btn-sm">ReVerify</a></div>
+                        <div class="col">
+                            <button type="button" class="btn btn-outline-danger btn-sm" disabled>Verify</button>
+                        </div>
                     {% endif %}
-                </div> 
+                {% else %}
+                    <div class="col">{{ ob.get_status_display }}</div>
+                    <div class="col">
+                        <input class="form-control" name="{{ ob.id }}" size="8">
+                    </div>
+                    <div class="col">
+                        <a href="{% url 'labsys:observationverify' ob.id %}"
+                           class="btn btn-outline-danger btn-sm">ReVerify</a>
+                    </div>
+                {% endif %}
+            </div>
         {% endfor %}
-        <input type = "hidden" name= "chargeitem_id" value = "{{chargeitem.id}}">
-    <div>
-        <br>
-        <table class="table  text-center">
-            <tbody>
-                <tr>
-                    <td scope="col">    <a href= "{% url 'labsys:encounter' chargeitem.context.id   %}" class="btn btn-outline-primary btn-sm">Back</a></td>
-                    {% if is_all_ob_entered %}
-                    {% else %}
-                    <td scope="col"><input  class="btn btn-outline-primary btn-sm" type= "submit" value = "Update" ></td>
-                    {% endif %}
-    </form> 
-    <form action="{% url 'labsys:observationverifyall' %}" method="post">
-                    {% csrf_token %}
-                    <input type = "hidden" name= "chargeitem_id" value = "{{chargeitem.id}}">
-                    {% if is_all_ob_entered and not is_all_ob_final_or_above  %}
-                    <td scope="col"><input  class="btn btn-outline-primary btn-sm" type= "submit" value = "Verify All"></td>
-                    {% else %}
-                    {% endif %}
+        <input type="hidden" name="chargeitem_id" value="{{ chargeitem.id }}">
+        <div>
+            <br>
+            <table class="table  text-center">
+                <tbody>
+                    <tr>
+                        <td scope="col">
+                            <a href="{% url 'labsys:encounter' chargeitem.context.id %}"
+                               class="btn btn-outline-primary btn-sm">Back</a>
+                        </td>
+                        {% if is_all_ob_entered %}
+                        {% else %}
+                            <td scope="col">
+                                <input class="btn btn-outline-primary btn-sm" type="submit" value="Update">
+                            </td>
+                        {% endif %}
+                    </form>
+                    <form action="{% url 'labsys:observationverifyall' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="chargeitem_id" value="{{ chargeitem.id }}">
+                        {% if is_all_ob_entered and not is_all_ob_final_or_above %}
+                            <td scope="col">
+                                <input class="btn btn-outline-primary btn-sm"
+                                       type="submit"
+                                       value="Verify All">
+                            </td>
+                        {% else %}
+                        {% endif %}
+                    </form>
                 </tr>
             </tbody>
         </table>
     </div>
-
 {% endblock %}

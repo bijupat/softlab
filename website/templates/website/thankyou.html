@@ -1,46 +1,50 @@
 {% extends "website/layout.html" %}
 {% load static %}
-
-{% block title %} Thank you !!{% endblock title%}
-
-
-
+{% block title %}
+    Thank you !!
+{% endblock title %}
 {% block body %}
-<div class="jumbotron">
-    <div class="main-content" >
-        <h1 class="display-4 text-center" style = "font-family: 'Lucida Handwriting', Times, serif;"  >Thank You!</h1>
-        <h1 class = "text-center" style='color:rgb(82, 212, 43); '><i class="fa fa-check " ></i></h1>
-        <div class="card text-center" style='color:rgb(95, 89, 168);'>
-            <div class="card-header">
-                <h3>We’re so happy you choose Mahi Diagnostics !</h3>
-                <h3>Your Visit is confirmed ! Please review your visit details below.</h3> 
+    <div class="jumbotron">
+        <div class="main-content">
+            <h1 class="display-4 text-center"
+                style="font-family: 'Lucida Handwriting', Times, serif">Thank You!</h1>
+            <h1 class="text-center" style='color:rgb(82, 212, 43); '>
+                <i class="fa fa-check"></i>
+            </h1>
+            <div class="card text-center" style='color:rgb(95, 89, 168);'>
+                <div class="card-header">
+                    <h3>We’re so happy you choose Mahi Diagnostics !</h3>
+                    <h3>Your Visit is confirmed ! Please review your visit details below.</h3>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Patient Name : {{ patient.f_name|title }} {{ patient.m_name|title }} {{ patient.l_name|title }}
+                    </h5>
+                    <p>Mobile No : {{ patient.mobile }}</p>
+                    <p>Visit Date/Time : {{ patient.visit_time }}</p>
+                    <p>Test : {{ patient.tests|title }}</p>
+                    <p>Address : {{ patient.address|title }}</p>
+                </div>
+                <div class="card-footer text-muted">
+                    <p>Feel free to contact us if you have any questions. We look forward to sailing with you!</p>
+                </div>
             </div>
-            <div class="card-body">
-                <h5 class="card-title">Patient Name : {{patient.f_name|title}} {{patient.m_name|title}} {{patient.l_name|title}}</h5>
-                <p >Mobile No : {{patient.mobile}}</p>
-                <p >Visit Date/Time : {{patient.visit_time}}</p>
-                <p >Test : {{patient.tests|title}}</p>
-                <p >Address : {{patient.address|title}}</p>
-            </div>
-            <div class="card-footer text-muted">
-                <p>Feel free to contact us if you have any questions. We look forward to sailing with you!</p>
-            </div>
+            <h1 class="display-4">Contact us:</h1>
+            <p class="lead">Ground Floor 14, Shakti Arcade, Sola, Science City Road, Ahmedabad. 380060</p>
+            <p>
+                <i aria-hidden="true" class="fas fa-map-marker" style='color:red'></i>
+                <a target="_blank"  href="https://goo.gl/maps/i65UASX8qo6rfqM29"><span aria-hidden="true"></span><span>Get directions</span></a>
+            </p>
+            <hr class="my-4">
+            <p>
+                <i class="fas fa-mobile-alt" style='color:red'></i> <a href="tel:+917016944046">+91-7016944046</a>
+            </p>
+            <p>
+                <i aria-hidden="true" class="fas fa-phone-alt" style='color:red'></i> <a href="tel:+917948414799">+91 79 48414799</a>
+            </p>
+            <p>
+                <i aria-hidden="true" class="fa fa-envelope" style='color:red'></i> <a href="mailto:mahilab22@gmail.com">mahilab22@gmail.com</a>
+            </p>
         </div>
-        <h1 class="display-4">Contact us:</h1>
-    
-        <p class="lead">Ground Floor 14, Shakti Arcade, Sola, Science City Road, Ahmedabad. 380060</p>
-        <p>
-        <i aria-hidden="true" class="fas fa-map-marker" style='color:red'></i> 
-        <a target="_blank"  href="https://goo.gl/maps/i65UASX8qo6rfqM29" ><span aria-hidden="true"></span><span>Get directions</span></a>
-        </p>
-        <hr class="my-4">
-        <p><i class="fas fa-mobile-alt" style='color:red'></i> <a href="tel:+917016944046">+91-7016944046</a></p>
-        <p><i aria-hidden="true" class="fas fa-phone-alt" style='color:red'></i> <a href="tel:+917948414799">+91 79 48414799</a></p>
-        <p><i aria-hidden="true" class="fa fa-envelope" style='color:red'></i> <a href="mailto:mahilab22@gmail.com">mahilab22@gmail.com</a></p>   
     </div>
-</div>
-
-
 {% endblock body %}
-
-

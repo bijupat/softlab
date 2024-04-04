@@ -1,36 +1,62 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
 {% block head %}
-  <script src="{% static 'labsys\find.js' %}" defer></script>
-{% endblock %}
-{% block title %}Find Patient{% endblock %}
-
+    <script src="{% static 'labsys\find.js' %}" defer></script>
+{% endblock head %}
+{% block title %}
+    Find Patient
+{% endblock title %}
 {% block body %}
-<br>
-{{message}}
-<br>
-<br>
-<form action="{% url 'labsys:find' %}" method="post">
-    {% csrf_token %}
-    <div class="input-group flex-nowrap">
-        <label class="input-group-text" id="addon-wrapping" for="find_name"></label>
-        <input autofocus autocomplete="off" class="form-control" type="text" id="find_fname" name="find_fname" aria-describedby="addon-wrapping" placeholder="First Name : Full or part">
-        <label class="input-group-text" id="addon-wrapping" for="find_name"></label>
-        <input autocomplete="off" class="form-control" type="text"  id="find_lname" name="find_lname" aria-describedby="addon-wrapping" placeholder="Last Name : Full or part">
-        <input  disabled id = "find_name_sub" class="btn btn-primary btn-sm" type="submit">
-    </div>
-</form>
-<br>
-
-<br>
-<form action="{% url 'labsys:find' %}" method="post">
-    {% csrf_token %}
-    <div class="input-group flex-nowrap">
-        <label class="input-group-text" id="addon-wrapping" for="find_mobno"></label>
-        <input autocomplete="off" class="form-control" pattern="[0-9]{10}" oninvalid="this.setCustomValidity('Enter Valid 10 digit Mobile ')" oninput="this.setCustomValidity('')" id="find_mobno" name="find_mobno" aria-describedby="addon-wrapping" placeholder="Enter Exact Mobile Number">
-        <input  disabled id = "find_mobno_sub" class="btn btn-primary btn-sm" type="submit">
-    </div>
-</form>
-<br>
-
-{% endblock %}
+    <br>
+    {{ message }}
+    <br>
+    <br>
+    <form action="{% url 'labsys:find' %}" method="post">
+        {% csrf_token %}
+        <div class="input-group flex-nowrap">
+            <label class="input-group-text" id="addon-wrapping" for="find_name"></label>
+            <input autofocus
+                   autocomplete="off"
+                   class="form-control"
+                   type="text"
+                   id="find_fname"
+                   name="find_fname"
+                   aria-describedby="addon-wrapping"
+                   placeholder="First Name : Full or part">
+            <label class="input-group-text" id="addon-wrapping" for="find_name"></label>
+            <input autocomplete="off"
+                   class="form-control"
+                   type="text"
+                   id="find_lname"
+                   name="find_lname"
+                   aria-describedby="addon-wrapping"
+                   placeholder="Last Name : Full or part">
+            <input disabled
+                   id="find_name_sub"
+                   class="btn btn-primary btn-sm"
+                   type="submit">
+        </div>
+    </form>
+    <br>
+    <br>
+    <form action="{% url 'labsys:find' %}" method="post">
+        {% csrf_token %}
+        <div class="input-group flex-nowrap">
+            <label class="input-group-text" id="addon-wrapping" for="find_mobno"></label>
+            <input autocomplete="off"
+                   class="form-control"
+                   pattern="[0-9]{10}"
+                   oninvalid="this.setCustomValidity('Enter Valid 10 digit Mobile ')"
+                   oninput="this.setCustomValidity('')"
+                   id="find_mobno"
+                   name="find_mobno"
+                   aria-describedby="addon-wrapping"
+                   placeholder="Enter Exact Mobile Number">
+            <input disabled
+                   id="find_mobno_sub"
+                   class="btn btn-primary btn-sm"
+                   type="submit">
+        </div>
+    </form>
+    <br>
+{% endblock body %}

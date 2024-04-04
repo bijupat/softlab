@@ -1,70 +1,75 @@
 {% extends "labsys/layout.html" %}
-{% block title %}{{chargeitem.definitionCanonical.title}}/{{chargeitem.context.patient}}{% endblock %}
+{% block title %}
+    {{ chargeitem.definitionCanonical.title }}/{{ chargeitem.context.patient }}
+{% endblock title %}
 {% block body %}
-{% if message %}
-<div>{{ message }}</div>
-{% endif %}
-    <h4>{{chargeitem.context.patient}} </h4>
-    <h5>{{chargeitem.definitionCanonical.title}} ({{chargeitem.definitionCanonical.alias|default:""}})</h5>
-   
+    {% if message %}<div>{{ message }}</div>{% endif %}
+    <h4>{{ chargeitem.context.patient }}</h4>
+    <h5>{{ chargeitem.definitionCanonical.title }} ({{ chargeitem.definitionCanonical.alias|default:"" }})</h5>
     {% for ob in observations %}
-    <div class="accordion" id="accordionExample">
-        <div id="heading{{ob.id}}">
-            <button class="btn btn-block btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapse{{ob.id}}" aria-expanded="false" aria-controls="collapse{{ob.id}}">
-                <div class="row row-cols-auto">
-                    <div class="col">{{ob.testfield.test}} </div>
-                    <div class="col">{{ob.get_status_display}}</div>
-                    <div class="col">Result: {{ob.value|default:"Not Entered"}} </div>
-                    <div class="col">{{ob.unit}} </div>
-                    <div class="col">{{ob.low}}-{{ob.high}} </div>
-                </div>   
-            </button>
-        </div>
-        <div id="collapse{{ob.id}}" class="collapse" aria-labelledby="heading{{ob.id}}" data-parent="#accordionExample">
-            <div class="card-body">
-                <div class="row row-cols-auto">
-                    <div class="col">Registered At </div>
-                    <div class="col">Preliminary At</div>
-                    <div class="col">Final At </div>
-                    <div class="col"> Amended At</div>
-                    <div class="col"> Informed At</div>
-                    <div class="col"> Delivered At</div>
-                    <div class="col">Note </div>
-                </div> 
-                <div class="row row-cols-auto">
-                    <div class="col">{{ob.timedate}}</div>
-                    <div class="col">{{ob.prelimnary_timedate|default:"Pending"}}</div>
-                    <div class="col">{{ob.final_timedate|default:"Pending"}}</div>
-                    <div class="col">{{ob.amended_timedate|default:"Pending"}}</div>
-                    <div class="col">{{ob.informed_timedate|default:"Pending"}}</div>
-                    <div class="col">{{ob.delivered_timedate|default:"Pending"}}</div>
-                    <div class="col">{{ob.note}} </div>
-                </div> 
-                <div class="row row-cols-auto">
-                    <div class="col">By {{chargeitem.enterer|default:"NA"}}</div>
-                    <div class="col">By {{ob.prelimnary_by|default:"NA"}}</div>
-                    <div class="col">By {{ob.final_by|default:"NA"}}</div>
-                    <div class="col">By {{ob.amended_by|default:"NA"}}</div>
-                    <div class="col">By {{ob.informed_by|default:"NA"}}</div>
-                    <div class="col">By {{ob.delivered_by|default:"NA"}}</div>
-                    <div class="col">  </div>
-                </div> 
+        <div class="accordion" id="accordionExample">
+            <div id="heading{{ ob.id }}">
+                <button class="btn btn-block btn-outline-secondary"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#collapse{{ ob.id }}"
+                        aria-expanded="false"
+                        aria-controls="collapse{{ ob.id }}">
+                    <div class="row row-cols-auto">
+                        <div class="col">{{ ob.testfield.test }}</div>
+                        <div class="col">{{ ob.get_status_display }}</div>
+                        <div class="col">Result: {{ ob.value|default:"Not Entered" }}</div>
+                        <div class="col">{{ ob.unit }}</div>
+                        <div class="col">{{ ob.low }}-{{ ob.high }}</div>
+                    </div>
+                </button>
+            </div>
+            <div id="collapse{{ ob.id }}"
+                 class="collapse"
+                 aria-labelledby="heading{{ ob.id }}"
+                 data-parent="#accordionExample">
+                <div class="card-body">
+                    <div class="row row-cols-auto">
+                        <div class="col">Registered At</div>
+                        <div class="col">Preliminary At</div>
+                        <div class="col">Final At</div>
+                        <div class="col">Amended At</div>
+                        <div class="col">Informed At</div>
+                        <div class="col">Delivered At</div>
+                        <div class="col">Note</div>
+                    </div>
+                    <div class="row row-cols-auto">
+                        <div class="col">{{ ob.timedate }}</div>
+                        <div class="col">{{ ob.prelimnary_timedate|default:"Pending" }}</div>
+                        <div class="col">{{ ob.final_timedate|default:"Pending" }}</div>
+                        <div class="col">{{ ob.amended_timedate|default:"Pending" }}</div>
+                        <div class="col">{{ ob.informed_timedate|default:"Pending" }}</div>
+                        <div class="col">{{ ob.delivered_timedate|default:"Pending" }}</div>
+                        <div class="col">{{ ob.note }}</div>
+                    </div>
+                    <div class="row row-cols-auto">
+                        <div class="col">By {{ chargeitem.enterer|default:"NA" }}</div>
+                        <div class="col">By {{ ob.prelimnary_by|default:"NA" }}</div>
+                        <div class="col">By {{ ob.final_by|default:"NA" }}</div>
+                        <div class="col">By {{ ob.amended_by|default:"NA" }}</div>
+                        <div class="col">By {{ ob.informed_by|default:"NA" }}</div>
+                        <div class="col">By {{ ob.delivered_by|default:"NA" }}</div>
+                        <div class="col"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
     {% endfor %}
-
-
     <div>
         <table class="table  text-center">
             <tbody>
                 <tr>
-                    <td scope="col">    <a href={% url 'labsys:encounter' chargeitem.context.id   %} class="btn btn-outline-primary btn-sm">Back</a></td>
+                    <td scope="col">
+                        <a href="{% url 'labsys:encounter' chargeitem.context.id %}"
+                           class="btn btn-outline-primary btn-sm">Back</a>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
-
-   
-
-{% endblock %}
+{% endblock body %}

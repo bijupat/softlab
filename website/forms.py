@@ -10,7 +10,6 @@ forms.DateInput.input_type="date"
 forms.DateTimeInput.input_type="datetime-local" 
 
 
-
 # writing a validator that allow only mobile no ie 10 numberic Chars
 
 def is_mobile(value):

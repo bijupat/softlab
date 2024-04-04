@@ -1,135 +1,105 @@
 {% load static %}
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>{{chargeitem.subject.get_usual_name}}({{chargeitem.context.id}})</title>
-    <link rel="Shortcut Icon" href="{% static 'labsys/logo.png' %}">
-    <link href="{% static 'labsys\styles.css' %}" rel="stylesheet">
-
-    <style type="text/css">
-        @page {
-            size: a4 portrait;
-            @frame header_frame {           /* Static Frame */
-                -pdf-frame-content: header_content;
-                left: 50pt; width: 512pt; top: 135pt; height: 40pt;
-            }
-            @frame content_frame {          /* Content Frame */
-                left: 50pt; width: 512pt; top: 180pt; height: 580pt;
-            }
-            @frame footer_frame {           /* Another static Frame */
-                -pdf-frame-content: footer_content;
-                left: 50pt; width: 512pt; top: 772pt; height: 20pt;
-            }
-        }
-
-        .table, td, th {  
-        border-bottom: none;
-        border-top: none;
-        text-align: left;
-        }
-
-        .table {
-        border-collapse: collapse;
-        width: 100%;
-
-        }
-
-        .table  {
-        padding: 1.5px;
-        text-align: left;
-        }
-
-
-        .textcenter {
-            text-align: center;
-        }
-
- 
-    </style>
-</head>
-<body>
-
-<!--Header-->
-
-<div id="header_content">
-    <table >
-        <tr>
-            <td><h3>Name : {{chargeitem.subject.get_usual_name}} </h3></td>
-            <td>Smp No : {{chargeitem.context.id}}</td>
-            <td> Ref no : </td>
-        </tr>
-        <tr>
-            <td><h3>{{chargeitem.subject.age}} Y / {{chargeitem.subject.get_gender_display}}</h3></td>
-            <td>{{chargeitem.subject.get_mobile}}</td>
-            <td>{{chargeitem.subject.get_email}}</td>
-        </tr>
-        <tr>
-            <td><h3>Ref : {{chargeitem.context.practitioner|title}}</h3></td>
-            <td>Regi At : {{chargeitem.context.timedate}}</td>
-            <td>{{chargeitem.context.account}}</td>
-        </tr>
-    </table>
-</div>
-
-<br/>
-
-
-<!--Content-->
-
-<div id = "content">          
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Parameter</th>
-                <th>Result</th>
-                <th>Unit</th>
-                <th>Biological Reference Interval</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for key , obs in observations.items %}
-            <tr>
-                <td colspan="4"><h2 class="textcenter">{{key}}</h2></td>
-            </tr>
-                
-                {% for ob in obs %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ chargeitem.subject.get_usual_name }}({{ chargeitem.context.id }})</title>
+        <link rel="Shortcut Icon" href="{% static 'labsys/logo.png' %}">
+        <link href="{% static 'labsys\styles.css' %}" rel="stylesheet">
+        <link href="{% static 'labsys\obs_by_chgItm_preview.css' %}"
+              rel="stylesheet">
+    </head>
+    <body>
+        <!--Header-->
+        <div id="header_content">
+            <table>
+                <tr>
+                    <td>
+                        <h3>Name : {{ chargeitem.subject.get_usual_name }}</h3>
+                    </td>
+                    <td>Smp No : {{ chargeitem.context.id }}</td>
+                    <td>Ref no :</td>
+                </tr>
+                <tr>
+                    <td>
+                        <h3>{{ chargeitem.subject.age }} Y / {{ chargeitem.subject.get_gender_display }}</h3>
+                    </td>
+                    <td>{{ chargeitem.subject.get_mobile }}</td>
+                    <td>{{ chargeitem.subject.get_email }}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <h3>Ref : {{ chargeitem.context.practitioner|title }}</h3>
+                    </td>
+                    <td>Regi At : {{ chargeitem.context.timedate }}</td>
+                    <td>{{ chargeitem.context.account }}</td>
+                </tr>
+            </table>
+        </div>
+        <br />
+        <!--Content-->
+        <div id="content">
+            <table class="table">
+                <thead>
                     <tr>
-                        <td><h3>{{ob.testfield.test}}</h3></td>
-                        <td rowspan = "2"><h3>{{ob.value|default:"Not Entered"}}</h3></td>
-                        <td rowspan = "2">{{ob.unit}}</td>
-                        <td rowspan = "2">{{ob.refint}}</td>
+                        <th>Parameter</th>
+                        <th>Result</th>
+                        <th>Unit</th>
+                        <th>Biological Reference Interval</th>
                     </tr>
-                    <tr>
-                        <td>{{ob.testfield.method}} : Sample Type: {{ob.testfield.specimen}}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4">{% if ob.note %} Note : {{ob.note}} {% endif %}</td>
-                    </tr>
-                {% endfor %}
-
-                {% for ob in obs %}
-                    <tr>
-                        <td><h3>{{ob.testfield.test}}</h3></td>
-                        <td rowspan = "2"><h3>{{ob.value|default:"Not Entered"}}</h3></td>
-                        <td rowspan = "2">{{ob.unit}}</td>
-                        <td rowspan = "2">{{ob.low|default:""}}-{{ob.high}}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ob.testfield.method}}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4">{% if ob.note %} Note : {{ob.note}} {% endif %}</td>
-                    </tr>
-                {% endfor %}
-
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<!--Footer-->
-<div id="footer_content">
-    Print at :  - {% now "jS F Y H:i" %}
-</div>
-
-            
+                </thead>
+                <tbody>
+                    {% for key , obs in observations.items %}
+                        <tr>
+                            <td colspan="4">
+                                <h2 class="textcenter">{{ key }}</h2>
+                            </td>
+                        </tr>
+                        {% for ob in obs %}
+                            <tr>
+                                <td>
+                                    <h3>{{ ob.testfield.test }}</h3>
+                                </td>
+                                <td rowspan="2">
+                                    <h3>{{ ob.value|default:"Not Entered" }}</h3>
+                                </td>
+                                <td rowspan="2">{{ ob.unit }}</td>
+                                <td rowspan="2">{{ ob.refint }}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ ob.testfield.method }} : Sample Type: {{ ob.testfield.specimen }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    {% if ob.note %}Note : {{ ob.note }}{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for ob in obs %}
+                            <tr>
+                                <td>
+                                    <h3>{{ ob.testfield.test }}</h3>
+                                </td>
+                                <td rowspan="2">
+                                    <h3>{{ ob.value|default:"Not Entered" }}</h3>
+                                </td>
+                                <td rowspan="2">{{ ob.unit }}</td>
+                                <td rowspan="2">{{ ob.low|default:"" }}-{{ ob.high }}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ ob.testfield.method }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    {% if ob.note %}Note : {{ ob.note }}{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!--Footer-->
+        <div id="footer_content">Print at :  - {% now "jS F Y H:i" %}</div>
+    </body>
+</html>

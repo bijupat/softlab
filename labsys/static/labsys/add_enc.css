@@ -1,25 +1,20 @@
 .select {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    max-width: 1100px;
-    gap: 1px;
-  }
-  
-  .select__item {
-    padding: 10px;
-    cursor: pointer;
-    font-family: "Heebo", sans-serif;
-    text-align: center;
-    border-radius: 3px;
-    background: #eeeeee;
-    transition: background 0.1s;
-  }
-  
-  .select__item--selected {
-    background: #009578;
-    color: #ffffff;
-  }
-  
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  max-width: 1100px;
+  gap: 1px;
+}
+.select__item {
+  padding: 10px;
+  cursor: pointer;
+  font-family: "Heebo", sans-serif;
+  text-align: center;
+  border-radius: 3px;
+  background: #eeeeee;
+  transition: background 0.1s;
+}
 
-
-  
+.select__item--selected {
+  background: #009578;
+  color: #ffffff;
+}

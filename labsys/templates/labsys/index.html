@@ -2,80 +2,83 @@
 {% load static %}
 {% block title %}Index{% endblock %}
 {% block head %}
-  <script src="{% static 'labsys\index.js' %}" defer></script>
+    <script src="{% static 'labsys\index.js' %}" defer></script>
 {% endblock %}
 {% block body %}
-
-<div>
-    <form action="{% url 'labsys:index' %}" method="post" >
-        {% csrf_token %}
-        <div class="input-group flex-nowrap">
-            <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
-            <input class="form-control" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
-            <input disabled id = "datesubmit" class="btn btn-primary btn-sm" type="submit">
-        </div>
-    </form>
-    <br>
-</div>
-<h6>Patient Listed For  : {{date|default:"Today"}}</h6>
-<br>
-
-
-
-{% for e in encounter %}
-<div class="accordion" id="accordionExample">
-    <div id="heading{{e.id}}">
-        <button class="btn btn-block btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapse{{e.id}}" aria-expanded="false" aria-controls="collapse{{e.id}}">
-            <div class="row row-cols-auto">
-                <div class="col">{{e.id}}</div>
-                <div class="col">{{e.patient.get_usual_name}}</div>
-                <div class="col"> {{e.patient.age}} Yrs / {{e.patient.gender}}</div>                
+    <div>
+        <form action="{% url 'labsys:index' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group flex-nowrap">
+                <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
+                <input class="form-control"
+                       type="date"
+                       id="date_select"
+                       name="date"
+                       aria-describedby="addon-wrapping">
+                <input disabled id="datesubmit" class="btn btn-primary btn-sm" type="submit">
             </div>
-            <div class="row row-cols-auto ">
-                <div class="col largescreen">Add some item here</div>
-                <div class="col largescreen">{{e.patient.get_mobile}}</div>
-                <div class="col largescreen">{{e.patient.get_email}}</div>
-            </div>   
-        </button>
+        </form>
+        <br>
     </div>
-    <div id="collapse{{e.id}}" class="collapse" aria-labelledby="heading{{e.id}}" data-parent="#accordionExample">
-        <a href= {% url 'labsys:encounter' e.id %}  class="list-group-item list-group-item-action" aria-current="true">
-            <div class="card-body">
-                <div class="row row-cols-auto">
-                    <div class="col largescreen">{{e.account}}</div>
-                    <div class="col">{{e.practitioner|title}}</div>
-                    <div class="col">
-                        <small>
-                            <ol>
-                                {% for t in e.chargeitem.all %}
-                                <li> {{t.definitionCanonical.title}} : {{t.priceOverride}}</li>
-                                {% empty %}
-                            </ol>                                     
-                                <ul>                                   
-                                    <li>No Test Added</li>
-                                </ul>
-                                {% endfor %}
-                            </ol>                            
-                        </small>
+    <h6>Patient Listed For  : {{ date|default:"Today" }}</h6>
+    <br>
+    {% for e in encounter %}
+        <div class="accordion" id="accordionExample">
+            <div id="heading{{ e.id }}">
+                <button class="btn btn-block btn-outline-secondary"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#collapse{{ e.id }}"
+                        aria-expanded="false"
+                        aria-controls="collapse{{ e.id }}">
+                    <div class="row row-cols-auto">
+                        <div class="col">{{ e.id }}</div>
+                        <div class="col">{{ e.patient.get_usual_name }}</div>
+                        <div class="col">{{ e.patient.age }} Yrs / {{ e.patient.gender }}</div>
                     </div>
-                    <div class="col">
-                        <small>
-                            <ul>
-                                <li> Total : {{e.invoice.payments.totalGross}}</li>
-                                <li> Disc : {{e.invoice.discount}}</li>
-                                <li> Paid : {{e.invoice.payments.paid}}</li>
-                                <li> Due : {{e.invoice.payments.due}}</li>
-                            </ul>
-                        </small>
+                    <div class="row row-cols-auto ">
+                        <div class="col largescreen">Add some item here</div>
+                        <div class="col largescreen">{{ e.patient.get_mobile }}</div>
+                        <div class="col largescreen">{{ e.patient.get_email }}</div>
                     </div>
-                </div> 
+                </button>
             </div>
-        </a>
-    </div> 
-</div>
-
-{% endfor %}
-
-{% endblock %}
-
-
+            <div id="collapse{{ e.id }}"
+                 class="collapse"
+                 aria-labelledby="heading{{ e.id }}"
+                 data-parent="#accordionExample">
+                <a href="{% url 'labsys:encounter' e.id %}"
+                   class="list-group-item list-group-item-action"
+                   aria-current="true">
+                    <div class="card-body">
+                        <div class="row row-cols-auto">
+                            <div class="col largescreen">{{ e.account }}</div>
+                            <div class="col">{{ e.practitioner|title }}</div>
+                            <div class="col">
+                                <small>
+                                    <ol>
+                                        {% for t in e.chargeitem.all %}
+                                            <li>{{ t.definitionCanonical.title }} : {{ t.priceOverride }}</li>
+                                        {% empty %}
+                                            <li>No Test Added</li>
+                                        {% endfor %}
+                                    </ol>
+                                </small>
+                            </div>
+                            <div class="col">
+                                <small>
+                                    <ul>
+                                        <li>Total : {{ e.invoice.payments.totalGross }}</li>
+                                        <li>Disc : {{ e.invoice.discount }}</li>
+                                        <li>Paid : {{ e.invoice.payments.paid }}</li>
+                                        <li>Due : {{ e.invoice.payments.due }}</li>
+                                    </ul>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock body %}

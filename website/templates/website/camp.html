@@ -1,16 +1,15 @@
 {% extends "website/layout.html" %}
 {% load static %}
-
-{% block title %}Camp{% endblock title%}
-
-{% block head %}
-
-{% endblock head%}
-
+{% block title %}
+  Camp
+{% endblock title %}
 {% block body %}
-<div class="jumbotron jumbotron-fluid">
+  <div class="jumbotron jumbotron-fluid">
     <div class="container">
-        <img src="{% static 'website\navaratrioffer.jpg' %}" class="img-fluid" alt="Responsive image">
+      <img src="{% static 'website\navaratrioffer.jpg' %}"
+           class="img-fluid"
+           alt="Responsive image" />
     </div>
-</div>
-{% endblock body %}
+  </div>
+  <div>
+  {% endblock body %}

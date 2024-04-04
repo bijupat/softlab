@@ -1,40 +1,39 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
-{% block title %}Index{% endblock %}
+{% block title %}
+    Index
+{% endblock title %}
 {% block body %}
-
-
-<h6>
-    Patient Listed For  : {{date|default:"Today"}} 
-    <a  href={% url 'labsys:patient_regi'  %} class="btn btn-outline-info btn-sm ">Register New Patient</a>
-</h6>
-<br>
+    <h6>
+        Patient Listed For  : {{ date|default:"Today" }}
+        <a href="{% url 'labsys:patient_regi' %}"
+           class="btn btn-outline-info btn-sm ">Register New Patient</a>
+    </h6>
+    <br>
     {% for e in encounter %}
-        <a href= {% url 'labsys:encounter' e.id %}  class="list-group-item list-group-item-action" aria-current="true">
+        <a href="{% url 'labsys:encounter' e.id %}"
+           class="list-group-item list-group-item-action"
+           aria-current="true">
             <div class="card">
                 <div class="card-header">
                     <div class="row row-cols-auto">
-                        <div class="col">{{e.timedate|date:"d/m/Y"}} : : {{e.id}}</div>
-                        <div class="col">{{e.patient}}test</div>
+                        <div class="col">{{ e.timedate|date:"d/m/Y" }} : : {{ e.id }}</div>
+                        <div class="col">{{ e.patient }}test</div>
                         <div class="col">
                             {% for tele in e.patient.telecom.all %}
-                                {% if tele.use == "mobile" %}
-                                    {{tele.use|title}}: {{tele.value}}
-                                {% endif %}
+                                {% if tele.use == "mobile" %}{{ tele.use|title }}: {{ tele.value }}{% endif %}
                             {% endfor %}
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="row row-cols-auto">
-                        <div class="col">{{e.account}}</div>
-                        <div class="col">{{e.practitioner|title}}</div>
+                        <div class="col">{{ e.account }}</div>
+                        <div class="col">{{ e.practitioner|title }}</div>
                         <div class="col">
                             <small>
-                                <ol>                              
-                                    {% for t in e.chargeitem.all %}
-                                        <li> {{t.definitionCanonical.title}} : {{t.priceOverride}}</li>
-                                    {% endfor %}
+                                <ol>
+                                    {% for t in e.chargeitem.all %}<li>{{ t.definitionCanonical.title }} : {{ t.priceOverride }}</li>{% endfor %}
                                 </ol>
                             </small>
                         </div>
@@ -43,13 +42,10 @@
             </div>
         </a>
     {% empty %}
-    No Patient Listed!
+        No Patient Listed!
     {% endfor %}
-<br>
-
-
-    </p>
-<script>
+    <br>
+    <script>
     // on selecting date the submit button activated from disabled 
     document.getElementById('date_select').addEventListener('change', function () {
         //console.log(document.querySelector('#datesubmit'))
@@ -57,7 +53,5 @@
         document.querySelector('#datesubmit').disabled = false;
     });
 
-</script>
-{% endblock %}
-
-
+    </script>
+{% endblock body %}

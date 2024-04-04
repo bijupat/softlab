@@ -1,77 +1,129 @@
 {% load static %}
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    {% block head %}  {% endblock head %}  
+    {% block head %}
+    {% endblock head %}
     <!-- Shortcut Icon -->
     <link rel="Shortcut Icon"  href="{% static 'website/mahi_icon.jpeg' %}">
     <link href="{% static 'website/layout.css' %}" rel="stylesheet">
     <script src="{% static 'website/a076d05399.js' %}" defer></script>
-
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
     <link rel="Shortcut Icon" href="{% static 'labsys/logo.png' %}">
-
     <!--FONT AWESOME-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!--GOOGLE FONTS-->
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Play&display=swap" rel="stylesheet"> 
-
-
-    <title>{% block title %} {% endblock title %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Play&display=swap"
+          rel="stylesheet">
+    <title>
+      {% block title %}
+      {% endblock title %}
+    </title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #563d7c">
-      <a class="navbar-brand" href="#"><img src="{% static 'website\mahiicon.jpeg' %}" alt="" class = "rounded-circle" style="width:40px; height:40px;" class="d-inline-block align-top" alt=""></a>
-        <a class="navbar-brand" href="#"><h4>Mahi Diagnostics</h4></a>
-        <a href="tel:+917016944046" style ="  border: #ffffff; border-style: solid; border-width: 1px; background-color: #563d7c; margin: 4px; border-radius: 20px;"><i aria-hidden="true" class="fas fa-phone-alt" style='color:#ffffff; margin: 10px;'></i></a>
-        <a class="navbar-brand" href="https://wa.me/+917016944046" target="_blank"><img src="{% static 'website\whatsapp.png' %}" alt="" class = "rounded-circle" style="width:40px; height:40px;" class="d-inline-block align-top" alt=""></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav class="navbar navbar-expand-lg navbar-dark"
+         style="background-color: #563d7c">
+      <a class="navbar-brand" href="#">
+        <img src="{% static 'website\mahiicon.jpeg' %}"
+             alt=""
+             class="rounded-circle"
+             style="width:40px;
+                    height:40px"
+             class="d-inline-block align-top"
+             alt="">
+      </a>
+      <a class="navbar-brand" href="#">
+        <h4>Mahi Diagnostics</h4>
+      </a>
+      <a href="tel:+917016944046"
+         style="border: #ffffff;
+                border-style: solid;
+                border-width: 1px;
+                background-color: #563d7c;
+                margin: 4px;
+                border-radius: 20px"><i aria-hidden="true"
+   class="fas fa-phone-alt"
+   style='color:#ffffff;
+          margin: 10px'></i></a>
+      <a class="navbar-brand"
+         href="https://wa.me/+917016944046"
+         target="_blank">
+        <img src="{% static 'website\whatsapp.png' %}"
+             alt=""
+             class="rounded-circle"
+             style="width:40px;
+                    height:40px"
+             class="d-inline-block align-top"
+             alt="">
+      </a>
+      <button class="navbar-toggler"
+              type="button"
+              data-toggle="collapse"
+              data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
       <!-- for menu with linked div in index.html, add class = "navmenu"  to element in nav, data-divid = "div{nameofmenu}" -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto" >
-            <li class="nav-item active">
-              <a class="nav-link navmenu" data-divid="divhome" id = "navmenuhome" href="{% url 'website:index' %}">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item dropdown" style="position: initial">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Patient
-              </a>
-              <div class="dropdown-menu dropdown-multicol2 " aria-labelledby="dropdownMenuButton" style="width: 100%">
-                <div class="dropdown-col">
-                  <a class="dropdown-item" target="_blank" href="{% url 'website:getprice' %}">Inquire Price</a>
-                  <!--
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link navmenu"
+               data-divid="divhome"
+               id="navmenuhome"
+               href="{% url 'website:index' %}">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item dropdown" style="position: initial">
+            <a class="nav-link dropdown-toggle"
+               href="#"
+               id="navbarDropdown"
+               role="button"
+               data-toggle="dropdown"
+               aria-haspopup="true"
+               aria-expanded="false">Patient</a>
+            <div class="dropdown-menu dropdown-multicol2 "
+                 aria-labelledby="dropdownMenuButton"
+                 style="width: 100%">
+              <div class="dropdown-col">
+                <a class="dropdown-item"
+                   target="_blank"
+                   href="{% url 'website:getprice' %}">Inquire Price</a>
+                <!--
                   <a class="dropdown-item navmenu" href="#">Popular Tests/Packages</a>
                   <a class="dropdown-item navmenu" href="#">Patient Login</a>
                   -->
-                </div>
-                <div class="dropdown-col">
-                  <a class="dropdown-item navmenu" href="https://wa.me/+917016944046" target="_blank">Upload Prescription</a>
-                  <!--
+              </div>
+              <div class="dropdown-col">
+                <a class="dropdown-item navmenu"
+                   href="https://wa.me/+917016944046"
+                   target="_blank">Upload Prescription</a>
+                <!--
                   <a class="dropdown-item navmenu" href="#">All Tests</a>
                   <a class="dropdown-item navmenu" href="#">All Packages</a>
                   -->
-                </div>
-                <div class="dropdown-col">
-                  <a class="dropdown-item navmenu"  href="{% url 'website:profiles' %}">Common Profiles</a>
-                   <!--
+              </div>
+              <div class="dropdown-col">
+                <a class="dropdown-item navmenu"  href="{% url 'website:profiles' %}">Common Profiles</a>
+                <!--
                     <a class="dropdown-item navmenu" href="{% url 'website:bookvisit' %}">Book a Home Collection</a>
                     <a class="dropdown-item navmenu" href="#">Special Offers</a>
                     <a class="dropdown-item navmenu" href="#">Feedback</a>
                   -->
-                </div>
               </div>
-            </li>
-            <!--
+            </div>
+          </li>
+          <!--
             <li class="nav-item dropdown" style="position: initial">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Doctor
@@ -95,94 +147,110 @@
               </div>
             </li>
             -->
-            <li class="nav-item dropdown" style="position: initial">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Staff
-              </a>
-              <div class="dropdown-menu dropdown-multicol2 " aria-labelledby="dropdownMenuButton" style="width: 100%">
-                <div class="dropdown-col">
-                  <a class="dropdown-item" target="_blank" href="{% url 'labsys:index' %}">HMIS</a>
-                  <!--
+          <li class="nav-item dropdown" style="position: initial">
+            <a class="nav-link dropdown-toggle"
+               href="#"
+               id="navbarDropdown"
+               role="button"
+               data-toggle="dropdown"
+               aria-haspopup="true"
+               aria-expanded="false">Staff</a>
+            <div class="dropdown-menu dropdown-multicol2"
+                 aria-labelledby="dropdownMenuButton"
+                 style="width: 100%">
+              <div class="dropdown-col">
+                <a class="dropdown-item" target="_blank" href="{% url 'labsys:index' %}">HMIS</a>
+                <!--
                   <a class="dropdown-item navmenu" href="#">Staff Login</a>
                   <a class="dropdown-item navmenu" href="#">Popular Tests/Packages</a>
                   -->
-                </div>
-                <div class="dropdown-col">
-                  <a class="dropdown-item navmenu" href="#">Manage Inquiry</a>
-                  <!--
+              </div>
+              <div class="dropdown-col">
+                <a class="dropdown-item navmenu" href="#">Manage Inquiry</a>
+                <!--
                   <a class="dropdown-item navmenu" href="#">All Tests</a>
                   <a class="dropdown-item navmenu" href="#">All Packages</a>
                   -->
-                </div>
-                <div class="dropdown-col">
-                  <a class="dropdown-item navmenu" href="{% url 'website:managevisit' %}">Manage Visit</a>
-                  <!--
+              </div>
+              <div class="dropdown-col">
+                <a class="dropdown-item navmenu" href="{% url 'website:managevisit' %}">Manage Visit</a>
+                <!--
                   <a class="dropdown-item navmenu" href="#">Special Offers</a>
                   <a class="dropdown-item navmenu" href="#">Feedback</a>
-                  -->
-                  
-                </div>
+-->
               </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link navmenu" data-divid="divaboutus" href="{% url 'website:aboutus' %}">About Us</a>
-            </li>
-            <li class="nav-item">
-              <a id="contactus_nav" data-divid="divcontactus" class="nav-link navmenu" href="{% url 'website:contactus' %}">Contact Us</a>
-            </li>
-
-          </ul>
-          <!-- 
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link navmenu"
+               data-divid="divaboutus"
+               href="{% url 'website:aboutus' %}">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a id="contactus_nav"
+               data-divid="divcontactus"
+               class="nav-link navmenu"
+               href="{% url 'website:contactus' %}">Contact Us</a>
+          </li>
+        </ul>
+        <!--
             <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Mob No." aria-label="Search">
             <button class="btn btn-sm btn-outline-warning  my-2 my-sm-0" type="submit">Request Callback</button>
           </form>
            -->
+      </div>
+      <a href="{% url 'website:bookvisit' %}"
+         class="nav-link navmenu btn btn-outline-warning">
+        <img src="{% static 'website/calendar-icon.png' %}">
+      Book Home Collection </a>
+    </nav>
+    {% block body %}
+    {% endblock body %}
+    <!-- Footer -->
+    <footer>
+      <div class="footer">
+        <div class="frow">
+          <a href="#"><i class="fa fa-facebook"></i></a>
+          <a href="#"><i class="fa fa-instagram"></i></a>
+          <a href="#"><i class="fa fa-youtube"></i></a>
+          <a href="#"><i class="fa fa-twitter"></i></a>
         </div>
-        <a href="{% url 'website:bookvisit' %}" class="nav-link navmenu btn btn-outline-warning" ><img src="{% static 'website/calendar-icon.png' %}"> Book Home Collection </a>
-
-      </nav>
-
-    {% block body %}  {% endblock body %}  
-    
-  
-  
-  
-<!-- Footer -->
-
-  <footer>
-    <div class="footer">
-      <div class="frow">
-        <a href="#"><i class="fa fa-facebook"></i></a>
-        <a href="#"><i class="fa fa-instagram"></i></a>
-        <a href="#"><i class="fa fa-youtube"></i></a>
-        <a href="#"><i class="fa fa-twitter"></i></a>
+        <div class="frow">
+          <ul>
+            <li>
+              <a href="{% url 'website:profiles' %}">Common Profiles</a>
+            </li>
+            <li>
+              <a href="{% url 'website:getprice' %}">Inquire Price</a>
+            </li>
+            <li>
+              <a href="{% url 'website:contactus' %}">Contact us</a>
+            </li>
+            <li>
+              <a href="{% url 'website:aboutus' %}">About Us</a>
+            </li>
+            <li>
+              <a href="{% url 'website:privacy' %}">Privacy Policy</a>
+            </li>
+            <li>
+              <a href="{% url 'website:termsconditions' %}">Terms & Conditions</a>
+            </li>
+          </ul>
+        </div>
+        <div class="frow">Mahi Diagnostics Copyright © 2023 - All rights reserved || Designed By: Dr Brijesh</div>
       </div>
-
-      <div class="frow">
-        <ul>
-          <li><a  href="{% url 'website:profiles' %}">Common Profiles</a></li>
-          <li><a href="{% url 'website:getprice' %}">Inquire Price</a></li>
-          <li><a href="{% url 'website:contactus' %}">Contact us</a></li>
-          <li><a href="{% url 'website:aboutus' %}">About Us</a></li>
-          <li><a href="{% url 'website:privacy' %}">Privacy Policy</a></li>
-          <li><a href="{% url 'website:termsconditions' %}">Terms & Conditions</a></li>
-        </ul>
-      </div>
-
-      <div class="frow">
-      Mahi Diagnostics Copyright © 2023 - All rights reserved || Designed By: Dr Brijesh 
-      </div>
-    </div>
-  </footer>
-
-</body>
-
+    </footer>
+  </body>
   <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-  
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+          integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
+          integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+          integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+          crossorigin="anonymous"></script>
 </html>

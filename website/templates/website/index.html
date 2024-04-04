@@ -1,30 +1,37 @@
 {% extends "website/layout.html" %}
 {% load static %}
-
-{% block title %}Index{% endblock title%}
-
+{% block title %}
+  Index
+{% endblock title %}
 {% block head %}
-<link href="{% static 'website/get_price.css' %}" rel="stylesheet">
-<!-- <script src="{% static 'website\index.js' %}" defer></script> -->
-{% endblock head%}
-
+  <link href="{% static 'website/get_price.css' %}" rel="stylesheet">
+  <!-- <script src="{% static 'website\index.js' %}" defer></script> -->
+{% endblock head %}
 {% block body %}
-<div>
-  <div class="jumbotron">
-    <h1 class="display-4">Welcome to Mahi Diagnostics !</h1>
-    <p class="lead">Mahi Diagnostics is a pathological laboratory providing diagnostic and clinical testing services in Ahmedabad. Our mission is to give cost-effective and accurate diagnostic services without compromising on quality. Mahi Diagnostics is committed to good professional practices and quality in its testing services in accordance with applicable national and international norms.</p>
-    <hr class="my-4">
-    <p>We work with integrity and follow professional ethics in all our operations. We implement and comply with quality systems  to generate technically valid results and data. We follow a strict strategy to ensure that all personnel involved in the operations are familiar with the policies and procedures of quality management system and implement the same in work.</p>
+  <div>
+    <div class="jumbotron">
+      <h1 class="display-4">Welcome to Mahi Diagnostics !</h1>
+      <p class="lead">
+        Mahi Diagnostics is a pathological laboratory providing diagnostic and clinical testing services in Ahmedabad. Our mission is to give cost-effective and accurate diagnostic services without compromising on quality. Mahi Diagnostics is committed to good professional practices and quality in its testing services in accordance with applicable national and international norms.
+      </p>
+      <hr class="my-4">
+      <p>
+        We work with integrity and follow professional ethics in all our operations. We implement and comply with quality systems  to generate technically valid results and data. We follow a strict strategy to ensure that all personnel involved in the operations are familiar with the policies and procedures of quality management system and implement the same in work.
+      </p>
+    </div>
   </div>
-</div>
-<div class="tablediv">
-  <a type="button" class="btn btn-outline-secondary" href="{% url 'website:profiles' %}"> View Profiles</a>
-  <a type="button" class="btn btn-outline-secondary" href="{% url 'website:pricelistview' %}"> Download Price List</a>
-  <a type="button" class="btn btn-outline-secondary" href="{% url 'website:profilespreview' %}"> Download Profiles</a>
-  <a type="button" class="btn btn-outline-secondary" href="{% url 'website:getprice' %}" >Inquire Price</a>
-
-</div>
-
+  <div class="tablediv">
+    <a type="button"
+       class="btn btn-outline-secondary"
+       href="{% url 'website:profiles' %}">View Profiles</a>
+    <a type="button"
+       class="btn btn-outline-secondary"
+       href="{% url 'website:pricelistview' %}">Download Price List</a>
+    <a type="button"
+       class="btn btn-outline-secondary"
+       href="{% url 'website:profilespreview' %}">Download Profiles</a>
+    <a type="button"
+       class="btn btn-outline-secondary"
+       href="{% url 'website:getprice' %}">Inquire Price</a>
+  </div>
 {% endblock body %}
-
-

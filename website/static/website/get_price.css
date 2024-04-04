@@ -1,28 +1,26 @@
-.tablediv{
-    border: #563d7c;
-    color: #563d7c;
-    border-style: solid;
-    padding : 4px;
-    border-width: 1px;
-    background-color: #ffffff;
-    margin: 20px;
-    border-radius: 20px;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.tablediv {
+  border: #563d7c;
+  color: #563d7c;
+  border-style: solid;
+  padding: 4px;
+  border-width: 1px;
+  background-color: #ffffff;
+  margin: 20px;
+  border-radius: 20px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-#test_select{
-    display: inline-block; 
-    width: 300px;
-    text-align: left;
-
+#test_select {
+  display: inline-block;
+  width: 300px;
+  text-align: left;
 }
-.testselecgt{
-    padding : 20px;
-
+.testselecgt {
+  padding: 20px;
 }
 
-#trtotal{
-    background-color: rgb(214, 205, 232);
+#trtotal {
+  background-color: rgb(214, 205, 232);
 }

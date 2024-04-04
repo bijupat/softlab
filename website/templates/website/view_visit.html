@@ -1,74 +1,72 @@
 {% extends "website/layout.html" %}
 {% load static %}
-
-{% block title %}View Visit{% endblock title%}
-
+{% block title %}
+    View Visit
+{% endblock title %}
 {% block head %}
-
-{% endblock head%}
-
+{% endblock head %}
 {% block body %}
-<h5>Appointments Listed For  : {{date|default:"Today"}} </h5>
-
-<div class="jumbotron">
-    <table class="table table-hover table-sm">
-        <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Time</th>
-            <th scope="col">Test</th>
-            <th scope="col">Mobile</th>
-            <th scope="col"></th>
-
-        </tr>
-        </thead>
-        <tbody>
-            {% for a in appointments %}
-            <tr>
-                <th>{{a.subject.f_name}} {{a.subject.l_name}}</th>
-                <td>{{a.time}}</td>
-                <td>{{a.tests}}</td>
-                <td>{{a.subject.mobile}}</td>
-                <td>
-                    <a class="btn btn-outline-secondary btn-sm" data-toggle="collapse" href="#collapseExample{{a.id}}" role="button" aria-expanded="false" aria-controls="collapseExample{{a.id}}">
-                    Details
-                    </a>
-                </td>
-            </tr>
-            <tr class="collapse table-active" id="collapseExample{{a.id}}">  
-                <td colspan="5">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{a.subject.f_name}} {{a.subject.m_name}} {{a.subject.l_name}}</h5>
-                            <p class="card-text">Birth Date : {{a.subject.birthDate|default:"Not Defined"}} / {{a.subject.get_gender_display}}</p>
-                            <p class="card-text">{{a.subject.mobile}}</p>
-                            <p class="card-text">{{a.subject.email}}</p>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Visit Time : {{a.time}}</li>
-                                <li class="list-group-item">{{a.tests|default:"Not Added"}}</li>
-                                <li class="list-group-item">{{a.description|default:"No details"}}</li>
-                                <li class="list-group-item">Booked At : {{a.created}}</li>
-                                <li class="list-group-item">{% if a.priority %} High Priority {% else %} Low Priority {% endif %} </li>
-                            </ul>
-                            <p class="card-text">{{a.subject.address}}.</p>
-                        </div>
-                        <div class="card-body text-right">
-                            <a href="#" class="btn btn-outline-success btn-sm">Confirm</a>
-                        </div>
-                  </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-</table>
-</div>
-
-
-
-
+    <h5>Appointments Listed For  : {{ date|default:"Today" }}</h5>
+    <div class="jumbotron">
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Test</th>
+                    <th scope="col">Mobile</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in appointments %}
+                    <tr>
+                        <th>{{ a.subject.f_name }} {{ a.subject.l_name }}</th>
+                        <td>{{ a.time }}</td>
+                        <td>{{ a.tests }}</td>
+                        <td>{{ a.subject.mobile }}</td>
+                        <td>
+                            <a class="btn btn-outline-secondary btn-sm"
+                               data-toggle="collapse"
+                               href="#collapseExample{{ a.id }}"
+                               role="button"
+                               aria-expanded="false"
+                               aria-controls="collapseExample{{ a.id }}">Details</a>
+                        </td>
+                    </tr>
+                    <tr class="collapse table-active" id="collapseExample{{ a.id }}">
+                        <td colspan="5">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ a.subject.f_name }} {{ a.subject.m_name }} {{ a.subject.l_name }}</h5>
+                                    <p class="card-text">
+                                        Birth Date : {{ a.subject.birthDate|default:"Not Defined" }} / {{ a.subject.get_gender_display }}
+                                    </p>
+                                    <p class="card-text">{{ a.subject.mobile }}</p>
+                                    <p class="card-text">{{ a.subject.email }}</p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">Visit Time : {{ a.time }}</li>
+                                        <li class="list-group-item">{{ a.tests|default:"Not Added" }}</li>
+                                        <li class="list-group-item">{{ a.description|default:"No details" }}</li>
+                                        <li class="list-group-item">Booked At : {{ a.created }}</li>
+                                        <li class="list-group-item">
+                                            {% if a.priority %}
+                                                High Priority
+                                            {% else %}
+                                                Low Priority
+                                            {% endif %}
+                                        </li>
+                                    </ul>
+                                    <p class="card-text">{{ a.subject.address }}.</p>
+                                </div>
+                                <div class="card-body text-right">
+                                    <a href="#" class="btn btn-outline-success btn-sm">Confirm</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock body %}
-
-
-
-
-

@@ -5,50 +5,69 @@
   <script src="{% static 'labsys\index.js' %}" defer></script>
 {% endblock %}
 {% block body %}
-<div>
-  
-  <form action="{% url 'labsys:appointments' %}" method="post" >
+  <div>
+    <form action="{% url 'labsys:appointments' %}" method="post">
       {% csrf_token %}
       <div class="input-group flex-nowrap">
-          <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
-          <input class="form-control" type="date" id="date_select" name="date" aria-describedby="addon-wrapping">
-          <input disabled id = "datesubmit" class="btn btn-primary btn-sm" type="submit">
+        <label class="input-group-text" id="addon-wrapping" for="date">Select Date:</label>
+        <input class="form-control"
+               type="date"
+               id="date_select"
+               name="date"
+               aria-describedby="addon-wrapping">
+        <input disabled
+               id="datesubmit"
+               class="btn btn-primary btn-sm"
+               type="submit">
       </div>
-  </form>
-  <br>
-</div>
-<h6>Appointment Listed For  : {{date|default:"Today"}}</h6>
-<br>
-
-{% for appointment in  appointments %}
-
-<div class="card" >
-  <div class="card-header">
-    <!-- span with id appointid is used in java to calculate total values of tests listed  -->
-    <h5 class="card-title"> <span scope="col" id = "appointid">{{appointment.id}}</span> : {{appointment.subject.get_usual_name}} : {{appointment.subject.age}}/{{appointment.subject.gender}} : {{appointment.subject.get_mobile}}</h5>
-    <p class="card-text">Start at {{appointment.start}} end at {{appointment.end}} {% if appointment.priority %}<span style="color:red;">High Priority</span>{% endif %}</p>
+    </form>
+    <br>
   </div>
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item">Staff Involved : {% for p in appointment.participants.all %} {{p.first_name}}  {% empty %} No User {% endfor %}</li>
-    <!-- class test-value_appid and id total-value_appid created to get total from innterHTML using JS-->
-    <li class="list-group-item">Tests :
-      <ul>
-        {% for t in appointment.tests.all %} 
-          <li>{{t}} : <span class = "test-value_{{appointment.id}}">{{t.value}}</span></li>        
-        {% empty %}         
-          <li>No Test Selected.></li>
-        {% endfor %}
-        <li>Total : Rs  <span id ="total-value_{{appointment.id}}"></span></li>
+  <h6>Appointment Listed For  : {{ date|default:"Today" }}</h6>
+  <br>
+  {% for appointment in appointments %}
+    <div class="card">
+      <div class="card-header">
+        <!-- span with id appointid is used in java to calculate total values of tests listed  -->
+        <h5 class="card-title">
+          <span scope="col" id="appointid">{{ appointment.id }}</span> : {{ appointment.subject.get_usual_name }} : {{ appointment.subject.age }}/{{ appointment.subject.gender }} : {{ appointment.subject.get_mobile }}
+        </h5>
+        <p class="card-text">
+          Start at {{ appointment.start }} end at {{ appointment.end }}
+          {% if appointment.priority %}<span style="color:red;">High Priority</span>{% endif %}
+        </p>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          Staff Involved :
+          {% for p in appointment.participants.all %}
+            {{ p.first_name }}  {% empty %} No User
+          {% endfor %}
+        </li>
+        <!-- class test-value_appid and id total-value_appid created to get total from innterHTML using JS-->
+        <li class="list-group-item">
+          Tests :
+          <ul>
+            {% for t in appointment.tests.all %}
+              <li>
+                {{ t }} : <span class = "test-value_{{ appointment.id }}">{{ t.value }}</span>
+              </li>
+            {% empty %}
+              <li>No Test Selected.></li>
+            {% endfor %}
+            <li>
+              Total : Rs  <span id ="total-value_{{ appointment.id }}"></span>
+            </li>
+          </ul>
+        </li>
+        <li class="list-group-item">Booked at : {{ appointment.created }} by {{ appointment.created_by.get_full_name }}</li>
+        <li class="list-group-item">{{ appointment.organization }} : {{ appointment.account }}</li>
+        <li class="list-group-item">Discription : {{ appointment.description }}</li>
+        <li class="list-group-item">Instruction for Patient : {{ appointment.patientinstruction }}</li>
       </ul>
-    </li>
-    <li class="list-group-item">Booked at : {{appointment.created}} by {{appointment.created_by.get_full_name}}</li>
-    <li class="list-group-item">{{appointment.organization}} : {{appointment.account}}</li>
-    <li class="list-group-item">Discription : {{appointment.description}}</li>
-    <li class="list-group-item">Instruction for Patient : {{appointment.patientinstruction}}</li>
- </ul>
-</div>
-<br>
-{% empty %}
-No Appointment listed !!
-{% endfor %}
-{% endblock %}
+    </div>
+    <br>
+  {% empty %}
+    No Appointment listed !!
+  {% endfor %}
+{% endblock body %}

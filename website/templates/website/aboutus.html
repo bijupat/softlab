@@ -1,28 +1,46 @@
 {% extends "website/layout.html" %}
 {% load static %}
-
-{% block title %}About Us{% endblock title%}
-
+{% block title %}
+  About Us
+{% endblock title %}
 {% block head %}
-
-{% endblock head%}
-
+{% endblock head %}
 {% block body %}
-
-<div class ="divmenu" id="divaboutus" >
-    <nav class="nav nav-pills flex-column flex-sm-row navbar-dark"  id="nav-tab" role="tablist">
+  <div class="divmenu" id="divaboutus">
+    <nav class="nav nav-pills flex-column flex-sm-row navbar-dark"
+         id="nav-tab"
+         role="tablist">
       <!--<a class="flex-sm-fill text-sm-center nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Our Team</a> -->
-      <a class="flex-sm-fill text-sm-center nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Our Eqipments</a>
-      <a class="flex-sm-fill text-sm-center nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Our Services</a>
+      <a class="flex-sm-fill text-sm-center nav-link"
+         id="nav-profile-tab"
+         data-toggle="tab"
+         href="#nav-profile"
+         role="tab"
+         aria-controls="nav-profile"
+         aria-selected="false">Our Eqipments</a>
+      <a class="flex-sm-fill text-sm-center nav-link"
+         id="nav-contact-tab"
+         data-toggle="tab"
+         href="#nav-contact"
+         role="tab"
+         aria-controls="nav-contact"
+         aria-selected="false">Our Services</a>
     </nav>
     <div class="tab-content" id="nav-tabContent">
-      <div class="tab-pane fade show" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+      <div class="tab-pane fade show"
+           id="nav-home"
+           role="tabpanel"
+           aria-labelledby="nav-home-tab">
         <div class="jumbotron">
           <ul class="list-unstyled">
             <li class="media">
-              <img class="align-self-center mr-3" src="{% static 'website\dummy_face.png' %}" style="width: 100px; height: 100px  ;" alt="Generic placeholder image">
+              <img class="align-self-center mr-3"
+                   src="{% static 'website\dummy_face.png' %}"
+                   style="width: 100px;
+                          height: 100px"
+                   alt="Generic placeholder image">
               <div class="media-body">
-                <div class="card" >
+                <div class="card">
                   <div class="card-body">
                     <h5 class="card-title">Dr Brijesh Patel</h5>
                     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -40,9 +58,13 @@
               </div>
             </li>
             <li class="media my-4">
-              <img class="align-self-center mr-3" src="{% static 'website\dummy_face.png' %}" style="width: 100px; height: 100px  ;" alt="Generic placeholder image">
+              <img class="align-self-center mr-3"
+                   src="{% static 'website\dummy_face.png' %}"
+                   style="width: 100px;
+                          height: 100px"
+                   alt="Generic placeholder image">
               <div class="media-body">
-                <div class="card" >
+                <div class="card">
                   <div class="card-body">
                     <h5 class="card-title">Dr Brijesh Patel</h5>
                     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -60,9 +82,13 @@
               </div>
             </li>
             <li class="media">
-              <img class="align-self-center mr-3"src="{% static 'website\dummy_face.png' %}"  style="width: 100px; height: 100px  ;" alt="Generic placeholder image">
+              <img class="align-self-center mr-3"
+                   src="{% static 'website\dummy_face.png' %}"
+                   style="width: 100px;
+                          height: 100px"
+                   alt="Generic placeholder image">
               <div class="media-body">
-                <div class="card" >
+                <div class="card">
                   <div class="card-body">
                     <h5 class="card-title">Dr Brijesh Patel</h5>
                     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -83,10 +109,17 @@
         </div>
       </div>
       <br>
-      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">     
+      <div class="tab-pane fade"
+           id="nav-profile"
+           role="tabpanel"
+           aria-labelledby="nav-profile-tab">
         <div class="card-deck">
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\Selectra.png' %}" style="width: auto; height: auto;" alt="Selectra Pro XS">
+            <img class="card-img-top"
+                 src="{% static 'website\Selectra.png' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Selectra Pro XS">
             <div class="card-body">
               <h5 class="card-title">Selectra Pro XS Fully automated chemistry analyzer</h5>
               <p class="card-text">
@@ -101,72 +134,90 @@
                 </ul>
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
+                <h5 class="card-title">Tests offered</h5>
                 <small class="text-muted">
-                  ALT, AST, ALP, LDH, γ-GT, Amylase, CK-NAC, CK-MB Albumin, Uric Acid, Bilirubin Total, Bilirubin Direct, 
-                  Cholesterol, HDL Cholesterol,LDL Cholesterol, Creatinine, Glucose, Total Protein, Microprotein, Triglycerides, 
-                  Urea Calcium, Chloride, Magnesium, Iron, Phosphorus, HbA1C, CRP, APO A1, APO B, Microalbumin, Transferrin, 
+                  ALT, AST, ALP, LDH, γ-GT, Amylase, CK-NAC, CK-MB Albumin, Uric Acid, Bilirubin Total, Bilirubin Direct,
+                  Cholesterol, HDL Cholesterol,LDL Cholesterol, Creatinine, Glucose, Total Protein, Microprotein, Triglycerides,
+                  Urea Calcium, Chloride, Magnesium, Iron, Phosphorus, HbA1C, CRP, APO A1, APO B, Microalbumin, Transferrin,
                   IGA, IGG, IGM,Prealbumin, Haptoglobin
                 </small>
               </p>
             </div>
           </div>
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\cellteck.jpg' %}" style="width: auto; height: auto;" alt="Card image cap">
+            <img class="card-img-top"
+                 src="{% static 'website\cellteck.jpg' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Card image cap">
             <div class="card-body">
-              <h5 class="card-title">Nihon Kohden Celltac MEK 6410 Hematology Analyzer </h5>
+              <h5 class="card-title">Nihon Kohden Celltac MEK 6410 Hematology Analyzer</h5>
               <p class="card-text">
                 <ul>
-                  <li>19 parameters with WBC 3 part differential </li>
-                  <li>Throughput Approx. 60 samples /hour </li>
+                  <li>19 parameters with WBC 3 part differential</li>
+                  <li>Throughput Approx. 60 samples /hour</li>
                   <li>Sample volume : 30μL for normal measurement mode, 10 or 20 μL for pre-dilution mode</li>
-  
                 </ul>
-                
               </p>
-              <p class="card-text">  
-                <h6 class="card-title">Tests offered</h5>
-                <small class="text-muted">WBC, LY%, MO%, GR%, LY, MO, GR, RBC, HGB, HCT, MCV, MCH, MCHC, RDW-SD, RDW-CV, PLT, PCT, MPV, PDW</small></p>
+              <p class="card-text">
+                <h5 class="card-title">Tests offered</h5>
+                <small class="text-muted">WBC, LY%, MO%, GR%, LY, MO, GR, RBC, HGB, HCT, MCV, MCH, MCHC, RDW-SD, RDW-CV, PLT, PCT, MPV, PDW</small>
+              </p>
             </div>
           </div>
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\cbs-400-electrolyte-analyzer.jpg' %}" style="width: auto; height: auto;" alt="Card image cap">
+            <img class="card-img-top"
+                 src="{% static 'website\cbs-400-electrolyte-analyzer.jpg' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">Electrolyte Analyzers CBS-300</h5>
               <p class="card-text">
                 <li>Advanced Multi-Biosensor Technology</li>
-                <li>Multi-level calibrators and controls  </li>
+                <li>Multi-level calibrators and controls</li>
                 <li>Throughput 80 tests/hour</li>
-                <li>Sample volume : 120-150 μl </li>
-  
+                <li>Sample volume : 120-150 μl</li>
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
-                <small class="text-muted">Na+, K+, Cl-</small></p>
+                <h5 class="card-title">Tests offered</h5>
+                <small class="text-muted">Na+, K+, Cl-</small>
+              </p>
             </div>
           </div>
         </div>
         <div class="card-deck">
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\ryto.jpg' %}" style="width: auto; height: auto;" alt="Selectra Pro XS">
+            <img class="card-img-top"
+                 src="{% static 'website\ryto.jpg' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Selectra Pro XS">
             <div class="card-body">
               <h5 class="card-title">Ryto RT- 2100C ELISA Microplate Reader</h5>
               <p class="card-text">
                 <li>Large LCD display, with touch screen</li>
                 <li>96-well plate, multiple tests in the single plate</li>
                 <li>Plate shaking, speed and time adjustable.</li>
-                <li>Bichromatic measurement, calculation modes include Absorbance, Cut-off, Curve,
+                <li>
+                  Bichromatic measurement, calculation modes include Absorbance, Cut-off, Curve,
                   Linear regression Index regression, Logarithm regression, Exponent regression,
-                  Power Regression, etc</li>
+                  Power Regression, etc
+                </li>
                 <li>Auto self-check when power on</li>
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
-                <small class="text-muted">HIV HBsAg HCV Dengue-NS1Ag/IgG/IgM ANA Covid IgG Etc</small></p>
+                <h5 class="card-title">Tests offered</h5>
+                <small class="text-muted">HIV HBsAg HCV Dengue-NS1Ag/IgG/IgM ANA Covid IgG Etc</small>
+              </p>
             </div>
           </div>
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\ichroma-2.png' %}" style="width: auto; height: auto;" alt="Card image cap">
+            <img class="card-img-top"
+                 src="{% static 'website\ichroma-2.png' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">IChroma II advanced immunoassay reader</h5>
               <p class="card-text">
@@ -175,10 +226,9 @@
                 <li>High Throughput Patient Testing: 30 tests/hr</li>
                 <li>Convenient: 7” Colour Touch Screen, User-Friendly Interface</li>
                 <li>Large Memory: 1000 Samples, 1000 QC & 100 IDs</li>
-                
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
+                <h5 class="card-title">Tests offered</h5>
                 <small class="text-muted">Tn-I
                   Tn-I Plus
                   CK-MB
@@ -189,11 +239,11 @@
                   PSA
                   AFP
                   CEA
-                  iFOB 
+                  iFOB
                   HbA1c
                   Microalbumin
                   Cystatin C
-                  TSH 
+                  TSH
                   T3
                   T4
                   FSH
@@ -219,16 +269,21 @@
                   AFP Plus
                   CEA Plus
                   AMH
-                  Dengue IgG/IgM 
-                  Dengue NS1 
+                  Dengue IgG/IgM
+                  Dengue NS1
                   Ferritin
                   Vitamin D
                   Calprotectin
-                  H.pylori SA</small></p>
+                H.pylori SA</small>
+              </p>
             </div>
           </div>
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\coastat.jpg' %}" style="width: auto; height: auto;" alt="Card image cap">
+            <img class="card-img-top"
+                 src="{% static 'website\coastat.jpg' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">Semi Automatic Single Channel Coagulation Analyzer- COASTAT</h5>
               <p class="card-text">
@@ -238,14 +293,19 @@
                 <li>Calibration: 2-7 Pt with the plot</li>
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
-                <small class="text-muted">PT/APTT/TT/FIB/FACTORS/PC/PS/ other clot-based assays.</small></p>
+                <h5 class="card-title">Tests offered</h5>
+                <small class="text-muted">PT/APTT/TT/FIB/FACTORS/PC/PS/ other clot-based assays.</small>
+              </p>
             </div>
           </div>
         </div>
         <div class="card-deck">
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\simulG.png' %}" style="width: auto; height: auto;" alt="Selectra Pro XS">
+            <img class="card-img-top"
+                 src="{% static 'website\simulG.png' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Selectra Pro XS">
             <div class="card-body">
               <h5 class="card-title">12 Lead Digital ECG</h5>
               <p class="card-text">
@@ -257,36 +317,46 @@
                   <li>Upgradation for telemedicine</li>
                   <li>Simultaneous acquisition of 12 Leads.</li>
                   <li>Display of running traces of 12 leads split into group of 6 each.</li>
-                </ul>              
+                </ul>
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
-                <small class="text-muted">Resting ECG</small></p>
+                <h5 class="card-title">Tests offered</h5>
+                <small class="text-muted">Resting ECG</small>
+              </p>
             </div>
           </div>
           <div class="card">
-            <img class="card-img-top" src="{% static 'website\stwintmt.png' %}" style="width: auto; height: auto;" alt="Card image cap">
+            <img class="card-img-top"
+                 src="{% static 'website\stwintmt.png' %}"
+                 style="width: auto;
+                        height: auto"
+                 alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">ST-WIN Treadmill</h5>
               <p class="card-text">
                 <ul>
                   <li>Offering a rock steady baseline at heart rate more than 210</li>
-                  <li>Special Digital Signal Processing technology used with 256 pole FIR filter for rock steady baseline & distortion free ECG. </li>
+                  <li>
+                    Special Digital Signal Processing technology used with 256 pole FIR filter for rock steady baseline & distortion free ECG.
+                  </li>
                   <li>Full frequency response of 0.05 Hz. to 150 Hz. as stipulated by American Heart Association.</li>
                   <li>Accurate computation of ST levels, assuring you of excellent correlation with angiography</li>
                   <li>Offering clean ECG without muscle tremor or 50 cycle noise.</li>
                   <li>Body level Acquisition.</li>
-                </ul>    
+                </ul>
               </p>
               <p class="card-text">
-                <h6 class="card-title">Tests offered</h5>
-                <small class="text-muted">Exercise Stress Test (Treadmill Test or Cardiac Stress Test)</small></p>
+                <h5 class="card-title">Tests offered</h5>
+                <small class="text-muted">Exercise Stress Test (Treadmill Test or Cardiac Stress Test)</small>
+              </p>
             </div>
           </div>
-  
         </div>
       </div>
-      <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+      <div class="tab-pane fade"
+           id="nav-contact"
+           role="tabpanel"
+           aria-labelledby="nav-contact-tab">
         <div class="jumbotron">
           <h1 class="display-4">Our Services:</h1>
           <p class="lead">We provide all servcies under one roof eg Pathology Lab, ECG, TMT and Basic Medical Examination</p>
@@ -296,8 +366,7 @@
             <li>Pre Employment Check</li>
             <li>Health Check</li>
             <li>On site Employee Health Check</li>
-            <li>All Pathology Laboratory Tests </li>
-            
+            <li>All Pathology Laboratory Tests</li>
           </p>
           <a class="btn btn-primary btn-lg" href="#" role="button">Inquire More</a>
         </div>

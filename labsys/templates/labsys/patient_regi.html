@@ -1,53 +1,58 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
 {% block head %}
-  <script src="{% static 'labsys/patient_regi.js' %}" defer></script>
-  <link href="{% static 'labsys/patient_regi.css' %}" rel="stylesheet">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
-  <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet"/>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
-
- 
-{% endblock %}
-{% block title %}New Patient Registration{% endblock %}
-
+    <script src="{% static 'labsys/patient_regi.js' %}" defer></script>
+    <link href="{% static 'labsys/patient_regi.css' %}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+    <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css"
+          rel="stylesheet" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css"
+          rel="stylesheet" />
+{% endblock head %}
+{% block title %}
+    New Patient Registration
+{% endblock title %}
 {% block body %}
-{% if message %}
-<button type="submit" id = "error_check" class="btn btn-danger btn-block">{{message}}</button>
-<br>
-{% endif %}
-<br>
-
-<!-- This is for new patient -->
-<div id = "new_patient">
+    {% if message %}
+        <button type="submit" id = "error_check" class="btn btn-danger btn-block">{{ message }}</button>
+        <br>
+    {% endif %}
     <br>
-    <form action="{% url 'labsys:pat_register' 100 %}" method="post" enctype="multipart/form-data" >
-        {% csrf_token %}
-        TEST
-        <div class="form-row">
-            <div class="form-group col-md-4">{{form.f_name}}</div>
-            <div class="form-group col-md-4">{{form.m_name}}</div>
-            <div class="form-group col-md-4">{{form.l_name}}</div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-4">{{form.gender.label}}{{form.gender}}</div>
-            <div class="form-group col-md-4">{{form.birth_date.label}}{{form.birth_date}}</div>
-            <div class="form-group col-md-4">{{form.mobile}}<span style="color:red;">{{ form.mobile.errors }}</span></div>
-        </div>
-
-        <div class="form-row">
-            <!--
+    <!-- This is for new patient -->
+    <div id="new_patient">
+        <br>
+        <form action="{% url 'labsys:pat_register' 100 %}"
+              method="post"
+              enctype="multipart/form-data">
+            {% csrf_token %}
+            TEST
+            <div class="form-row">
+                <div class="form-group col-md-4">{{ form.f_name }}</div>
+                <div class="form-group col-md-4">{{ form.m_name }}</div>
+                <div class="form-group col-md-4">{{ form.l_name }}</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">{{ form.gender.label }}{{ form.gender }}</div>
+                <div class="form-group col-md-4">{{ form.birth_date.label }}{{ form.birth_date }}</div>
+                <div class="form-group col-md-4">
+                    {{ form.mobile }}<span style="color:red;">{{ form.mobile.errors }}</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <!--
             <div class="form-group col-md-4">{{form.practitioner}}</div>
             <div class="form-group col-md-4">{{form.account}}</div>
             -->
-            <div class="form-group col-md-4">{{form.email}}<span style="color:red;">{{ form.email.errors }}</span></div>
-        </div>
-        <!--
+                <div class="form-group col-md-4">
+                    {{ form.email }}<span style="color:red;">{{ form.email.errors }}</span>
+                </div>
+            </div>
+            <!--
         <div class="form-row">
             <div class="form-group col-md-12">{{form.test.label}}{{form.test}}</div>
         </div>
@@ -57,69 +62,73 @@
             <div class="form-group col-md-5">{{form.photo}}</div>
         </div>
         -->
-        <input id = "register" type = "hidden" value = "{{register}}" name="register" >
-        <button type="submit" id = "new_pat_save_btn" class="btn btn-primary btn-sm btn-block">Add More Details</button>
-    </form>
-    
-
-</div>
-
-
-<!-- this is for old patient -->
-<div id = "old_patient" >
-    <br>
-    <div>
-        <button  id = "Srch_by_name" class="btn btn-primary btn-block btn-lg">Seach by Name</button> 
+            <input id="register" type="hidden" value="{{ register }}" name="register">
+            <button type="submit"
+                    id="new_pat_save_btn"
+                    class="btn btn-primary btn-sm btn-block">Add More Details</button>
+        </form>
+    </div>
+    <!-- this is for old patient -->
+    <div id="old_patient">
         <br>
-        <button id = "Srch_by_mobno" class="btn btn-primary btn-block btn-lg">Search By Mobile No</button>
-         
-
-    </div>
-    <br>
-    
-    <div class="form-row" id = "name_input">
-        <div class="form-group col-md-12">
-            <ul>
-                <li>Search is not case sensitive, One can seach with upper or lower case.</li>
-                <li>You need to put at  least 3 characters in any one of the fields and other field can have any nuber of
-                    characters, starting from 0.</li>
-            </ul>
+        <div>
+            <button id="Srch_by_name" class="btn btn-primary btn-block btn-lg">Seach by Name</button>
+            <br>
+            <button id="Srch_by_mobno" class="btn btn-primary btn-block btn-lg">Search By Mobile No</button>
         </div>
-        <div class="form-group col-md-6">
-            <input autofocus onkeydown="return /[a-z]/i.test(event.key)" type="text" id = "fname" class="form-control" placeholder = "Enter First Name" />
-        </div>
-        <div class="form-group col-md-6">
-            <input onkeydown="return /[a-z]/i.test(event.key)" type="text" id = "lname" class="form-control" placeholder = "Enter Last Name"/>
-        </div>
-        
-    </div>
-    <div class="form-row"id = "mobno_input" >
-        <div class="form-group col-md-12">
-            <ul>
-                <li>Please enter Exactly 10 Numbers</li>
-            </ul>
-        </div>
-        <div class="form-group col-md-12">
-            <input  id ="mobno" type="number"  class="form-control" placeholder = "Enter Mobile Number"/>
-        </div>
-    </div>
-    <br>
-    <br>
-    <button type="submit" class="btn btn-primary btn-block" id="srchbtn">Search</button>
-    <br>
-    <br>
-    <div>
-        <table class="table table-inbox table-hover">
-            <tbody id="SrchRslt">
-
-            </tbody>
-        </table>
-        <button  id = "new_pat_btn" class="btn btn-info btn-block">Not Found add new Patient</button>
         <br>
-        <button  id = "srch_again" class="btn btn-info btn-block">Search Again</button>
-
-
-      </div>
-    
-</div>
-{% endblock %}
+        <div class="form-row" id="name_input">
+            <div class="form-group col-md-12">
+                <ul>
+                    <li>Search is not case sensitive, One can seach with upper or lower case.</li>
+                    <li>
+                        You need to put at  least 3 characters in any one of the fields and other field can have any nuber of
+                        characters, starting from 0.
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group col-md-6">
+                <input autofocus
+                       onkeydown="return /[a-z]/i.test(event.key)"
+                       type="text"
+                       id="fname"
+                       class="form-control"
+                       placeholder="Enter First Name" />
+            </div>
+            <div class="form-group col-md-6">
+                <input onkeydown="return /[a-z]/i.test(event.key)"
+                       type="text"
+                       id="lname"
+                       class="form-control"
+                       placeholder="Enter Last Name" />
+            </div>
+        </div>
+        <div class="form-row" id="mobno_input">
+            <div class="form-group col-md-12">
+                <ul>
+                    <li>Please enter Exactly 10 Numbers</li>
+                </ul>
+            </div>
+            <div class="form-group col-md-12">
+                <input id="mobno"
+                       type="number"
+                       class="form-control"
+                       placeholder="Enter Mobile Number" />
+            </div>
+        </div>
+        <br>
+        <br>
+        <button type="submit" class="btn btn-primary btn-block" id="srchbtn">Search</button>
+        <br>
+        <br>
+        <div>
+            <table class="table table-inbox table-hover">
+                <tbody id="SrchRslt">
+                </tbody>
+            </table>
+            <button id="new_pat_btn" class="btn btn-info btn-block">Not Found add new Patient</button>
+            <br>
+            <button id="srch_again" class="btn btn-info btn-block">Search Again</button>
+        </div>
+    </div>
+{% endblock body %}

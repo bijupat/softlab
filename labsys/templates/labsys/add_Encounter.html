@@ -1,57 +1,55 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
-{% block title %}update Encounter{{e.id}}{% endblock %}
+{% block title %}
+    update Encounter{{ e.id }}
+{% endblock title %}
 {% block head %}
-  <script src="{% static 'labsys\add_enc.js' %}" defer></script>
-  <link href="{% static 'labsys\add_enc.css' %}" rel="stylesheet">
-
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
-  <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet"/>
-  
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
-  <script src="http://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/js/bootstrap-multiselect.js"type="text/javascript"></script>
-  <link href="http://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/css/bootstrap-multiselect.css"rel="stylesheet" type="text/css" />
-
-
-{% endblock %}
-
+    <script src="{% static 'labsys\add_enc.js' %}" defer></script>
+    <link href="{% static 'labsys\add_enc.css' %}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+    <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css"
+          rel="stylesheet" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css"
+          rel="stylesheet" />
+    <script src="http://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/js/bootstrap-multiselect.js"
+            type="text/javascript"></script>
+    <link href="http://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/css/bootstrap-multiselect.css"
+          rel="stylesheet"
+          type="text/css" />
+{% endblock head %}
 {% block body %}
-{% if message %}
-<div style="color:red">{{message}}</div>
-<br>
-{% endif %}
-<div>
-    <form action="{% url 'labsys:regi_encounter' pat_id %}" method="post" >
-        {% csrf_token %}
-
-        <div class="form-row">
-            <div class="form-group col-md-4">{{form.practitioner.label}}{{form.practitioner}}</div>
-
-            <div class="form-group col-md-4">{{form.account.label}}{{form.account}}</div>
-            <div class="form-group col-md-4">{{form.email}}<span style="color:red;">{{ form.email.errors }}</span></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-12">{{form.test.label}}{{form.test}}</div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-5">{{form.discount}}<span style="color:red;">{{ form.discount.errors }}</span></div>
-            <div class="form-group col-md-7">{{form.paid}}<span style="color:red;">{{ form.paid.errors }}</span></div>
-        </div>
-
-        <input type = "hidden" value = "{{e.id}}" name="eid" >
-        <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
-
-        
-
-        
-
-    </form>
-</div>
-
-
-{% endblock %}
+    {% if message %}
+        <div style="color:red">{{ message }}</div>
+        <br>
+    {% endif %}
+    <div>
+        <form action="{% url 'labsys:regi_encounter' pat_id %}" method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group col-md-4">{{ form.practitioner.label }}{{ form.practitioner }}</div>
+                <div class="form-group col-md-4">{{ form.account.label }}{{ form.account }}</div>
+                <div class="form-group col-md-4">
+                    {{ form.email }}<span style="color:red;">{{ form.email.errors }}</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">{{ form.test.label }}{{ form.test }}</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    {{ form.discount }}<span style="color:red;">{{ form.discount.errors }}</span>
+                </div>
+                <div class="form-group col-md-7">
+                    {{ form.paid }}<span style="color:red;">{{ form.paid.errors }}</span>
+                </div>
+            </div>
+            <input type = "hidden" value="{{ e.id }}" name="eid">
+            <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
+        </form>
+    </div>
+{% endblock body %}

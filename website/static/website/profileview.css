@@ -1,0 +1,76 @@
+@page {
+  size: a4 portrait;
+
+  /* Static Frame */
+  @frame header_frame {
+    -pdf-frame-content: header_content;
+    left: 50pt;
+    width: 512pt;
+    top: 20pt;
+    height: 50pt;
+    text-align: center;
+  }
+  /* Content Frame */
+
+  @frame col1_frame {
+    /* Content frame 1 */
+    left: 50pt;
+    width: 260pt;
+    top: 70pt;
+    height: 740pt;
+  }
+  @frame col2_frame {
+    /* Content frame 2 */
+    left: 320pt;
+    width: 260pt;
+    top: 70pt;
+    height: 740pt;
+  }
+  /* Another static Frame */
+  @frame footer_frame {
+    -pdf-frame-content: footer_content;
+    left: 50pt;
+    width: 512pt;
+    top: 805pt;
+    height: 20pt;
+  }
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 1px;
+  margin: 1px;
+}
+.test {
+  width: 260px;
+  text-align: left;
+}
+.profile {
+  width: 100px;
+  text-align: left;
+}
+.price {
+  width: 80px;
+  text-align: center;
+}
+
+#header_content {
+  text-align: center;
+  color: red;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+#footer_content {
+  text-align: center;
+  color: purple;
+  padding: 1px;
+  margin: 1px;
+}
+.header {
+  font-size: 25px;
+  font-weight: bold;
+}
