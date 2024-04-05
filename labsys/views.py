@@ -339,6 +339,7 @@ def regi_encounter(request, pat_id):
         else:
             return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id,"form": form })            
     # if request method get
+    # print("test00")
     return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": EncounterRegistration })
 
 

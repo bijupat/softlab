@@ -17,7 +17,7 @@
       <tbody>
         <tr>
           <td scope="col">{{ e.timedate|date }}</td>
-          <td scope="col" id = "eid">{{ e.id }}</td>
+          <td scope="col" id="eid">{{ e.id }}</td>
           <td scope="col">{{ e.patient.get_usual_name }}</td>
           <td scope="col">{{ e.patient.age }} Yrs / {{ e.patient.gender }}</td>
         </tr>
@@ -60,176 +60,174 @@
              data-title="{{ chargeItem.definitionCanonical.title }}"
              class="btn btn-outline-danger btn-sm deletetest">Delete Test</a>
         </div>
-        <div class="col" align="right">
-        {{ chargeItem.priceOverride }}</span>
+        <div class="col" align="right">{{ chargeItem.priceOverride }}</div>
       </div>
     </div>
+  {% empty %}
+    No Test Listed.
+  {% endfor %}
+  <br>
+  <!--ADD TEST button-->
+  <div class="dropdown">
+    <button id="addtestdropbtn" class="dropbtn">Add Test</button>
+    <div id="myDropdown" class="dropdown-content">
+      <input type="text"
+             autofocus
+             autocomplete="off"
+             placeholder="Search.."
+             id="myInput">
+      {% for t in tests %}
+        <a href="{% url 'labsys:addtest' e.id t.id %}">{{ t.title }}</a>
+      {% empty %}
+        <a>All Test Added !!</a>
+      {% endfor %}
+    </div>
   </div>
-{% empty %}
-  No Test Listed.
-{% endfor %}
-<br>
-<!--ADD TEST button-->
-<div class="dropdown">
-  <button id="addtestdropbtn" class="dropbtn">Add Test</button>
-  <div id="myDropdown" class="dropdown-content">
-    <input type="text"
-           autofocus
-           autocomplete="off"
-           placeholder="Search.."
-           id="myInput">
-    {% for t in tests %}
-      <a href="{% url 'labsys:addtest' e.id t.id %}">{{ t.title }}</a>
-    {% empty %}
-      <a>All Test Added !!</a>
-    {% endfor %}
+  <br>
+  <!--payment section visible if largescreen (>1000) implemented by class largresecreen-->
+  <div data-toggle="collapse"
+       class="largescreen"
+       href="#paymentCollapse"
+       role="button"
+       aria-expanded="false"
+       aria-controls="paymentCollapse">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th scope="col" class="list-group-item-dark text-center">
+            Total : <span id="totalamount">{{ e.invoice.payments.totalGross }}</span>
+          </th>
+          <th scope="col" class="list-group-item-warning text-center">Discount : {{ invoice.discount|default:0 }}</th>
+          <th scope="col" class="list-group-item-success text-center">Paid : {{ e.invoice.payments.paid|default:0 }}</th>
+          <th scope="col" class="list-group-item-danger text-center">
+            Due : <span id="due">{{ e.invoice.payments.due|default:0 }}</span>
+          </th>
+        </tr>
+      </thead>
+    </table>
   </div>
-</div>
-<br>
-<!--payment section visible if largescreen (>1000) implemented by class largresecreen-->
-<div data-toggle="collapse"
-     class="largescreen"
-     href="#paymentCollapse"
-     role="button"
-     aria-expanded="false"
-     aria-controls="paymentCollapse">
-  <table class="table table-sm table-bordered">
-    <thead>
-      <tr>
-        <th scope="col" class="list-group-item-dark text-center">
-          Total : <span id="totalamount">{{ e.invoice.payments.totalGross }}</span>
-        </th>
-        <th scope="col" class="list-group-item-warning text-center">Discount : {{ invoice.discount|default:0 }}</th>
-        <th scope="col" class="list-group-item-success text-center">Paid : {{ e.invoice.payments.paid|default:0 }}</th>
-        <th scope="col" class="list-group-item-danger text-center">
-          Due : <span id="due">{{ e.invoice.payments.due|default:0 }}</span>
-        </th>
-      </tr>
-    </thead>
-  </table>
-</div>
-<!--payment section visible if small screen(<=1000 ) implemented by adding class smallscreen-->
-<div class="smallscreen"
-     data-toggle="collapse"
-     href="#paymentCollapse"
-     role="button"
-     aria-expanded="false"
-     aria-controls="paymentCollapse">
-  <table class="table table-sm table-bordered">
-    <thead>
-      <tr>
-        <th scope="col" class="list-group-item-dark" id="totalamount">Total</th>
-        <th scope="col" class="list-group-item-warning">Discount</th>
-        <th scope="col" class="list-group-item-success">Paid</th>
-        <th scope="col" class="list-group-item-danger">Due</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th scope="row" class="list-group-item-dark">
-          <span id="totalamount">{{ e.invoice.payments.totalGross }}</span>
-        </th>
-        <td class="list-group-item-warning">{{ invoice.discount|default:0 }}</td>
-        <td class="list-group-item-success">{{ e.invoice.payments.paid|default:0 }}</td>
-        <td class="list-group-item-danger">
-          <span id="due">{{ e.invoice.payments.due|default:0 }}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<!-- payment section collapsible-->
-<div class="container collapse multi-collapse" id="paymentCollapse">
-  <div class="row ">
-    <div class="col col-lg-9 col-md-8">
-      <table class="table table-sm table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">Recp No</th>
-            <th scope="col">Amount</th>
-            <th scope="col">On</th>
-            <th scope="col">To</th>
-            <th scope="col">Bill No : {{ invoice.id }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for payment in payments %}
+  <!--payment section visible if small screen(<=1000 ) implemented by adding class smallscreen-->
+  <div class="smallscreen"
+       data-toggle="collapse"
+       href="#paymentCollapse"
+       role="button"
+       aria-expanded="false"
+       aria-controls="paymentCollapse">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th scope="col" class="list-group-item-dark" id="totalamount">Total</th>
+          <th scope="col" class="list-group-item-warning">Discount</th>
+          <th scope="col" class="list-group-item-success">Paid</th>
+          <th scope="col" class="list-group-item-danger">Due</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row" class="list-group-item-dark">
+            <span id="totalamount">{{ e.invoice.payments.totalGross }}</span>
+          </th>
+          <td class="list-group-item-warning">{{ invoice.discount|default:0 }}</td>
+          <td class="list-group-item-success">{{ e.invoice.payments.paid|default:0 }}</td>
+          <td class="list-group-item-danger">
+            <span id="due">{{ e.invoice.payments.due|default:0 }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- payment section collapsible-->
+  <div class="container collapse multi-collapse" id="paymentCollapse">
+    <div class="row ">
+      <div class="col col-lg-9 col-md-8">
+        <table class="table table-sm table-bordered">
+          <thead>
             <tr>
-              <th scope="row">{{ payment.id }}</th>
-              <td>{{ payment.paymentAmount }}</td>
-              <td>{{ payment.paymentDate }}</td>
-              <td>{{ payment.received_by }}</td>
-              <td>
-                <a href="{% url 'labsys:index' %}"
-                   class="btn btn-outline-secondary btn-success btn-sm">Print Recpt</a>
+              <th scope="col">Recp No</th>
+              <th scope="col">Amount</th>
+              <th scope="col">On</th>
+              <th scope="col">To</th>
+              <th scope="col">Bill No : {{ invoice.id }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for payment in payments %}
+              <tr>
+                <th scope="row">{{ payment.id }}</th>
+                <td>{{ payment.paymentAmount }}</td>
+                <td>{{ payment.paymentDate }}</td>
+                <td>{{ payment.received_by }}</td>
+                <td>
+                  <a href="{% url 'labsys:index' %}"
+                     class="btn btn-outline-secondary btn-success btn-sm">Print Recpt</a>
+                </td>
+              </tr>
+            {% empty %}
+              <td colspan="5">No Payment Received</td>
+            {% endfor %}
+            <tr>
+              <td colspan="5">
+                <a href="{% url 'labsys:addpayment' %}"
+                   class="btn btn-outline-success btn-sm btn-block"
+                   id="addpaymentbutton">Add Payment</a>
+                <div id="addpayment">
+                  <form action="{% url 'labsys:addpayment' %}" method="post">
+                    {% csrf_token %}
+                    <input class="form-control"
+                           name="payamount"
+                           id="addpaymentinput"
+                           style="width:50%">
+                    <input disabled
+                           type="submit"
+                           id="addpaymentsubmit"
+                           class="btn btn-outline-success btn-sm ">
+                    <input value="{{ e.id }}" name="eidinput" style="display: none">
+                  </form>
+                </div>
               </td>
             </tr>
-          {% empty %}
-            <td colspan="5">No Payment Received</td>
-          {% endfor %}
-          <tr>
-            <td colspan="5">
-              <a href="{% url 'labsys:addpayment' %}"
-                 class="btn btn-outline-success btn-sm btn-block"
-                 id="addpaymentbutton">Add Payment</a>
-              <div id="addpayment">
-                <form action="{% url 'labsys:addpayment' %}" method="post">
+          </tbody>
+        </table>
+      </div>
+      <div class="col col-lg-1 col-md-1">
+        <table class="table table-sm table-bordered">
+          <tbody>
+            <tr>
+              <th scope="col">
+                <a href="#" class="btn btn-outline-secondary btn-sm btn-block">Print Bill</a>
+              </th>
+            </tr>
+            <th scope="col">
+              <div>
+                <a href
+                   class="btn btn-outline-warning btn-sm btn-block"
+                   id="addeditdisc">Add/Edit Discount</a>
+              </div>
+              <div id="addeditdiscout">
+                <form action="{% url 'labsys:addeditdiscount' %}" method="post">
                   {% csrf_token %}
                   <input class="form-control"
-                         name="payamount"
-                         id="addpaymentinput"
+                         name="addeditdiscountinput"
+                         id="addeditdiscountinput"
                          style="width:50%">
                   <input disabled
                          type="submit"
-                         id="addpaymentsubmit"
-                         class="btn btn-outline-success btn-sm ">
+                         id="addeditdiscountsubmit"
+                         class="btn btn-outline-warning btn-sm ">
                   <input value="{{ e.id }}" name="eidinput" style="display: none">
                 </form>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="col col-lg-1 col-md-1">
-      <table class="table table-sm table-bordered">
-        <tbody>
-          <tr>
-            <th scope="col">
-              <a href=# class="btn btn-outline-secondary btn-sm btn-block">Print Bill</a>
             </th>
-          </tr>
-          <th scope="col">
-            <div>
-              <a href
-                 class="btn btn-outline-warning btn-sm btn-block"
-                 id="addeditdisc">Add/Edit Discount</a>
-            </div>
-            <div id="addeditdiscout">
-              <form action="{% url 'labsys:addeditdiscount' %}" method="post">
-                {% csrf_token %}
-                <input class="form-control"
-                       name="addeditdiscountinput"
-                       id="addeditdiscountinput"
-                       style="width:50%">
-                <input disabled
-                       type="submit"
-                       id="addeditdiscountsubmit"
-                       class="btn btn-outline-warning btn-sm ">
-                <input value="{{ e.id }}" name="eidinput" style="display: none">
-              </form>
-            </div>
-          </th>
-          <tr>
-            <th scope="col">
-              <a href=# class="btn btn-outline-danger btn-sm btn-block">Send Payment Reminder</a>
-            </th>
-          </tr>
-        </tbody>
-      </table>
+            <tr>
+              <th scope="col">
+                <a href="#" class="btn btn-outline-danger btn-sm btn-block">Send Payment Reminder</a>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
 </br>
 <!-- Charge Item with report details -->
 <div>
@@ -238,21 +236,21 @@
       <tr>
         <th scope="col">Report</th>
         <td scope="col" align="center">
-          <a href=# role="button" class="btn btn-outline-secondary btn-sm">Edit All</a>
+          <a href="#" role="button" class="btn btn-outline-secondary btn-sm">Edit All</a>
         </td>
         <td scope="col" align="center">
-          <a href=# role="button" class="btn btn-outline-secondary btn-sm">View All</a>
+          <a href="#" role="button" class="btn btn-outline-secondary btn-sm">View All</a>
         </td>
         {% if is_all_chargeitem_atleast_final %}
           <td scope="col" align="center">
-            <a href=# role="button" class="btn btn-outline-secondary btn-sm">Preview All</a>
+            <a href="#" role="button" class="btn btn-outline-secondary btn-sm">Preview All</a>
           </td>
         {% endif %}
       </tr>
     </thead>
     <tbody>
       {% for c in chargeItems %}
-        <tr id ="c_report_{{ c.id }}">
+        <tr id="c_report_{{ c.id }}">
           <td scope="col">{{ c.definitionCanonical.title }}</td>
           <td scope="col" align="center">
             <a href="{% url 'labsys:chargeitem' c.id 'edit' %}"

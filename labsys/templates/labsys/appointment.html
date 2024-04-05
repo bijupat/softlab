@@ -1,9 +1,11 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
-{% block title %}Appointments{% endblock %}
+{% block title %}
+  Appointments
+{% endblock title %}
 {% block head %}
   <script src="{% static 'labsys\index.js' %}" defer></script>
-{% endblock %}
+{% endblock head %}
 {% block body %}
   <div>
     <form action="{% url 'labsys:appointments' %}" method="post">
@@ -15,10 +17,7 @@
                id="date_select"
                name="date"
                aria-describedby="addon-wrapping">
-        <input disabled
-               id="datesubmit"
-               class="btn btn-primary btn-sm"
-               type="submit">
+        <input disabled id="datesubmit" class="btn btn-primary btn-sm" type="submit">
       </div>
     </form>
     <br>
@@ -50,13 +49,13 @@
           <ul>
             {% for t in appointment.tests.all %}
               <li>
-                {{ t }} : <span class = "test-value_{{ appointment.id }}">{{ t.value }}</span>
+                {{ t }} : <span class="test-value_{{ appointment.id }}">{{ t.value }}</span>
               </li>
             {% empty %}
               <li>No Test Selected.></li>
             {% endfor %}
             <li>
-              Total : Rs  <span id ="total-value_{{ appointment.id }}"></span>
+              Total : Rs  <span id="total-value_{{ appointment.id }}"></span>
             </li>
           </ul>
         </li>
