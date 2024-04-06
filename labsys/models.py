@@ -215,9 +215,9 @@ class Practitioner(models.Model):
      #A language which may be used to communicate with the patient about his or her health.
     communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
     period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioner',blank=True, null=True)
-
-    def __str__(self):
-        #return self.name.all()
+     
+    @property
+    def fullname(self):
         try:
             return 'Dr {} {}'.format(self.name.get().given.title(), self.name.get().family.title())
         except:
@@ -227,7 +227,10 @@ class Practitioner(models.Model):
                 return 'Dr {}'.format( self.name.get().given.title()) 
             except:
                 return f'Practitioner id {self.id}'
-
+        
+    def __str__(self):
+        return self.fullname
+    
 # // A contact party (e.g. guardian, partner, friend) for the patient##
 class Contact(models.Model):
     # // The kind of relationship
