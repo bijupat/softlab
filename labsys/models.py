@@ -7,6 +7,8 @@ from datetime import date
 #from django.db.models.fields.related import OneToOneField
 #from django.contrib.postgres.fields import JSONField
 from django.db.models import Sum
+from django.core.exceptions import ValidationError
+
 
 # phone | fax | email | pager | url | sms | other
 Telecom_system =(
@@ -134,9 +136,9 @@ Account_status = (
     ("U", "unknown"),
 )
 Account_type = (
-    ("P", "Periodic"),
-    ("C", "Cash"),
-    ("T", "Temporary"),
+    ("P", "Patient"),
+    ("C", "Expence"),
+    ("T", "Depreciation"),
 )
 # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
 ObservationDefinition_category =(
@@ -416,7 +418,16 @@ class Address(models.Model):
         else:
             return 'Some error'
 
+#master data class
+class Pricelist(models.Model):
+    pricelist = models.CharField(max_length=75, blank=True, null=True)
+    #remove blank = true and null = true in production version
+    # account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='pricelist',blank=True, null=True)
+    category = models.CharField(max_length=75, blank=True, null=True)
 
+    def __str__(self):
+            return 'Pricelist : {}'.format(self.pricelist)
+    
 class Account (models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     # active | inactive | entered-in-error | on-hold | unknown
@@ -431,21 +442,12 @@ class Account (models.Model):
     # true if particular account is default
     is_default = models.BooleanField(default=False)
     is_periodic = models.BooleanField(default=False)
+    pricelist = models.ForeignKey(Pricelist, on_delete=models.PROTECT, related_name='accounts',blank=True, null=True)
     # contact
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='account',blank=True, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='accounts',blank=True, null=True)
 
     def __str__(self):
             return 'Account  : {}'.format(self.name)
-
-
-#master data class
-class Pricelist(models.Model):
-    pricelist = models.CharField(max_length=75, blank=True, null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='pricelist')
-    
-    def __str__(self):
-            return 'Pricelist : {}'.format(self.pricelist)
-
 
 class Specimen(models.Model):
     sampletype = models.CharField(max_length=75, blank=True, null=True)
@@ -560,7 +562,6 @@ class Invoice(models.Model):
     # Comments made about the invoice by the issuer, subject, or other participants.
     note = models.CharField(max_length=200, blank=True, null=True)
 
-
     """
     payment property returns dict with details of calculated vaues of payment
     """
@@ -579,14 +580,11 @@ class Invoice(models.Model):
         dict['paid'] = paid
         dict['due'] = total - (paid + self.discount)
         dict['totalnet'] = total-self.discount
-        return dict
-        
+        return dict      
 
 
     def __str__(self):
         return f' Inovoice id {self.id} for {self.subject}'
-
-
 
 class Device(models.Model):
     pass
@@ -601,6 +599,7 @@ class Headings(models.Model):
     
     def __str__(self):
             return '{}'.format(self.heading)
+    
 #The ChargeItemDefinition resource provides the properties that apply to the (billing) codes necessary to calculate costs and prices
 class ChargeItemDefinition(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -636,14 +635,14 @@ class ChargeItemDefinition(models.Model):
     lastReviewDate = models.DateTimeField(blank=True, null=True)
     effectivePeriod = models.ForeignKey(Period,blank=True, null=True, related_name='chargeitemdef', on_delete=models.PROTECT)
     #Monetary amount associated with this
-    value = models.PositiveIntegerField(blank=True, null=True)
+    # value = models.PositiveIntegerField(blank=True, null=True)
     specimen = models.ManyToManyField(Specimen, related_name='chargeitemdef', blank=True)
     # which department in lab as per department define in model ie biochem, histo etc
     dept = models.ForeignKey(Department,  on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
     # if test is outsourced 
     outsourced_to = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='chargeitemdef', blank=True, null=True)
     # use to filter price list in views.py for observations
-    pricelist_included = models.ManyToManyField(Pricelist, related_name='chargeitemdef', blank=True)
+    # pricelist_included = models.ManyToManyField(Pricelist, related_name='chargeitemdef', blank=True)
     # Note for specific  test like double marker applies to whole report
     Note = models.CharField(max_length=75,blank=True, null=True)
     # Product/equipment charged or used
@@ -653,7 +652,25 @@ class ChargeItemDefinition(models.Model):
     def __str__(self):
         return self.title  
 
-        
+class Price(models.Model):
+    chargeitemdef = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, related_name='price', null=True, blank=True)
+    pricelist = models.ForeignKey(Pricelist, on_delete=models.CASCADE,related_name='price',null=True, blank=True)
+    price = models.DecimalField(max_digits=9, decimal_places=2)
+
+    def clean(self):
+        duplicate = Price.objects.exclude(pk=self.pk).filter(chargeitemdef_id=self.chargeitemdef_id, pricelist_id=self.pricelist_id).exists()
+        if duplicate:
+            raise ValidationError('The price for this chargeitem with this pricelist already exists')
+        return super().clean()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['chargeitemdef', 'pricelist'], name='price_for_chargeitemdef_asper_pricelist')
+        ]
+    def __str__(self):
+        return f'{self.chargeitemdef.title} ({self.pricelist.pricelist}) rs : {self.price}'
+
+
 class Encounter(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
     test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
@@ -671,13 +688,11 @@ class Encounter(models.Model):
     # if urgent  reporting required 
     urgent=  models.BooleanField(default=False)  # Field name made lowercase.
 
-
     class Meta:
         ordering = ["timedate"]
     
     def __str__(self):
             return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.get_usual_name(), self.timedate)
-
 
 
 class ChargeItem(models.Model):
@@ -721,6 +736,10 @@ class ChargeItem(models.Model):
             if ob.status == "P" or ob.status == "R":
                 return False
         return True
+    
+    # update priceOverride from Price table finidng price for chargeitem in pricelist
+    def update_price(self):
+        self.priceOverride = Price.objects.filter(chargeitemdef = self.definitionCanonical, pricelist=self.account.pricelist).get().price
 
     def __str__(self):
         return f' id : {self.id} Test : {self.definitionCanonical} for Enc : {self.context.id}'
@@ -739,11 +758,9 @@ class Observation(models.Model):
     delivered_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_delivered_by', blank=True, null=True)
     # changes to amended if amended
     amended_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='observation_amended_by', blank=True, null=True)
-    #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)
-    
+    #account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='observation_account', blank=True, null=True)    
     # Foreign Key to Chargeitem as requirement of through model; this model is intermediate model
     chargeitem = models.ForeignKey(ChargeItem, on_delete=models.PROTECT, related_name='observation', blank=True, null=True)
-
     # timedate when registed
     timedate = models.DateTimeField(auto_now_add=True)
     # timedate when prelimnary report added

@@ -4,7 +4,7 @@ from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
 from django.http import JsonResponse, FileResponse
 from django.utils.timezone import datetime 
-from .forms import EncounterRegistration, PatientRegistration, AppointmentRegistration
+from .forms import EncounterRegistration, PatientRegistration, AppointmentRegistration, EncounterRegistration_1
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
@@ -18,6 +18,8 @@ import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from .utilfunctions import register_encounter
+from django import forms
+
 
 @login_required(login_url='/lab/login/')
 def ChargeitemDataEdit(request,ci_id):
@@ -28,9 +30,7 @@ def ChargeitemDataEdit(request,ci_id):
         chargeitem.note = request.POST["note"]
         chargeitem.priceoverrideby = request.user
         chargeitem.save()
-
         return HttpResponseRedirect(reverse("labsys:encounter",  args=[chargeitem.context.id]))
-
     else:
         chargeItem = ChargeItem.objects.get(pk=ci_id)
         return render(request, 'labsys/chargeitemdataedit.html', {"chargeItem" :chargeItem})
@@ -44,9 +44,7 @@ def ObservationDataEdit(request,ob_id):
         observation.low = request.POST["low"]
         observation.note = request.POST["note"]
         observation.save()
-
         return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[observation.chargeitem.id, "edit"]))
-
     else:
         observation = Observation.objects.get(pk=ob_id)
         return render(request, 'labsys/observationdataedit.html', {"observation" :observation})
@@ -167,7 +165,7 @@ def search(request):
     lname = json.loads(request.body.decode('utf-8'))["lname"]
     mobno = json.loads(request.body.decode('utf-8'))["mobno"]
 
-    if len(mobno) == 10 :
+    if len(mobno) == 10:
         telecoms = Telecom.objects.filter(use="M").filter(value=mobno)
         patients = Patient.objects.filter(telecom__in = telecoms)
         #filtering name objects with having patient in filtered patient set(queryset) patients
@@ -188,37 +186,100 @@ def search(request):
             names = name_found.order_by("-given").all()
             return JsonResponse([name.serialize() for name in names], safe=False)
         
-
-
     return HttpResponse(status=400)
+
+
+
+@login_required(login_url='/lab/login/')
+def hx_search(request):
+    # print(request.POST)
+    try: 
+        mobile = request.POST["mobile"]
+        if len(mobile)==10:
+            telecoms = Telecom.objects.filter(use="M").filter(value=mobile)
+            patients = Patient.objects.filter(telecom__in = telecoms)
+            #filtering name objects with having patient in filtered patient set(queryset) patients
+            names = Name.objects.filter(patient__in=patients)
+            # names = name_found.order_by("-text").all()
+            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
+        else:
+             return HttpResponse("Please enter valid 10 digit mobile Number")
+    except:
+        try:
+            fname = request.POST["fname"]
+        except:
+            fname = ""
+        try:
+            lname = request.POST["lname"]
+        except:
+            lname = ""
+        if len(fname) > 2 and len(lname)> 2:
+            names = Name.objects.filter(given__icontains=fname, family__icontains=lname).exclude(patient=None)
+            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
+            # names = name_found.order_by("-given").all()
+            # print (names)
+            # return HttpResponse(name_found)
+        if len(fname) > 2:
+            names = Name.objects.filter(given__icontains=fname).exclude(patient=None)
+            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
+        if len(lname) > 2:
+            names = Name.objects.filter(family__icontains=lname).exclude(patient=None)
+            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
+        return HttpResponse("Please enter atleast three letters")
+    
+
+@login_required(login_url='/lab/login/')
+def EnconterRegistration_1(request,pat_id ):
+    if request.method == "POST":
+        form = EncounterRegistration_1(request.POST)
+        if form.is_valid():
+            practitioner = form.cleaned_data["practitioner"]
+            account = form.cleaned_data["account"]
+            pricelist = account.pricelist
+            # print(account)
+            # print(practitioner)
+        form = EncounterRegistration()
+        # add test field in form modelform
+        # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(price__pricelist = "3", status = "a")  
+        form.fields['test'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(price__pricelist = pricelist , status = "a"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+
+        # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(pricelist_included = 1)
+        return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": form, "practitioner_id":practitioner.id , "account_id":account.id })
+  
+    else:
+        form = EncounterRegistration_1()
+
+        patid = pat_id
+        return render(request, 'labsys/add_enc_1.html', {"patid" :patid, "form" : form})
+
+
+
 
 
 @csrf_exempt
 @login_required(login_url='/lab/login/')
 def DeleteTest(request):
     if request.method == "POST":
-
         eid = json.loads(request.body.decode('utf-8'))["eid"]
         testid = json.loads(request.body.decode('utf-8'))["testid"]
         invoice = Encounter.objects.get(pk=eid).invoice
         chargeitem = ChargeItem.objects.get(pk=testid)
         Observation.objects.filter(chargeitem = chargeitem).delete()
         chargeitem.delete()
-
-        #return HttpResponseRedirect(reverse("labsys:encounter", args=[eid]))    
         return HttpResponse(status=200)
 
 @login_required(login_url='/lab/login/')
-def AddTest(request, e_id, t_id):
-    
+def AddTest(request, e_id, t_id):    
         # geting ecnouter object from it's id
         enc = Encounter.objects.get(pk=e_id)
         # geting chargeItemDefination object by it's id
         test = ChargeItemDefinition.objects.get(pk=t_id)        
         # creating new ChargeItem object with Chargeitemdefination, Encounter and priceoverride
-        new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, enterer=request.user, priceOverride = test.value)        
-        # Saving new chargeitem object  
-        new_test.save()        
+        new_test = ChargeItem(definitionCanonical=test, context=enc, subject=enc.patient, enterer=request.user, account = enc.account)        
+        # Saving new chargeitem object without priceOverride as it is tobe obtained from class method update_price
+        new_test.save()
+        new_test.update_price()
+        new_test.save()      
         #finding set of observationdefs under test(chargeitemdef)
         obs = test.observations.all()
         # adding filtered observationdef to chageitem.observation(new_test.observation) as set
@@ -247,8 +308,7 @@ def AddEditDiscount(request):
 def ObservationEdit(request):
     if request.method == "POST": 
         chargeitem = ChargeItem.objects.get(pk=request.POST["chargeitem_id"])    
-        observations = Observation.objects.filter(chargeitem=chargeitem)
-        
+        observations = Observation.objects.filter(chargeitem=chargeitem)        
         for ob in observations:
             try:
                 if request.POST[str(ob.id)]:
@@ -259,7 +319,6 @@ def ObservationEdit(request):
                     ob.save()
             except:
                 pass
-
         return HttpResponseRedirect(reverse("labsys:chargeitem",  args=[request.POST["chargeitem_id"], "view"]))
   
 
@@ -325,22 +384,30 @@ def pat_enc(request, pat_id):
         
 # get from old patient registration and post from it self 
 @login_required(login_url='/lab/login/')
-def regi_encounter(request, pat_id):
+def regi_encounter(request, pat_id, pract_id, acc_id):
     if request.method == "POST":
         form = EncounterRegistration(request.POST)
+        practitioner = Practitioner.objects.get(pk = pract_id)
+        account = Account.objects.get(pk = acc_id)
         if form.is_valid():
             # using utilfunction register_encunter if it returns true 
-            if register_encounter(Patient.objects.get(pk=pat_id), form.cleaned_data["practitioner"], form.cleaned_data["test"], form.cleaned_data["discount"], form.cleaned_data["paid"], form.cleaned_data['account'], request.user):
+            if register_encounter(Patient.objects.get(pk=pat_id), practitioner, form.cleaned_data["test"], form.cleaned_data["discount"], form.cleaned_data["paid"], account , request.user):
                 return HttpResponseRedirect(reverse("labsys:index"))
             # register encounter returns false return to same page with partialy filled form
             else:
                 return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
         # if form is not valid
         else:
-            return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id,"form": form })            
+            return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id,"form": form , "message":"Form in not valid!!"})            
     # if request method get
     # print("test00")
-    return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": EncounterRegistration })
+    form = EncounterRegistration()
+    # add test field in form modelform
+    # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(price__pricelist = "3", status = "a")  
+    form.fields['test'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(price__pricelist = "4", status = "a"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+
+    # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(pricelist_included = 1)
+    return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": form })
 
 
 """
@@ -441,9 +508,7 @@ def regi_appointment(request, pat_id):
             return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form, "message":form.errors })   
     # if request method get
     return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": AppointmentRegistration })
-
-
-   
+  
     """
     # if request method get
     names = Name.objects.all()
@@ -497,7 +562,8 @@ def encounter(request, enc_id):
     for t in ChargeItemsDefinition:
         test_id_set.append(t.id)
     #creating observationdefination object queryset excluding those in set ie already register  for the encounter
-    tests = ChargeItemDefinition.objects.exclude(id__in=test_id_set)
+    # tests = ChargeItemDefinition.objects.exclude(id__in=test_id_set)
+    tests =ChargeItemDefinition.objects.filter(price__pricelist = e.account.pricelist , status = "a").exclude(id__in=test_id_set)
     
     #to check all charge item  is final, first set varialbe to True
     is_all_chargeitem_atleast_final= True

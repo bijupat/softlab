@@ -28,21 +28,13 @@
         <br>
     {% endif %}
     <div>
-        <form action="{% url 'labsys:regi_encounter' pat_id  practitioner_id account_id %}"
+        <form action="{% url 'labsys:enconterRegistration_1'  patid %}"
               method="post">
             {% csrf_token %}
             <div class="form-row">
-                <div class="form-group col-md-12">{{ form.test.label }}{{ form.test }}</div>
+                <div class="form-group col-md-6">{{ form.practitioner.label }}{{ form.practitioner }}</div>
+                <div class="form-group col-md-6">{{ form.account.label }}{{ form.account }}</div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-5">
-                    {{ form.discount }}<span style="color:red;">{{ form.discount.errors }}</span>
-                </div>
-                <div class="form-group col-md-7">
-                    {{ form.paid }}<span style="color:red;">{{ form.paid.errors }}</span>
-                </div>
-            </div>
-            <input type="hidden" value="{{ e.id }}" name="eid">
             <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
         </form>
     </div>

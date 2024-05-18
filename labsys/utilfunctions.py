@@ -22,21 +22,9 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
     enc = Encounter(patient = Patient, practitioner = Practitioner, account = Account)
     enc.save()
     # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
-    # enc.test is chargeitems for the encounter 
+    # enc.test is (through chargeitems) chargeitemdefination for the encounter 
     enc.test.set(Tests)    
-    p = enc.test.all().aggregate(Sum('value'))
-    #populate payment data in invoice object
-    total = p['value__sum'] or 0
-    totalnet = total - (Discount or 0)
-    due = totalnet - (Payment or 0)
-    # if payment logically not correct return with false value
-    if totalnet < 0 or due < 0 :
-        enc.delete()
-        return False
-    # save invoice in encounter only after all validation done
-    inv.save()
-    enc.invoice = inv
-    enc.save()
+
 
     # filtering charge items for encounter and getting its subject and enterer filed with patient and user
     chargeItems = ChargeItem.objects.filter(context=enc)
@@ -52,9 +40,23 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
         for t in included_tests:
             for o in t.observations.all():
                 c.observations.add(o)
-        # to add price overide in chargeitem
-        c.priceOverride = c.definitionCanonical.value
+        # to add price overide in chargeitem using model method update_price
+        c.update_price()
+        
         c.save()
+    #populate payment data in invoice object
+    total = chargeItems.aggregate(Sum('priceOverride'))['priceOverride__sum'] or 0
+    totalnet = total - (Discount or 0)
+    due = totalnet - (Payment or 0)
+    # if payment logically not correct return with false value
+    if totalnet < 0 or due < 0 :
+        enc.delete()
+        return False
+    # save invoice in encounter only after all validation done
+    inv.save()
+    enc.invoice = inv
+    enc.save()
+    
     # add default values to observatioin from ob_def    
     observations = Observation.objects.filter(chargeitem__in = chargeItems)
     for o in observations:

@@ -39,28 +39,43 @@ class PatientRegistration(forms.Form):
     email = forms.EmailField(label="E Mail", required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E Mail',}))
     photo = forms.ImageField(label='Add Image ', required=False,  widget=forms.FileInput(attrs={'class': 'form-control', 'placeholder': 'Photo',}))
 
+class EncounterRegistration_1(forms.Form):
+    # practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all().values_list('id', flat=True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
+    practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.filter(active = True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
+    # test field added to this form in view (Regi_encounter)
+    # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all().values('id'), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+    # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+    # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+    account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+    # discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
+    # paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
+
+
+
+
 class EncounterRegistration(forms.Form):
     # practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all().values_list('id', flat=True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
-    practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all(), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
+    # practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.filter(active = True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
+    # test field added to this form in view (Regi_encounter)
     # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all().values('id'), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+    # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
     test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
-    account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+    # account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
     discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
 
-
 class AppointmentRegistration (forms.Form): 
-        description = forms.CharField(label="Description",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 5, 'style':"width:100%;" }))
-        start = forms.DateTimeField(label="Start at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
-        end = forms.DateTimeField(label="End at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
-        slot = forms.ModelChoiceField(queryset=Slot.objects.all(), required=False, label = "Slot", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
-        account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
-        participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker chosen-select', 'data-live-search':'true'}))
-        recurrencetemplate = forms.ModelChoiceField(queryset=RecurrenceTemplate.objects.all(), required=False, label = "Recurrance ", widget=forms.Select(attrs={'class': 'form-control selectpicker' ,'data-live-search':'true'}))
-        organization = forms.ModelChoiceField(queryset=Organization.objects.all(), label = "TPA ", widget=forms.Select(attrs={'class': 'form-control selectpicker ','data-live-search':'true'}))
-        tests = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker chosen-select', 'data-live-search':'true'}))
-        patientinstruction = forms.CharField(label="Patient Instruction",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Patient Instruction', 'rows': 5, 'style':"width:100%;" }))
-        priority = forms.BooleanField(label="Is High Priority",required=False, widget=forms.CheckboxInput(attrs={'class': 'form-control',  }))
+    description = forms.CharField(label="Description",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 5, 'style':"width:100%;" }))
+    start = forms.DateTimeField(label="Start at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
+    end = forms.DateTimeField(label="End at", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
+    slot = forms.ModelChoiceField(queryset=Slot.objects.all(), required=False, label = "Slot", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+    account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
+    participants = forms.ModelMultipleChoiceField(queryset=User.objects.all(), required=True,label = "Participants", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker chosen-select', 'data-live-search':'true'}))
+    recurrencetemplate = forms.ModelChoiceField(queryset=RecurrenceTemplate.objects.all(), required=False, label = "Recurrance ", widget=forms.Select(attrs={'class': 'form-control selectpicker' ,'data-live-search':'true'}))
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all(), label = "TPA ", widget=forms.Select(attrs={'class': 'form-control selectpicker ','data-live-search':'true'}))
+    tests = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control selectpicker chosen-select', 'data-live-search':'true'}))
+    patientinstruction = forms.CharField(label="Patient Instruction",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Patient Instruction', 'rows': 5, 'style':"width:100%;" }))
+    priority = forms.BooleanField(label="Is High Priority",required=False, widget=forms.CheckboxInput(attrs={'class': 'form-control',  }))
 
 class dummy (forms.Form):
     title = forms.CharField(label="Title", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title' }))

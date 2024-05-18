@@ -1,0 +1,67 @@
+{% if names %}
+    <div class="container-fluid">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Mobile</th>
+                    <th scope="col">Handle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name in names %}
+                    <tr>
+                        <th scope="row">{{ name.patient_id }}</th>
+                        <td>{{ name.given }} {{ name.family }}</td>
+                        <td>{{ name.patient.get_mobile }}</td>
+                        <td>
+                            <a href="{% url 'labsys:enconterRegistration_1'  name.patient_id %}"
+                               class="btn btn-link"
+                               type="button">Add This Patient</a>
+                        </td>
+                    </tr>
+                </div>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title">None of Above !</h5>
+            <a href="#" class="btn btn-outline-secondary btn-sm">Add As New Patient</a>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card text-center">
+    <div class="card-body">
+        <h5 class="card-title">No Patient Found !!</h5>
+        <a href="#" class="btn btn-outline-secondary btn-sm">Add As New Patient</a>
+    </div>
+</div>
+{% endif %}
+<!-- {% for name in names %}
+    <div id="heading{{ name.id }}">
+        <table class="table">
+            <tr>
+                <td>{{ name.patient_id }}</td>
+                <td>{{ name.given }} {{ name.family }}</td>
+                <td>{{ name.patient.get_mobile }}</td>
+                <td>
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ name.id }}" aria-expanded="true" aria-controls="collapse{{ name.id }}">add</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="collapse{{ name.id }}" class="collapse" aria-labelledby="heading{{ name.id }}" data-parent="#accordionExample">
+        <div class="card-body">
+            <form action="#" method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group col-md-4">{{ form.practitioner.label }}{{ form.practitioner }}</div>
+                    <div class="form-group col-md-4">{{ form.account.label }}{{ form.account }}</div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endfor %} -->
