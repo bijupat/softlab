@@ -28,17 +28,18 @@
     <div class="card text-center">
         <div class="card-body">
             <h5 class="card-title">None of Above !</h5>
-            <a href="#" class="btn btn-outline-secondary btn-sm">Add As New Patient</a>
+            <a href="{% url 'labsys:pat_register'  0 %}"
+               class="btn btn-outline-secondary btn-sm">Add As New Patient</a>
         </div>
     </div>
-</div>
 {% else %}
-<div class="card text-center">
-    <div class="card-body">
-        <h5 class="card-title">No Patient Found !!</h5>
-        <a href="#" class="btn btn-outline-secondary btn-sm">Add As New Patient</a>
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title">No Patient Found !!</h5>
+            <a href="{% url 'labsys:pat_register'  0 %}"
+               class="btn btn-outline-secondary btn-sm">Add As New Patient</a>
+        </div>
     </div>
-</div>
 {% endif %}
 <!-- {% for name in names %}
     <div id="heading{{ name.id }}">

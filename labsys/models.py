@@ -584,13 +584,13 @@ class Invoice(models.Model):
 
 
     def __str__(self):
-        return f' Inovoice id {self.id} for {self.subject}'
+        return f'Inovoice id {self.id} for {self.subject}'
 
 class Device(models.Model):
     pass
 
     def __str__(self):
-        return f' Test : '
+        return f'Test : '
 
 #master data class for headings of priceitem definations
 class Headings(models.Model):

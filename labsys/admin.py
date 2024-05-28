@@ -20,6 +20,8 @@ class ObservationAdmin(admin.ModelAdmin):
     list_display = ('id', 'timedate', 'chargeitem', 'testfield','value', 'unit', 'high', 'low')
 class ChargeItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'definitionCanonical', 'subject', 'context','occurrenceDateTime','enterer', 'priceOverride', 'account')
+class PricelistAdmin(admin.ModelAdmin):
+    list_display = ('id', 'pricelist', 'category',)
 # Register your models here.
 admin.site.register(Period)
 admin.site.register(Name)
@@ -33,7 +35,7 @@ admin.site.register(Account)
 admin.site.register(Encounter, EncounterAdmin)
 admin.site.register(Observation, ObservationAdmin)
 admin.site.register(User)
-admin.site.register(Pricelist)
+admin.site.register(Pricelist, PricelistAdmin)
 admin.site.register(Specimen)
 admin.site.register(ObservationDefinition, ObservationDefinitionAdmin)
 admin.site.register(TestCategory)

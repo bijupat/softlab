@@ -248,7 +248,6 @@ def EnconterRegistration_1(request,pat_id ):
   
     else:
         form = EncounterRegistration_1()
-
         patid = pat_id
         return render(request, 'labsys/add_enc_1.html', {"patid" :patid, "form" : form})
 
@@ -459,9 +458,13 @@ def pat_register(request, register= -1):
             pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
             pat_email.save()
             # converting string to variable using eval()
-            form_context = eval(f'{register}Registration')
+            # form_context = eval(f'{register}Registration_1')
+            if register == "Encounter":
+                # form = EncounterRegistration_1()
+                return render(request, 'labsys/add_enc_1.html', {"patid" :new_patient.id, "form" : EncounterRegistration_1})
         # retunt template and context according to the value of register
-            return render(request, f'labsys/add_{register}.html', {"pat_id":new_patient.id, "form": form_context})
+            if register == "Appointment":
+                return render(request, 'labsys/add_Appointment.html', {"pat_id":new_patient.id, "form": AppointmentRegistration})
         # if form is not valid
         else:
             return render(request, 'labsys/patient_regi.html', { "form": form, "message": "Click to correct Invalid Patient Credentials!"})
@@ -469,11 +472,15 @@ def pat_register(request, register= -1):
     names = Name.objects.all()
     # pass value of register as enconter to register encounter as value of register is 0
     if register == 0:
-        return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
+        return render(request, 'labsys/new_patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
     # pass value of register as enconter to register encounter as value of register is 1
     if register == 1:
-        return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
+        return render(request, 'labsys/new_patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
 
+def EnconterRegistration(request):
+    if request.method == "POST":
+        pass
+    return render(request, 'labsys/patient_regi.html', { "form": PatientRegistration,})
 
 
 @login_required(login_url='/lab/login/')

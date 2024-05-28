@@ -29,6 +29,8 @@ urlpatterns = [
     path('appointments', views.appointments, name = 'appointments'),
     path('pat_register/<int:register>/', views.pat_register, name = 'pat_register'),
     path('enc_regi_1/<int:pat_id>/', views.EnconterRegistration_1, name = 'enconterRegistration_1'),
+    path('enc_regi', views.EnconterRegistration, name = 'enconterRegistration'),
+
 ]
 
 hx_urlpatterns =[
