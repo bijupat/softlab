@@ -55,7 +55,9 @@ def ObservationDataEdit(request,ob_id):
 def chargeitem_preview(request, *args, **kwargs):
     pk = kwargs.get('pk')
     chargeitem = get_object_or_404(ChargeItem, pk=pk) 
-    observations = Observation.objects.filter(chargeitem=chargeitem)
+    # reverse query by related name "observation" 
+    observations = chargeitem.observation.all()
+    # observations = Observation.objects.filter(chargeitem=chargeitem)
     is_all_ob_entered = True
     is_all_ob_final_or_above = True
     obs = {}
@@ -67,19 +69,26 @@ def chargeitem_preview(request, *args, **kwargs):
         #checking if ob.status is either P or R set variable to false, even single observation is not set it will turn to False
         if ob.status == "P" or ob.status == "R":
             is_all_ob_final_or_above = False
-      
+        print("status check")
         # itereting over all chargeitemdefinations associated with observationdef(testfield)
+        print(ob.testfield)
+        # print(ob.testfield.chargeitemdef.all())
         for cdef in ob.testfield.chargeitemdef.all():
             # if present chargeitem is profile
+            # if False:
             if chargeitem.definitionCanonical.is_profile:
                 # if iterating chargeitem(cdef) is not included in profile (present) chargeitem
+                # print(chargeitem.definitionCanonical.includes.all())
+                # print(cdef)
                 if cdef not in chargeitem.definitionCanonical.includes.all():
                     # if key not present in obs dict create new key with present chargeitem heading
                     if chargeitem.definitionCanonical.heading not in obs:
                         obs[chargeitem.definitionCanonical.heading] = [ob]
+                        # print(obs)
                     # if key is present append it with the observation
                     elif ob not in obs[chargeitem.definitionCanonical.heading]:
                         obs[chargeitem.definitionCanonical.heading].append(ob)
+                        # print(obs)        
                 # else (iterating chargeitem(cdef) is included in profile (present) chargeitem)
                 # in this case we provide same heading as the included chargeitem
                 # ie if CBC chargeitemdef is included in PREOP chargeitemdef for observations in CBC heading (key) will be as per CBC chargeitemdef heading
@@ -102,8 +111,10 @@ def chargeitem_preview(request, *args, **kwargs):
         # if all observation not final or above return to encounter:  for server side validation
     if not is_all_ob_final_or_above or len(observations) == 0:
         return HttpResponseRedirect(reverse("labsys:encounter", args=[chargeitem.context.id]))
-    for key, value in obs.items():
-        print(key)    
+    # for heading, observations in obs.items():
+    #     print(heading)
+    #     for observation in observations:
+    #         print (observation.value)    
     context =  {"observations": obs, "chargeitem" : chargeitem, "is_all_ob_entered":is_all_ob_entered, "is_all_ob_final_or_above": is_all_ob_final_or_above} 
 
     template_path = 'labsys/obs_by_chgItm_preview.html'
@@ -306,8 +317,10 @@ def AddEditDiscount(request):
 @login_required(login_url='/lab/login/')
 def ObservationEdit(request):
     if request.method == "POST": 
-        chargeitem = ChargeItem.objects.get(pk=request.POST["chargeitem_id"])    
-        observations = Observation.objects.filter(chargeitem=chargeitem)        
+        chargeitem = ChargeItem.objects.get(pk=request.POST["chargeitem_id"])  
+        # reverse query by related name "observation" 
+        observations = chargeitem.observation.all()  
+        # observations = Observation.objects.filter(chargeitem=chargeitem)        
         for ob in observations:
             try:
                 if request.POST[str(ob.id)]:
@@ -325,8 +338,10 @@ def ObservationEdit(request):
 def ObservationVerifyAll(request):
     if request.method == "POST": 
         chargeitem_id = request.POST["chargeitem_id"]    
-        chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
-        observations = Observation.objects.filter(chargeitem=chargeitem)
+        chargeitem = ChargeItem.objects.get(pk=chargeitem_id)
+        # reverse query by related name "observation" 
+        observations = chargeitem.observation.all()    
+        # observations = Observation.objects.filter(chargeitem=chargeitem)
         
         for ob in observations:
                 ob.status = "F"
@@ -590,8 +605,11 @@ def encounter(request, enc_id):
 
 @login_required(login_url='/lab/login/')
 def chargeitem(request, chargeitem_id, option):
-    chargeitem = ChargeItem.objects.get(pk=chargeitem_id)    
-    observations = Observation.objects.filter(chargeitem=chargeitem)
+    chargeitem = ChargeItem.objects.get(pk=chargeitem_id)
+    # reverse query by related name "observation" 
+    observations = chargeitem.observation.all()
+    # print(observations)
+    # observations = Observation.objects.filter(chargeitem=chargeitem)
     is_all_ob_entered = True
     is_all_ob_final_or_above = True
     for ob in observations:

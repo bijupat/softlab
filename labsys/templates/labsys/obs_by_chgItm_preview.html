@@ -67,7 +67,7 @@
                                 <td rowspan="2">{{ ob.refint }}</td>
                             </tr>
                             <tr>
-                                <td>{{ ob.testfield.method }} : Sample Type: {{ ob.testfield.specimen }}</td>
+                                <td>{{ ob.testfield.method|default:"" }} : Sample Type: {{ ob.testfield.specimen|default:"" }}</td>
                             </tr>
                             <tr>
                                 <td colspan="4">
@@ -75,7 +75,7 @@
                                 </td>
                             </tr>
                         {% endfor %}
-                        {% for ob in obs %}
+                        {% comment %} {% for ob in obs %}
                             <tr>
                                 <td>
                                     <h3>{{ ob.testfield.test }}</h3>
@@ -94,7 +94,7 @@
                                     {% if ob.note %}Note : {{ ob.note }}{% endif %}
                                 </td>
                             </tr>
-                        {% endfor %}
+                        {% endfor %} {% endcomment %}
                     {% endfor %}
                 </tbody>
             </table>

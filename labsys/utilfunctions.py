@@ -23,16 +23,17 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
     enc.save()
     # populate enc instance with queryset test/form.cleaned_data['test'] (as it it diretely populated from object in form) will return queryset as it is foreingkey(many to one)
     # enc.test is (through chargeitems) chargeitemdefination for the encounter 
-    enc.test.set(Tests)    
+    enc.test.set(Tests)
 
-
-    # filtering charge items for encounter and getting its subject and enterer filed with patient and user
-    chargeItems = ChargeItem.objects.filter(context=enc)
+    # filtering charge items for encounter by reverse quering using related name "chargeitem" and getting its subject and enterer filed with patient and user
+    chargeItems = enc.chargeitem.all()
+    # chargeItems = ChargeItem.objects.filter(context=enc)
     for c in chargeItems:
         c.subject, c.enterer, c.account = Patient, User, Account
         #finding set of observationdefs under test(chargeitemdef) by ChargeItemDefinition.objects.get(chargeitem=c)
         # finding set of observations in test(chargeitemdef) by .observations.all()
-        observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
+        observations = c.definitionCanonical.observations.all()
+        # observations = ChargeItemDefinition.objects.get(chargeitem=c).observations.all()
         # adding filtered observationdef to chageitem.observation(new_test.observation) as set
         c.observations.set(observations)
         # adding observations from included charge items
