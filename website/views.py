@@ -10,6 +10,7 @@ from .forms import  PatientRegistration
 #from django.http import HttpResponseRedirect
 #from django.urls import reverse
 from .models import Patient, Appointment
+from django.contrib.auth.decorators import login_required
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -89,7 +90,6 @@ def profiles(request):
             context.append(row)
     return render(request, 'website/profiles.html', {'context' : context})
 
-
 def book_visit(request):
     if request.method == "POST":
         form = PatientRegistration(request.POST)
@@ -124,6 +124,7 @@ def book_visit(request):
     # if request method get
     return render(request, 'website/book_visit.html',{ "form": PatientRegistration, })
 
+@login_required(login_url='/lab/login/')
 def manage_visit(request):
     if request.method == "POST":
         pass
