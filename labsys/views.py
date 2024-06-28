@@ -252,7 +252,7 @@ def EnconterRegistration_1(request,pat_id ):
         form = EncounterRegistration()
         # add test field in form modelform
         # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(price__pricelist = "3", status = "a")  
-        form.fields['test'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(price__pricelist = pricelist , status = "a"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+        form.fields['test'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(prices__pricelist = pricelist , status = "A"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
 
         # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(pricelist_included = 1)
         return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": form, "practitioner_id":practitioner.id , "account_id":account.id })
@@ -270,9 +270,9 @@ def EnconterRegistration_1(request,pat_id ):
 @login_required(login_url='/lab/login/')
 def DeleteTest(request):
     if request.method == "POST":
-        eid = json.loads(request.body.decode('utf-8'))["eid"]
+        # eid = json.loads(request.body.decode('utf-8'))["eid"]
         testid = json.loads(request.body.decode('utf-8'))["testid"]
-        invoice = Encounter.objects.get(pk=eid).invoice
+        # invoice = Encounter.objects.get(pk=eid).invoice
         chargeitem = ChargeItem.objects.get(pk=testid)
         Observation.objects.filter(chargeitem = chargeitem).delete()
         chargeitem.delete()
@@ -585,7 +585,7 @@ def encounter(request, enc_id):
         test_id_set.append(t.id)
     #creating observationdefination object queryset excluding those in set ie already register  for the encounter
     # tests = ChargeItemDefinition.objects.exclude(id__in=test_id_set)
-    tests =ChargeItemDefinition.objects.filter(price__pricelist = e.account.pricelist , status = "a").exclude(id__in=test_id_set)
+    tests =ChargeItemDefinition.objects.filter(prices__pricelist = e.account.pricelist , status = "A").exclude(id__in=test_id_set)
     
     #to check all charge item  is final, first set varialbe to True
     is_all_chargeitem_atleast_final= True

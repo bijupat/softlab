@@ -26,7 +26,7 @@ def register_encounter(Patient, Practitioner, Tests, Discount, Payment, Account,
     enc.test.set(Tests)
 
     # filtering charge items for encounter by reverse quering using related name "chargeitem" and getting its subject and enterer filed with patient and user
-    chargeItems = enc.chargeitem.all()
+    chargeItems = enc.chargeitems.all()
     # chargeItems = ChargeItem.objects.filter(context=enc)
     for c in chargeItems:
         c.subject, c.enterer, c.account = Patient, User, Account

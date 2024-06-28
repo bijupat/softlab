@@ -4,8 +4,10 @@ from .models import *
 class PatientAdmin(admin.ModelAdmin):
     list_display =('id', 'get_usual_name','active', 'gender', 'age','get_mobile')
 class ChargeItemDefinitionAdmin(admin.ModelAdmin):
-    filter_horizontal = ('observations', 'specimen',  'includes', 'replaces')
+    # filter_horizontal = ('observations', 'specimen',  'includes', 'replaces')
     list_display =('id', 'title','alias', 'is_profile',  'outsourced_to', 'status')
+    list_filter = ('status','is_profile', 'outsourced_to', 'heading')
+    search_fields = ['title']
 class PriceAdmin(admin.ModelAdmin):
     # filter_horizontal = ('chargeitemdef', 'specimen', 'pricelist_included', 'includes', 'replaces')
     list_display =('id', 'chargeitemdef','pricelist', 'price')
@@ -21,7 +23,10 @@ class ObservationAdmin(admin.ModelAdmin):
 class ChargeItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'definitionCanonical', 'subject', 'context','occurrenceDateTime','enterer', 'priceOverride', 'account')
 class PricelistAdmin(admin.ModelAdmin):
+    # Controlling which fields are displayed and laid out
+    fields = [('category', 'pricelist')]
     list_display = ('id', 'pricelist', 'category',)
+
 # Register your models here.
 admin.site.register(Period)
 admin.site.register(Name)
@@ -40,7 +45,7 @@ admin.site.register(Specimen)
 admin.site.register(ObservationDefinition, ObservationDefinitionAdmin)
 admin.site.register(TestCategory)
 admin.site.register(QualifiedInterval)
-#admin.site.register(DiagnosticReport)
+admin.site.register(DiagnosticReport)
 admin.site.register(Organization)
 admin.site.register(Invoice)
 admin.site.register(PaymentReconciliation)
