@@ -492,10 +492,10 @@ def pat_register(request, register= -1):
     if register == 1:
         return render(request, 'labsys/new_patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
 
-def EnconterRegistration(request):
-    if request.method == "POST":
-        pass
-    return render(request, 'labsys/patient_regi.html', { "form": PatientRegistration,})
+# def EnconterRegistration(request):
+#     if request.method == "POST":
+#         pass
+#     return render(request, 'labsys/patient_regi.html', { "form": PatientRegistration,})
 
 
 @login_required(login_url='/lab/login/')
