@@ -12,3 +12,6 @@ secret_key.txt
 /static/
 *.pyc
 /migrations/
+softlab/settings.py
+migrations_tools/
+gitignore
