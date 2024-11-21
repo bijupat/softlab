@@ -1,4 +1,5 @@
 #from xml.etree.ElementInclude import include
+# from ast import Expression
 from django.db import models
 #from django.db.models.base import Model
 #from django.db.models.enums import Choices
@@ -6,9 +7,17 @@ from django.contrib.auth.models import AbstractUser
 from datetime import date
 #from django.db.models.fields.related import OneToOneField
 #from django.contrib.postgres.fields import JSONField
-from django.db.models import Sum
+from django.db.models import Sum, F , Value
 from django.core.exceptions import ValidationError
-# from matplotlib import category
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.functions import Concat
+
+
+# master options for user lab
+MASTER_OPTIONS = {
+     "SAMPLE_ID_RESET" : "YEARLY"
+}
 
 
 # phone | fax | email | pager | url | sms | other
@@ -259,163 +268,39 @@ class Period(models.Model):
 
     def __str__(self):
             return 'Period for Starts :{}/{}/{} and Ends :{}/{}/{} (dd/mm/yyyy)'.format(self.start.day, self.start.month, self.start.year, self.end.day, self.end.month, self.end.year)
- 
-
-
-class Practitioner(models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    active = models.BooleanField(blank=True, null=True, default=True)
-    #name = models.OneToOneField(name, on_delete=models.PROTECT, related_name='name')
-    #telecom = models.ManyToManyField(telecom, related_name='practitioner_telecom')
-    gender = models.CharField(max_length=20, choices=gender,blank=True, null=True)
-    birthDate = models.DateField(blank=True, null=True)
-    deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
-    #address =  models.ManyToManyField(address, related_name='p                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         fractitioner_Address')
-    photo = models.ImageField(blank=True, null=True)
-    qualification = models.CharField(max_length=200, blank=True, null=True)
-     #A language which may be used to communicate with the patient about his or her health.
-    communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
-    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioners',blank=True, null=True)
-     
-    @property
-    def fullname(self):
-        try:
-            return 'Dr {} {}'.format(self.names.get().given.title(), self.names.get().family.title())
-        except:
-            pass
-        finally:
-            try:
-                return 'Dr {}'.format( self.names.get().given.title()) 
-            except:
-                return f'Practitioner id {self.id}'
-        
-    def __str__(self):
-        return self.fullname
-    
-# // A contact party (e.g. guardian, partner, friend) for the patient##
-class Contact(models.Model):
-    # // The kind of relationship
-    relationship = models.CharField(max_length=75, blank=True, null=True, choices= Contact_relationship)
-    # A name associated with the contact person
-    gender = models.CharField(max_length=20, blank=True, null=True, choices=gender)
-    #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
-
-    def __str__(self):
-        try:
-            return 'Contact id-{}: Relationship {} between {}(Contact) and {}(Patient)'.format(self.id, self.get_relationship_display(), self.names.get().text, self.patient.get().names.get().text)
-        except:
-            return 'some error'
-
-
-
-class Patient(models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    active = models.BooleanField(blank=True, null=True, default=True)
-    #name = models.ForeignKey(name, on_delete=models.PROTECT, related_name='Patient_Name')
-    birthdate = models.DateField(blank=True, null=True)
-    deceasedboolean = models.BooleanField(blank=True, null=True, default=False)
-    gender = models.CharField(max_length= 10, choices=gender,blank=True, null=True)
-    #address = models.ForeignKey(address, on_delete=models.PROTECT, related_name='Patient_Address')
-    photo = models.ImageField(blank=True, null=True)
-    marital_status = models.CharField(max_length=25, choices = marital_status,blank=True, null=True)
-    concact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='patients',blank=True, null=True)     
-    #practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='Ref_by_GP',blank=True, null=True)
-    #A language which may be used to communicate with the patient about his or her health.
-    communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
-    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patients',blank=True, null=True)
-
-    class Meta:
-        ordering = ["id"]
-    # implenting age field to be calculated from birth date
-    @property
-    def age(self):
-        if self.birthdate: 
-            return date.today().year - self.birthdate.year
-
-    # defining method that returns usual name
-    def get_usual_name(self):
-        if self.names:
-            for name in self.names.all():
-                if name.use == "U":
-                 return '{} {}'.format(name.given, name.family)
-    # defining method that returns mobile no
-    def get_mobile(self):
-        if self.names:
-            for tele in self.telecoms.all():
-                if tele.use == "M":
-                    return '{}'.format(tele.value)
-    # defining method that returns e mail
-    def get_email(self):
-        if self.names:
-            for tele in self.telecoms.all():
-                if tele.system == "E":
-                    return '{}'.format(tele.value)
-
-    def __str__(self):  
-            return f'Patient id : {self.id}'
-
-class Organization (models.Model):
-    identifier = models.CharField(max_length=75, blank=True, null=True)
-    # Whether the organization's record is still in active use
-    active = models.BooleanField(blank=True, null=True, default=True)
-    #Name used for the organization
-    name = models.CharField(max_length=75, blank=True, null=True)
-    # A list of alternate names that the organization is known as, or was known as in the past
-    alias = models.CharField(max_length=75, blank=True, null=True)
-    # Contact for the organization for a certain purpose 
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='organizations',blank=True, null=True)
-
-
-    def __str__(self):
-            return 'Organization  : {}'.format(self.name)
-
-
-
-
-class Telecom(models.Model):
-    # phone | fax | email | pager | url | sms | other
-    system = models.CharField(max_length=10, choices= Telecom_system)
-    # The actual contact point details
-    value = models.CharField(max_length=75,)
-    # // home | work | temp | old | mobile - purpose of this contact point
-    use = models.CharField(max_length=10, choices=Telecom_use)
-    # // Specify preferred order of use (1 = highest)
-    rank = models.IntegerField(blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='telecoms', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='telecoms', blank=True, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='telecoms',blank=True, null=True)
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='telecoms',blank=True, null=True)
-
-    def __str__(self):
-        if self.patient:
-            return 'patient {} {} has {} ({}) : {}'.format(self.patient.names.get().text, self.patient.names.get().family ,self.get_system_display(), self.get_use_display(), self.value)
-        if self.practitioner:
-            return 'Practitioner {} {} has {} ({}) : {}'.format(self.practitioner.names.get().text, self.practitioner.names.get().family ,self.get_system_display(), self.get_use_display(), self.value)
-        if self.contact:
-            return 'Practitioner {} {} has {} ({}) : {}'.format(self.contact.contact_name.get().text, self.contact.contact_name.get().family ,self.get_system_display(), self.get_use_display(), self.value)
-        if self.organization:
-            return 'Organization {} has {} ({}) : {}'.format(self.organization.name, self.get_system_display(), self.get_use_display(), self.value)
 
 class Name(models.Model):
     # // usual | official | temp | nickname | anonymous | old | maiden
     use = models.CharField(max_length=7, blank=True, null=True, choices =Name_use, default="U")
-    # // Text representation of the full name   
-    text = models.CharField(max_length=75, blank=True, null=True)
-    # // Family name (often called 'Surname')
-    family = models.CharField(max_length=75, blank=True, null=True)
-    # // Given names (not always 'first'). Includes middle names
-    given = models.CharField(max_length=75, blank=True, null=True)
     # // Parts that come before the name
     prefix = models.CharField(max_length=75, blank=True, null=True)
+    # // Given names (not always 'first'). Includes middle names
+    given = models.CharField(max_length=75, blank=True, null=True)
+    # // Family name (often called 'Surname')
+    family = models.CharField(max_length=75, blank=True, null=True)
     # // Parts that come after the name
     suffix = models.CharField(max_length=75, blank=True, null=True)
-    # Time period when name was/is in use
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='names', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='names', blank=True, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='names',blank=True, null=True)
-    #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True)
-    
-    def serialize(self):
+    # // Text representation of the full name by generated field
+    text = models.GeneratedField(
+        expression=Concat('given', Value(' '), 'family'),
+        output_field = models.CharField(max_length=256,),
+        db_persist= True,
+        )
+    #Generic Foreign key for multiple content_types
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+
+    def __str__(self):
+        return f'{self.text} ({self.content_type})'
+
+
+"""    def serialize(self):
         #if name if for patient it will retun filled dict
         if self.patient:
             mobno = ""
@@ -436,14 +321,32 @@ class Name(models.Model):
                 "patient_id":"",
                 "mobno": "",        
             }
-    
+"""
+
+
+
+class Telecom(models.Model):
+    # phone | fax | email | pager | url | sms | other
+    system = models.CharField(max_length=10, choices= Telecom_system)
+    # // home | work | temp | old | mobile - purpose of this contact point
+    use = models.CharField(max_length=10, choices=Telecom_use)
+    # The actual contact point details
+    value = models.CharField(max_length=75,)
+    # // Specify preferred order of use (1 = highest)
+    rank = models.IntegerField(blank=True, null=True)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+
+
     def __str__(self):
-        if self.patient:
-            return 'Patient : {} {} having  id {}'.format(self.given, self.family, self.patient.id)
-        if self.practitioner:
-            return 'Practitioner : {} {} having  id {}'.format(self.given, self.family, self.practitioner.id)
-        if self.contact:
-            return 'Contact : {} {} having  id {}'.format(self.given, self.family, self.contact.id)
+        return 'Telecom : {}/{}: {}'.format(self.get_system_display(), self.get_use_display(), self.value)
 
 class Address(models.Model):
     # // home | work | temp | old | billing - purpose of this address
@@ -458,24 +361,155 @@ class Address(models.Model):
     state = models.CharField(max_length=250, default="Gujarat",blank=True, null=True)
     postalcode = models.CharField(max_length=250,blank=True, null=True)
     country = models.CharField(max_length=250, default="India",blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='addresses', blank=True, null=True)
-    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='addresses', blank=True, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='addresses',blank=True, null=True)
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='addresses',blank=True, null=True)
 
-    # Time period when name was/is in use
-    #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
     def __str__(self):
-        if self.patient:
-            return 'address for : {} {}(Patient) at({}) : {}'.format(self.patient.names.get().text, self.patient.names.get().family, self.get_use_display(), self.text)
-        if self.practitioner:
-            return 'address for : {} {}(Practitioner) at({}) : {}'.format(self.practitioner.names.get().text, self.practitioner.names.get().family, self.get_use_display(), self.text)
-        if self.contact:
-            return 'address for : {} Contact) at({}) : {}'.format(self.contact, self.get_use_display(), self.text)
-        if self.organization:
-            return 'address for : {} (organization) at({}) : {}'.format(self.organization.name, self.get_use_display(), self.text)
-        else:
-            return 'Some error'
+         return f'{self.content_type}'
+
+
+class Contact(models.Model):
+    # // The kind of relationship
+    relationship = models.CharField(max_length=75, blank=True, null=True, choices= Contact_relationship)
+    # A name associated with the contact person
+    gender = models.CharField(max_length=20, blank=True, null=True, choices=gender)
+    #period = models.OneToOneField(period, on_delete=models.PROTECT, blank=True, null=True)
+    names = GenericRelation(Name, related_query_name="contact")
+    telecoms = GenericRelation(Telecom, related_query_name="contact")
+    address = GenericRelation(Address, related_query_name="contact")
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+
+    def __str__(self):
+        try:
+            return 'Contact id-{}: Relationship {} between {}(Contact) and {}(Patient)'.format(self.id, self.get_relationship_display(), self.names.get().text, self.patient.get().names.get().text)
+        except:
+            return 'some error'
+        
+class Patient(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    active = models.BooleanField(blank=True, null=True, default=True)
+    birthdate = models.DateField(blank=True, null=True)
+    deceasedboolean = models.BooleanField(blank=True, null=True, default=False)
+    gender = models.CharField(max_length= 10, choices=gender,blank=True, null=True)
+    photo = models.ImageField(blank=True, null=True)
+    marital_status = models.CharField(max_length=25, choices = marital_status,blank=True, null=True)
+    communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
+    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='patients',blank=True, null=True)
+    names = GenericRelation(Name, related_query_name="patient")
+    telecoms = GenericRelation(Telecom, related_query_name="patient")
+    address = GenericRelation(Address, related_query_name="patient")
+    contact = GenericRelation(Contact, related_query_name="patient")
+    class Meta:
+        ordering = ["id"]
+    # implenting age field to be calculated from birth date
+    @property
+    def age(self):
+        if self.birthdate: 
+            return date.today().year - self.birthdate.year
+
+    # defining method that returns usual name
+    def get_usual_name(self):
+        try:
+             return self.names.filter(use="U")[0].text or ""
+        except:
+            return ""
+    # defining method that returns PHONE mobile no
+    def get_mobile(self):
+        try:
+            return self.telecoms.filter(system= "P", use="M").order_by('rank')[0].value or ""
+        except:
+            return ""
+    # defining method that returns e mail(ANY USE)
+    def get_email(self):
+        try:
+            return self.telecoms.filter(system= "E").order_by('rank')[0].value 
+        except:
+            return ""
+
+    def __str__(self):  
+            return f'Patient id : {self.names.filter(use="U")[0].text or ""}'
+
+class Practitioner(models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    active = models.BooleanField(blank=True, null=True, default=True)
+    gender = models.CharField(max_length=20, choices=gender,blank=True, null=True)
+    birthDate = models.DateField(blank=True, null=True)
+    deceasedBoolean = models.BooleanField(blank=True, null=True, default=False)
+    photo = models.ImageField(blank=True, null=True)
+    qualification = models.CharField(max_length=200, blank=True, null=True)
+     #A language which may be used to communicate with the patient about his or her health.
+    communication = models.CharField(max_length=25, choices=communication, blank=True, null=True)
+    period = models.ForeignKey(Period, on_delete=models.PROTECT, related_name='practitioners',blank=True, null=True)
+    names = GenericRelation(Name, related_query_name="practitioner")
+    telecoms = GenericRelation(Telecom, related_query_name="practitioner")
+    address = GenericRelation(Address, related_query_name="practitioner")
+
+    @property
+    def fullname(self):
+        try:
+            return 'Dr {} {}'.format(self.names.get().given.title(), self.names.get().family.title())
+        except:
+            pass
+        finally:
+            try:
+                return 'Dr {}'.format( self.names.get().given.title()) 
+            except:
+                return f'Practitioner id {self.id}'
+        
+    def __str__(self):
+        return self.fullname
+
+
+class Note(models.Model):
+    author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='notes')
+    time = models.DateTimeField(auto_now_add=True)
+    text = models.CharField(max_length=500, blank=True, null=True)
+  
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+
+  
+    def __str__(self):
+            return 'Note by : {} at : {}'.format(self.author.names.get().text, self.time)
+    
+
+class Organization (models.Model):
+    identifier = models.CharField(max_length=75, blank=True, null=True)
+    # Whether the organization's record is still in active use
+    active = models.BooleanField(blank=True, null=True, default=True)
+    #Name used for the organization
+    name = models.CharField(max_length=75, blank=True, null=True)
+    # A list of alternate names that the organization is known as, or was known as in the past
+    alias = models.CharField(max_length=75, blank=True, null=True)
+    # Contact for the organization for a certain purpose 
+    # contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='organizations',blank=True, null=True)
+
+
+    def __str__(self):
+            return 'Organization  : {}'.format(self.name)
+
+
 
 #master data class
 class Pricelist(models.Model):
@@ -483,6 +517,7 @@ class Pricelist(models.Model):
     #remove blank = true and null = true in production version
     # account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='pricelist',blank=True, null=True)
     category = models.CharField(max_length=75, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
 
     def __str__(self):
             return 'Pricelist : {}'.format(self.pricelist)
@@ -504,13 +539,13 @@ class Account (models.Model):
     pricelist = models.ForeignKey(Pricelist, on_delete=models.PROTECT, related_name='accounts',blank=True, null=True)
     # contact
     contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='accounts',blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
 
     def __str__(self):
             return 'Account  : {}'.format(self.name)
 
 class Specimen(models.Model):
     sampletype = models.CharField(max_length=75, blank=True, null=True)
-    #test = models.ManyToManyField(ObservationDefination, related_name='sampletype_test')
 
     def __str__(self):
             return 'SampleType : {}'.format(self.sampletype)
@@ -524,8 +559,7 @@ class TestCategory(models.Model):
   
 
     
-# Master list of depatement like biochem, hemat, histo  
-
+# Master list of depatement like biochem, hemat, histo
 class Department(models.Model):
     pass
 
@@ -619,7 +653,7 @@ class Invoice(models.Model):
     discount = models.PositiveIntegerField(blank=True, null=True)
     paymentTerms = models.CharField(max_length=200, blank=True, null=True)
     # Comments made about the invoice by the issuer, subject, or other participants.
-    note = models.CharField(max_length=200, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
 
     """
     payment property returns dict with details of calculated vaues of payment
@@ -654,7 +688,7 @@ class Device(models.Model):
 #master data class for headings of priceitem definations
 class Headings(models.Model):
     heading = models.CharField(max_length=75, blank=True, null=True)
-    note = models.CharField(max_length=75, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
     
     def __str__(self):
             return '{}'.format(self.heading)
@@ -669,9 +703,9 @@ class ChargeItemDefinition(models.Model):
     # Creation date The date when the resource was created.
     created = models.DateTimeField(auto_now_add=True)
     #A larger definition of which this particular definition is a component or step
-    includes = models.ManyToManyField("self", blank=True,  related_name='included_to')
+    includes = models.ManyToManyField("self", blank=True,)
     #Completed or terminated request(s) whose function is taken by this new request
-    replaces = models.ManyToManyField("self", blank=True,  related_name='replaced_by')
+    replaces = models.ManyToManyField("self", blank=True,)
     # draft | active | retired | unknown
     status = models.CharField(max_length=20, blank=True, null=True, choices=obdef_or_cidef_status, default = "A")
     # For testing purposes, not real usage
@@ -681,13 +715,12 @@ class ChargeItemDefinition(models.Model):
     # is it individula test or profiel ?
     is_profile = models.BooleanField(blank=True, null=True, default=False)
     # observations(test) included in this charge item
-    #observations_included = models.ManyToManyField(ObservationDefinition, blank=True,  related_name='chargeitemdef')
     observations = models.ManyToManyField(ObservationDefinition, blank=True, related_name='chargeitemdefs')
     # heading to the report print like Hemogram / Liver function test implemented to whole  report
     # TAT for the field
     tat = models.SmallIntegerField(blank=True, null=True)
     heading = models.ForeignKey(Headings, on_delete=models.PROTECT, related_name='chargeitemdefs', blank=True, null=True)
-    category = models.CharField(max_length=20, blank=True, null=True, choices=ObservationDefinition_category, default="laboratory")
+    category = models.CharField(max_length=20, blank=True, null=True, choices=ObservationDefinition_category, default="L")
     # date on which first approved 
     approvalDate = models.DateTimeField(blank=True, null=True)
     #Date last changed
@@ -731,6 +764,7 @@ class Price(models.Model):
 
 
 class Encounter(models.Model):
+    sample_id = models.IntegerField(default=0)
     identifier = models.CharField(max_length=75, blank=True, null=True)
     test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
     #observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='encounter')
@@ -742,10 +776,20 @@ class Encounter(models.Model):
     # one invoice can be created for more than one encounter
     invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='encounters', blank=True, null=True)
     timedate = models.DateTimeField(auto_now_add=True)
-    #contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
-    #name = models.ForeignKey(Name, on_delete=models.PROTECT, related_name='Contact_Telecom',blank=True, null=True)
     # if urgent  reporting required 
     urgent=  models.BooleanField(default=False)  # Field name made lowercase.
+    notes = GenericRelation(Note, related_query_name="note")
+    # override default save method to autoincrement sample_id
+    def save(self, *args, **kwargs):
+        # This means that the model isn't saved to the database yet
+        if self._state.adding:
+            # Get the maximum display_id value from the database
+            last_sample_id = Encounter.objects.all().aggregate(largest=models.Max('sample_id'))['largest']
+            # aggregate can return None! Check it first.
+            # If it isn't none, just use the last ID specified (which should be the greatest) and add one to it
+            if last_sample_id is not None:
+                self.sample_id = last_sample_id + 1      
+        super(Encounter, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ["timedate"]
@@ -787,7 +831,7 @@ class ChargeItem(models.Model):
     # Account to place this charge
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='ChargeItems', blank=True, null=True)
     # copies  from charge item defination but open for edit if desired
-    note = models.CharField(max_length=1000, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
 
     def is_all_atleat_final(self):
         obs = Observation.objects.filter(chargeitem = self)
@@ -845,7 +889,7 @@ class Observation(models.Model):
     high = models.CharField(max_length=75, blank=True, null=True)
     low = models.CharField(max_length=75, blank=True, null=True)
     # copied from observation defination note  but open to be edited if desired    
-    note = models.CharField(max_length=1000, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
 
     def populate_fm_obdef(self):
         self.unit = self.testfield.unit or "" 
@@ -899,7 +943,7 @@ class ServiceRequet(models.Model):
     encounter = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='ServiceRequests', null=True, blank=True)
     subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='ServiceRequests', null=True, blank=True)
     requester = models.ForeignKey(User, on_delete=models.PROTECT, related_name='ServiceRequests', blank=True, null=True) 
-    note = models.CharField(max_length=1000, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
     specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='ServiceRequests', blank=True, null=True)
     patientInstruction = models.CharField(max_length=1000, blank=True, null=True)
 
@@ -929,7 +973,7 @@ class DiagnosticReport (models.Model):
     result = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='DiagnosticReports', blank=True, null=True)
     media_link = models.ForeignKey(Media, on_delete=models.PROTECT, related_name='DiagnosticReports', blank=True, null=True)
     conclusion = models.CharField(max_length=75, blank=True, null=True, default='registered')
-    note = models.CharField(max_length=1000, blank=True, null=True)
+    notes = GenericRelation(Note, related_query_name="note")
     # Entire report as issued Rich text representation of the entire result as issued by the diagnostic service 
     # can be equivalent to layout in pplus rtf data
     presentedForm = models.CharField(max_length=1000, blank=True, null=True)
@@ -972,14 +1016,6 @@ class PaymentReconciliation(models.Model):
 
 
 
-class Note(models.Model):
-    author = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='notes')
-    time = models.DateTimeField(auto_now_add=True)
-    text = models.CharField(max_length=500, blank=True, null=True)
-  
-    def __str__(self):
-            return 'Note by : {} at : {}'.format(self.author.names.get().text, self.time)
-    
 
 class Slot(models.Model):
     pass

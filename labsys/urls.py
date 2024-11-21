@@ -27,4 +27,3 @@ urlpatterns = [
     path('appointments', views.appointments, name = 'appointments'),
 
 ]
-

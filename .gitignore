@@ -18,3 +18,6 @@ labsys/templates/labsys/New folder/
 labsys/urls_1.py
 labsys/views_1.py
 /migrations_tools/
+dbname.txt
+host.txt
+/labsys/migrations/
