@@ -2,23 +2,23 @@
 #from multiprocessing import context
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, FileResponse, HttpResponseRedirect
 from django.utils.timezone import datetime 
-from .forms import EncounterRegistration, PatientRegistration, AppointmentRegistration, EncounterRegistration_1
-from django.http import HttpResponseRedirect
+from .forms import PatientRegistration, AppointmentRegistration, RequestRegi_1, RequestRegi_2
 from django.urls import reverse
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.contrib.auth.decorators import login_required
 from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from .utilfunctions import register_encounter
 from django import forms
+import pprint
+from django.utils.datastructures import MultiValueDictKeyError
 
 
 @login_required(login_url='/lab/login/')
@@ -200,45 +200,122 @@ def search(request):
     return HttpResponse(status=400)
 
 
+#@@@ CONSIDER PREFETCH_RELATED OR SELECT_RELATED FOR THIS VIEW TO FETCH PATIENT WITH SEARCH OF NAME/TELCOMS
+@login_required(login_url='/lab/login/')
+def hx_patient_search(request):
+    # print(request.POST)
+    if request.method == 'POST':
+        try:
+            mobile = request.POST['mobile']
+            if len(mobile)==10:
+                # this query create innerjoin on name, patient and telecom models in single query
+                names = Name.objects.select_related('content_type').filter(patient__telecoms__use="M", patient__telecoms__value = mobile)
+                message = f"Search result of Mobile no : '{mobile}'"
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            else:
+                return HttpResponse("<h4 style='color:red' class = 'text-center'>Please enter valid 10 digit mobile Number</h4>")
+        except MultiValueDictKeyError:
+            fname = request.POST["fname"]
+            lname = request.POST["lname"]
+            if len(fname) > 2 and len(lname)> 2:
+                names = Name.objects.select_related('content_type').filter(given__icontains=fname, family__icontains=lname, content_type__model = 'patient' )
+                message = f"Search result of First name : '{fname}' and Last name : '{lname}'"
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            if len(fname) > 2:
+                message = f"Search result of First name : '{fname}'"
+                names = Name.objects.filter(given__icontains=fname).exclude(patient=None)
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            if len(lname) > 2:
+                message = f"Search result of Last Name : '{lname}'"
+                names = Name.objects.filter(family__icontains=lname).exclude(patient=None)
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            return HttpResponse("<h4 style='color:red'class = 'text-center'>Please enter atleast three letters</h4>")
+    return render(request, 'labsys/patient_search.html')
 
 @login_required(login_url='/lab/login/')
-def hx_search(request):
-    # print(request.POST)
-    try: 
-        mobile = request.POST["mobile"]
-        if len(mobile)==10:
-            telecoms = Telecom.objects.filter(use="M").filter(value=mobile)
-            patients = Patient.objects.filter(telecom__in = telecoms)
-            #filtering name objects with having patient in filtered patient set(queryset) patients
-            names = Name.objects.filter(patient__in=patients)
-            # names = name_found.order_by("-text").all()
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-        else:
-             return HttpResponse("Please enter valid 10 digit mobile Number")
-    except:
-        try:
-            fname = request.POST["fname"]
-        except:
-            fname = ""
-        try:
-            lname = request.POST["lname"]
-        except:
-            lname = ""
-        if len(fname) > 2 and len(lname)> 2:
-            names = Name.objects.filter(given__icontains=fname, family__icontains=lname).exclude(patient=None)
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-            # names = name_found.order_by("-given").all()
-            # print (names)
-            # return HttpResponse(name_found)
-        if len(fname) > 2:
-            names = Name.objects.filter(given__icontains=fname).exclude(patient=None)
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-        if len(lname) > 2:
-            names = Name.objects.filter(family__icontains=lname).exclude(patient=None)
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-        return HttpResponse("Please enter atleast three letters")
-    
+def add_request_1(request, **kwargs):
+    if request.method == "POST":
+        form = RequestRegi_1(request.POST)
+        if form.is_valid():
+            practitioner = form.cleaned_data["practitioner"]
+            account = form.cleaned_data["account"]
+            pricelist = account.pricelist
+            # print(account)
+            # print(practitioner)
+        form = RequestRegi_2()
+        # add test field in form modelform
+        # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(price__pricelist = "3", status = "a")  
+        form.fields['tests'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(price_s__pricelist = pricelist , status = "A"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
 
+        # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(pricelist_included = 1)
+        return render(request, 'labsys/add_request_2.html', { "pat_id": kwargs['pat_id'], "form": form, "pract_id":practitioner.id , "plist_id":pricelist.id })
+    
+    else:
+        form = RequestRegi_1()
+        # pratitioners = Practitioner.objects.prefetch_related("names")
+        # form.fields['practitioner'].queryset = pratitioners
+        return render(request, 'labsys/add_request_1.html', {"pat_id" :kwargs['pat_id'], "form" : form})
+
+
+@login_required(login_url='/lab/login/')
+def add_request_2(request, **kwargs):
+    if request.method == "POST":
+        form = RequestRegi_2(request.POST)
+        if form.is_valid():
+            ser_req = ServiceRequet(subject = get_object_or_404( Patient, pk = kwargs['pat_id']), 
+                                    practitioner = get_object_or_404(Practitioner, pk = kwargs['pract_id']), 
+                                    account = get_object_or_404(Account , pk = kwargs['plist_id']),
+                                    status ="A",
+                                    category = 'L',
+                                    priority = 'R',
+                                    requester = request.user,
+                                    authoredOn = form.cleaned_data["appointment_time"]
+                                    )
+            ser_req.save()
+            tests = form.cleaned_data["tests"]
+            specimentype = set()
+            for test in tests:
+                for s in test.specimentypes.all():
+                    specimentype.add(s.id)
+            ser_req.tests.set(tests)
+            ser_req.specimentypes.set(specimentype)           
+            return HttpResponseRedirect(reverse("labsys:service-requests"))
+        
+        else:
+            return render(request, 'labsys/add_request_2.html', { "pat_id": kwargs['pat_id'], 
+                                                                 "form": form,
+                                                                 "pract_id":kwargs['pract_id'],
+                                                                 "plist_id":kwargs['plist_id'] })
+
+@login_required(login_url='/lab/login/')
+def add_encounter(request, **kwargs):
+    ser_req_id = kwargs['req_id']
+    req = ServiceRequet.objects.select_related("subject",
+                                                           "practitioner",
+                                        ).prefetch_related("subject__names",
+                                                             "tests", 
+                                                             "specimentypes",
+                                                             "requester",
+                                                             "practitioner__names",
+                                                             "account"
+                                        ).get(pk=ser_req_id)
+    print (req)
+    return render(request, 'labsys/add_encounter.html', {"req" :req })
+
+@login_required(login_url='/lab/login/')
+def servicerequests(request):
+    if request.method == "POST":
+        pass
+        
+    servicerequests = ServiceRequet.objects.select_related("subject",
+                                                           "practitioner",
+                                        ).prefetch_related("subject__names",
+                                                             "tests", 
+                                                             "specimentypes",
+                                                             "requester",
+                                                             "practitioner__names",
+                                                             "account")
+    return render(request, 'labsys/view_requests.html',{'requests' :servicerequests})
 
 @csrf_exempt
 @login_required(login_url='/lab/login/')
@@ -389,10 +466,10 @@ def regi_appointment(request, pat_id):
                 # new appointment need to saved as needs to have a value for field "id" before this many-to-many relationship can be used.
                 new_appointment.participants.set(form.cleaned_data["participants"])
                 new_appointment.tests.set(form.cleaned_data["tests"])
-                print("try executed")
+                # print("try executed")
                 return HttpResponseRedirect(reverse("labsys:appointments"))
             except Exception as error:
-                print("excetp executed")
+                # print("excetp executed")
                 return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":error})
         # if form is not valid
         else:
@@ -549,3 +626,4 @@ def register(request):
         return HttpResponseRedirect(reverse("labsys:index"))
     else:
         return render(request, "labsys/register.html")
+    

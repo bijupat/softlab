@@ -19,20 +19,20 @@ class PatientAdmin(admin.ModelAdmin):
     list_display =['id', 'get_usual_name','active', 'gender', 'age','get_mobile','get_email']
     inlines = [NameInline,TelecomInline,AddressInline,]
 class ChargeItemDefinitionAdmin(admin.ModelAdmin):
-    # filter_horizontal = ['observations', 'specimen',  'includes', 'replaces')
+    filter_horizontal = ['observations', 'specimentypes',  'includes', 'replaces']
     list_display =['id', 'title','alias', 'is_profile',  'outsourced_to', 'status']
     list_filter = ['status','is_profile', 'outsourced_to', 'heading']
     search_fields = ['title']
 class PriceAdmin(admin.ModelAdmin):
-    # filter_horizontal = ['chargeitemdef', 'specimen', 'pricelist_included', 'includes', 'replaces')
+    #filter_horizontal = ['chargeitemdef', 'specimentype, 'pricelist_included', 'includes', 'replaces')
     list_display =['id', 'chargeitemdef','pricelist', 'price']
 class PractitionerAdmin(admin.ModelAdmin):
-    # filter_horizontal = ['chargeitemdef', 'specimen', 'pricelist_included', 'includes', 'replaces')
+    # filter_horizontal = ['chargeitemdef', 'specimentype', 'pricelist_included', 'includes', 'replaces']
     list_display =['id', 'fullname','active', 'gender', 'birthDate']
     inlines = [NameInline,TelecomInline,AddressInline,]
 
 class ObservationDefinitionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'test', 'method', 'unit', 'specimen', 'tat', 'equipment', 'dept', 'loinc_code' ]
+    list_display = ['id', 'test', 'method', 'unit', 'unit', 'tat', 'equipment', 'dept', 'loinc_code' ]
 class EncounterAdmin(admin.ModelAdmin):
     list_display = ['id','sample_id', 'timedate','patient','practitioner', 'account', 'invoice','urgent']
     inlines = [NoteInline,]
@@ -45,7 +45,11 @@ class PricelistAdmin(admin.ModelAdmin):
     # Controlling which fields are displayed and laid out
     fields = [('category', 'pricelist')]
     list_display = ['id', 'pricelist', 'category',]
-
+class ServiceRequetAdmin(admin.ModelAdmin):
+    filter_horizontal = [ 'specimentypes']
+    list_display =['id',    'status', 'priority', 'practitioner', 'requester']
+    list_filter = ['status','subject', 'requester', 'occurrenceDateTime']
+    search_fields = ['title']
 # Register your models here.
 admin.site.register(Period)
 admin.site.register(Name)
@@ -60,7 +64,7 @@ admin.site.register(Encounter, EncounterAdmin)
 admin.site.register(Observation, ObservationAdmin)
 admin.site.register(User)
 admin.site.register(Pricelist, PricelistAdmin)
-admin.site.register(Specimen)
+admin.site.register(SpecimenType)
 admin.site.register(ObservationDefinition, ObservationDefinitionAdmin)
 admin.site.register(TestCategory)
 admin.site.register(QualifiedInterval)
@@ -74,6 +78,8 @@ admin.site.register(Device)
 admin.site.register(Headings)
 admin.site.register(Appointment)
 admin.site.register(Price, PriceAdmin)
+admin.site.register(Sample)
+admin.site.register(ServiceRequet, ServiceRequetAdmin)
 
 
 

@@ -4,7 +4,14 @@ from . import views
 
 app_name = 'labsys'
 urlpatterns = [
+    # url_view_mastersheet updated urls
     path('', views.index, name='index'),
+    path('add_request_1/<int:pat_id>/', views.add_request_1, name= 'add-request-1'),
+    path('add_request_2/<int:pat_id>/<int:plist_id>/<int:pract_id>/', views.add_request_2, name= 'add-request-2'),
+    path('service_requests/', views.servicerequests, name= 'service-requests'),
+    path('add_enc/<int:req_id>', views.add_encounter, name = 'add-encounter'),
+
+    # url_view_mastersheet not updated urls
     path('login/', views.login_view, name = 'login'),
     path('logout/', views.logout_view, name = 'logout'),
     path('register/', views.register, name = 'register'),
@@ -25,5 +32,31 @@ urlpatterns = [
     path('chargeitem_dataedit/<int:ci_id>/', views.ChargeitemDataEdit, name = 'chargeitemdataedit'),
     path('regi_Appointment/<int:pat_id>/', views.regi_appointment, name = 'regi_appointment'),
     path('appointments', views.appointments, name = 'appointments'),
+]
+
+hx_urlpatterns =[
+
+    # url_view_mastersheet updated urls
+    path(f'hx_patsrch/', views.hx_patient_search, name = 'patient-search'),
+
+    # url_view_mastersheet updated urls
 
 ]
+
+urlpatterns += hx_urlpatterns
+
+
+'''
+guideline for naming route and name of url
+everything in small case 
+view  with _ seperator
+name wiht - seperator
+urlpatterns = [
+    path("index/", views.index, name="main-view"),
+    path("bio/<username>/", views.bio, name="bio"),
+    path("articles/<slug:title>/", views.article, name="article-detail"),
+    path("articles/<slug:title>/<int:section>/", views.article_section, name="article-section"),
+    path("blog/", include("blog.urls")),
+    ...,
+]
+'''

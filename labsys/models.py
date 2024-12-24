@@ -1,5 +1,6 @@
 #from xml.etree.ElementInclude import include
 # from ast import Expression
+from ast import mod
 from django.db import models
 #from django.db.models.base import Model
 #from django.db.models.enums import Choices
@@ -259,6 +260,18 @@ appointment_status=(
 )
 
 
+sample_status=(
+    ("CO", "collected"),
+    ("RC", "received"),
+    ("RJ", "rejected"),
+    ("S", "stored"),
+    ("D", "discarded"),
+    ("CA", "cancelled"),
+    ("P", "pending"),
+
+
+)
+
 class User(AbstractUser) :
     pass
 
@@ -297,7 +310,7 @@ class Name(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.text} ({self.content_type})'
+        return f'{self.text}'
 
 
 """    def serialize(self):
@@ -422,10 +435,13 @@ class Patient(models.Model):
         if self.birthdate: 
             return date.today().year - self.birthdate.year
 
+    #Do Not use this get_*  properties as it causes repeated SQL in prefetch related 
+    # only for admin site
+    # instead use for in in template to get names. telecoms etcs
     # defining method that returns usual name
     def get_usual_name(self):
         try:
-             return self.names.filter(use="U")[0].text or ""
+            return self.names.filter(use="U")[0].text or ""
         except:
             return ""
     # defining method that returns PHONE mobile no
@@ -440,9 +456,11 @@ class Patient(models.Model):
             return self.telecoms.filter(system= "E").order_by('rank')[0].value 
         except:
             return ""
+    
 
     def __str__(self):  
-            return f'Patient id : {self.names.filter(use="U")[0].text or ""}'
+        # return f'{self.names.filter(use="U")[0].text or ""}'
+        return f"{self.id}"
 
 class Practitioner(models.Model):
     identifier = models.CharField(max_length=75, blank=True, null=True)
@@ -542,13 +560,15 @@ class Account (models.Model):
     notes = GenericRelation(Note, related_query_name="note")
 
     def __str__(self):
-            return 'Account  : {}'.format(self.name)
+            return '{}'.format(self.name)
 
-class Specimen(models.Model):
-    sampletype = models.CharField(max_length=75, blank=True, null=True)
+class SpecimenType(models.Model):
+    specimentype = models.CharField(max_length=75, blank=True, null=True)
 
     def __str__(self):
-            return 'SampleType : {}'.format(self.sampletype)
+            return f'{self.specimentype}'
+
+
 
 class TestCategory(models.Model):
     category = models.CharField(max_length=75, blank=True, null=True)
@@ -594,8 +614,8 @@ class ObservationDefinition(models.Model):
     loinc_code = models.CharField(max_length=75, blank=True, null=True)
     #The low and high values determining the interval. There may be only one of the two
     # social-history/vital-signs/imaging/laboratory/procedure/survey/exam/therapy/activity
-    # Specimen Required for this chargeitem/test/report
-    specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='observationdefinations', blank=True, null=True)
+    # Specimentype Required for this chargeitem/test/report
+    specimentypes = models.ManyToManyField(SpecimenType, related_name='observationdefinations', blank=True,)
     # note specific to the observation
     note = models.CharField(max_length=1000, blank=True, null=True)
     # which department in lab as per department define in model ie biochem, histo etc
@@ -616,7 +636,7 @@ class ObservationDefinition(models.Model):
     class Meta:
         ordering = ["test"]
     def __str__(self):
-            return '{} in {} by {}'.format(self.test, self.specimen, self.method)
+            return '{} in {} by {}'.format(self.test, self.id, self.method)
 
 # Referance range for testlist(observationdefination)
 class QualifiedInterval(models.Model):    
@@ -708,6 +728,7 @@ class ChargeItemDefinition(models.Model):
     replaces = models.ManyToManyField("self", blank=True,)
     # draft | active | retired | unknown
     status = models.CharField(max_length=20, blank=True, null=True, choices=obdef_or_cidef_status, default = "A")
+    prices = models.ManyToManyField(Pricelist, through='Price', related_name='chargeitemdefs')
     # For testing purposes, not real usage
     experimental = models.BooleanField(blank=True, null=True, default=False)
     # is it needed to be printed in receipt ?
@@ -728,7 +749,7 @@ class ChargeItemDefinition(models.Model):
     effectivePeriod = models.ForeignKey(Period,blank=True, null=True, related_name='chargeitemdefs', on_delete=models.PROTECT)
     #Monetary amount associated with this
     # value = models.PositiveIntegerField(blank=True, null=True)
-    specimen = models.ManyToManyField(Specimen, related_name='chargeitemdefs', blank=True)
+    specimentypes = models.ManyToManyField(SpecimenType, related_name='chargeitemdefs', blank=True)
     # which department in lab as per department define in model ie biochem, histo etc
     dept = models.ForeignKey(Department,  on_delete=models.PROTECT, related_name='chargeitemdefs', blank=True, null=True)
     # if test is outsourced 
@@ -740,12 +761,12 @@ class ChargeItemDefinition(models.Model):
     # Product/equipment charged or used
     product = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='chargeitemdefs', null=True, blank=True)
     # ordering of obseration if more than one observatin involved
-    orderBy= models.SmallIntegerField(blank=True, null=True)  
+    orderBy= models.SmallIntegerField(blank=True, null=True) 
     def __str__(self):
         return self.title  
 
 class Price(models.Model):
-    chargeitemdef = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, related_name='prices', null=True, blank=True)
+    chargeitemdef = models.ForeignKey(ChargeItemDefinition, on_delete=models.CASCADE, related_name='price_s', null=True, blank=True)
     pricelist = models.ForeignKey(Pricelist, on_delete=models.CASCADE,related_name='prices',null=True, blank=True)
     price = models.DecimalField(max_digits=9, decimal_places=2)
 
@@ -766,7 +787,7 @@ class Price(models.Model):
 class Encounter(models.Model):
     sample_id = models.IntegerField(default=0)
     identifier = models.CharField(max_length=75, blank=True, null=True)
-    test = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
+    tests = models.ManyToManyField(ChargeItemDefinition, through='ChargeItem', related_name='encounter')
     #observations = models.ManyToManyField(ObservationDefinition, through='Observation', related_name='encounter')
     # planned | arrived | triaged | in-progress | onleave | finished | cancelled
     status = models.CharField(max_length=75, choices= encounter_status, default='IP', blank=True, null=True)
@@ -796,6 +817,16 @@ class Encounter(models.Model):
     
     def __str__(self):
             return 'Encounter id {} for Patient : {} at {}'.format(self.id, self.patient.get_usual_name(), self.timedate)
+
+#instance of individual samples
+class Sample(models.Model):
+    specimentype = models.ForeignKey(SpecimenType, on_delete=models.PROTECT, related_name='sample',blank=True, null=True)
+    encounter = models.ForeignKey(Encounter, on_delete=models.PROTECT, related_name='sample',blank=True, null=True)
+    status = models.CharField(max_length=75, choices= sample_status, blank=True, null=True, default='P')
+    
+    def __str__(self):
+            return 'SID {} type : {} status {}'.format(self.encounter.sample_id, self.specimentype.specimentype, self.get_status_display())
+
 
 
 class ChargeItem(models.Model):
@@ -939,12 +970,17 @@ class ServiceRequet(models.Model):
     code = models.CharField(max_length=75, blank=True, null=True, )
     occurrenceDateTime = models.DateTimeField(auto_now_add=True)
     # Date request signed
+    tests = models.ManyToManyField(ChargeItemDefinition, related_name='ServiceRequests', blank=True)
+    practitioner = models.ForeignKey(Practitioner, on_delete=models.PROTECT, related_name='ServiceRequests', blank=True, null=True)
+
     authoredOn = models.DateTimeField(blank=True, null=True,)
-    encounter = models.ForeignKey(Encounter, on_delete=models.CASCADE, related_name='ServiceRequests', null=True, blank=True)
+    encounter = models.OneToOneField(Encounter, on_delete=models.CASCADE, related_name='ServiceRequest', null=True, blank=True)
     subject = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='ServiceRequests', null=True, blank=True)
-    requester = models.ForeignKey(User, on_delete=models.PROTECT, related_name='ServiceRequests', blank=True, null=True) 
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ServiceRequests', blank=True, null=True)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='ServiceRequests', blank=True, null=True)
+
     notes = GenericRelation(Note, related_query_name="note")
-    specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='ServiceRequests', blank=True, null=True)
+    specimentypes = models.ManyToManyField(SpecimenType,  related_name='ServiceRequests', blank=True)
     patientInstruction = models.CharField(max_length=1000, blank=True, null=True)
 
     def __str__(self):
@@ -968,8 +1004,8 @@ class DiagnosticReport (models.Model):
     performer = models.ForeignKey(User, on_delete=models.PROTECT, related_name='DiagnosticReports_performed', blank=True, null=True)
     # person Responsible Diagnostic Service equivalent to verified by in pplus
     resultsInterpreter = models.ForeignKey(User, on_delete=models.PROTECT, related_name='DiagnosticReports_resultinterpreted', blank=True, null=True)
-    # Specimens this report is based on
-    specimen = models.ForeignKey(Specimen, on_delete=models.PROTECT, related_name='DiagnosticReports', blank=True, null=True)
+    # specimentype this report is based on
+    specimentypes = models.ManyToManyField(SpecimenType,  related_name='DiagnosticReports', blank=True)
     result = models.ForeignKey(Observation, on_delete=models.PROTECT, related_name='DiagnosticReports', blank=True, null=True)
     media_link = models.ForeignKey(Media, on_delete=models.PROTECT, related_name='DiagnosticReports', blank=True, null=True)
     conclusion = models.CharField(max_length=75, blank=True, null=True, default='registered')
