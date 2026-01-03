@@ -17,8 +17,9 @@ import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django import forms
-import pprint
+from pprint import pprint
 from django.utils.datastructures import MultiValueDictKeyError
+from django.db.models import Count, F, Value
 
 
 @login_required(login_url='/lab/login/')
@@ -290,16 +291,8 @@ def add_request_2(request, **kwargs):
 @login_required(login_url='/lab/login/')
 def add_encounter(request, **kwargs):
     ser_req_id = kwargs['req_id']
-    req = ServiceRequet.objects.select_related("subject",
-                                                           "practitioner",
-                                        ).prefetch_related("subject__names",
-                                                             "tests", 
-                                                             "specimentypes",
-                                                             "requester",
-                                                             "practitioner__names",
-                                                             "account"
-                                        ).get(pk=ser_req_id)
-    print (req)
+    req = ServiceRequet.objects.annotate(fname = F("subject__names__text")).get(pk=ser_req_id)
+    
     return render(request, 'labsys/add_encounter.html', {"req" :req })
 
 @login_required(login_url='/lab/login/')
@@ -314,7 +307,9 @@ def servicerequests(request):
                                                              "specimentypes",
                                                              "requester",
                                                              "practitioner__names",
-                                                             "account")
+                                                             "account"
+                                        ).annotate(fname = F("subject__names__text"))
+    
     return render(request, 'labsys/view_requests.html',{'requests' :servicerequests})
 
 @csrf_exempt

@@ -1,65 +1,62 @@
 {% extends "website/layout.html" %}
 {% load static %}
 {% block title %}
-  Get Price
+    Get Price
 {% endblock title %}
 {% block head %}
-  <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet">-->
-  <link href="{% static 'website\select2.min.css' %}" rel="stylesheet">
-  <!--  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" defer></script>-->
-  <script src="{% static 'website/jquery.min.js' %}" defer></script>
-  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.full.min.js" defer></script>-->
-  <script src="{% static 'website/select2.full.min.js' %}" defer></script>
-  <!-- user defined static files -->
-  <link href="{% static 'website/get_price.css' %}" rel="stylesheet">
-  <script src="{% static 'website/get_price.js' %}" defer></script>
+    <link href="{% static 'website/select2.min.css' %}" rel="stylesheet">
+    <script src="{% static 'website/jquery.min.js' %}" defer></script>
+    <script src="{% static 'website/select2.full.min.js' %}" defer></script>
+    <link href="{% static 'website/get_price.css' %}" rel="stylesheet">
+    <script src="{% static 'website/get_price.js' %}" defer></script>
 {% endblock head %}
 {% block body %}
-  <div class="tablediv">
-    <a type="button"
-       href="{% url 'website:profiles' %}"
-       class="btn btn-outline-secondary">View Profiles</a>
-    <a type="button"
-       href="{% url 'website:pricelistview' %}"
-       class="btn btn-outline-secondary">Download Price List</a>
-    <a type="button"
-       href="{% url 'website:profilespreview' %}"
-       class="btn btn-outline-secondary">Download Profiles</a>
-  </div>
-  <div class="tablediv">
-    <div class="testselecgt">
-      <select name="test" id="test_select" autofocus>
-        <option hidden default data-aapm=0 data-price=0>Select test...</option>
-        {% for pli in context %}
-          <option data-aapm={{ pli.Aapm }} data-price={{ pli.Price }}>{{ pli.Test }}
-          </option>
-        {% endfor %}
-      </select>
-      <small id="emailHelp" class="form-text text-muted">For Additional Discount send Inquiry</small>
+    <div class="tablediv mb-4">
+        <a href="{% url 'website:profiles' %}"
+           class="btn btn-outline-secondary mr-2">View Profiles</a>
+        <a href="{% url 'website:pricelistview' %}"
+           class="btn btn-outline-secondary mr-2">Download Price List</a>
+        <a href="{% url 'website:profilespreview' %}"
+           class="btn btn-outline-secondary">Download Profiles</a>
     </div>
-    <button id="addtest" class="btn btn-outline-secondary">Add Test</button>
-    <a href="{% url 'website:getprice' %}" class="btn btn-outline-secondary">Reset</a>
-  </div>
-  <div id="tablediv" class="tablediv">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Test</th>
-          <th scopce="col">Reg Price</th>
-          <th scope="col">Discount</th>
-          <th scope="col">Net Price</th>
-        </tr>
-      </thead>
-      <tbody id="pricetablebody">
-      </tbody>
-      <tfoot>
-        <tr id="trtotal">
-          <td>Total</td>
-          <td id="totalreg">0</td>
-          <td id="totaldisc">0</td>
-          <td id="totalnet">0</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+    <div class="tablediv mb-4">
+        <div class="testselecgt">
+            <select name="test" id="test_select"  placeholder="Select a test">
+                <option value="" hidden selected>Select test...</option>
+                {% for pli in context %}
+                    <option value="{{ pli.Test }}"
+                            data-aapm="{{ pli.Aapm }}"
+                            data-price="{{ pli.Price }}">{{ pli.Test }}</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">For Additional Discount send Inquiry</small>
+        </div>
+        <button id="resetlist" class="btn btn-outline-secondary ml-2">Reset</button>
+    </div>
+    <div id="tablediv" class="tablediv" style="display:none;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Test</th>
+                        <th class="d-md-table-cell">Reg Price</th>
+                        <th class="d-md-table-cell">Discount</th>
+                        <th>Net Price</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pricetablebody">
+                </tbody>
+                <tfoot class="font-weight-bold bg-light">
+                    <tr id="trtotal">
+                        <td>Total</td>
+                        <td class="d-md-table-cell" id="totalreg">0</td>
+                        <td class="d-md-table-cell" id="totaldisc">0</td>
+                        <td id="totalnet">0</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 {% endblock body %}

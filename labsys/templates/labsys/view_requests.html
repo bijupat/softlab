@@ -21,9 +21,7 @@
             {% for request in requests %}
                 <tr>
                     <th scope="row"></th>
-                    <td>
-                        {% for name in request.subject.names.all %}{{ name }}{% endfor %}
-                    </td>
+                    <td>{{ request.fname }}</td>
                     <td>{{ request.get_priority_display|title }}</td>
                     <td>{{ request.authoredOn }}</td>
                     <td>{{ request.requester }}</td>

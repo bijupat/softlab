@@ -1,3 +1,1 @@
-C:\docs\brij\PPENT\pplusvenv\Scripts\python.exe C:\docs\brij\PPENT\pplus\manage.py runserver
-pause
-
+C:\docs\brij\softlab\softlabvenv\Scripts\python.exe C:\docs\brij\softlab\softlab\manage.py runserver 0.0.0.0:8000

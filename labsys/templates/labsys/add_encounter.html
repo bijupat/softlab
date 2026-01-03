@@ -1,7 +1,7 @@
 {% extends "labsys/layout.html" %}
 {% load static %}
 {% block title %}
-    Add Encoutner for {{ req.patient }}
+    Add Encoutner for {{ req.pat_fullname }}
 {% endblock title %}
 {% block head %}
 {% endblock head %}
@@ -10,19 +10,29 @@
         <div style="color:red">{{ message }}</div>
         <br>
     {% endif %}
-    <div>
-        <ul>
-            <li>{{ req.occurrenceDateTime }}</li>
-            {% for test in req.tests.all %}<li>{{ test }}</li>{% endfor %}
-            <li>{{ req.practitioner }}</li>
-            <li>{{ req.subject }}</li>
-            <li>{{ req.account }}</li>
-            {% for note in req.notes.all %}<li>{{ note }}</li>{% endfor %}
-            {% for specimen in req.specimentypes.all %}<li>{{ specimen }}</li>{% endfor %}
-            <li>{{ req.patientInstruction }}</li>
-        </ul>
-        <form action="{% url 'labsys:add-encounter' req.id %}" method="post">
-            {% csrf_token %}
-        </form>
+    <div class="card text-center">
+        <div class="card-header">Are You sure to add {{ req.fname }} !</div>
+        <div class="card-body">
+            <h5 class="card-title">Special title treatment</h5>
+            <p class="card-text">
+                <ul>
+                    <li>{{ req.occurrenceDateTime }}</li>
+                    {% for test in req.tests.all %}<li>{{ test }}</li>{% endfor %}
+                    <li>{{ req.practitioner }}</li>
+                    <li></li>
+                    <li>{{ req.account }}</li>
+                    {% for note in req.notes.all %}<li>{{ note }}</li>{% endfor %}
+                    {% for specimen in req.specimentypes.all %}<li>{{ specimen }}</li>{% endfor %}
+                    <li>{{ req.patientInstruction }}</li>
+                </ul>
+            </p>
+            <form action="{% url 'labsys:add-encounter' req.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Save Encounter</button>
+            </form>
+        </div>
+        <div class="card-footer text-muted">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nope !</button>
+        </div>
     </div>
 {% endblock body %}

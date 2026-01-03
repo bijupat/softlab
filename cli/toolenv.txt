@@ -1,2 +1,0 @@
-C:\docs\brij\softwaretools\tools-env\Scripts\activate 
-cd C:\docs\brij\softlab\softlab\migrations_tools
