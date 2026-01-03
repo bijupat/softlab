@@ -1,0 +1,55 @@
+{% extends "labsys/layout.html" %}
+{% load static %}
+{% block head %}
+    <script src="https://unpkg.com/htmx.org@1.9.12"
+            integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+            crossorigin="anonymous"></script>
+    <style>
+    .centered {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    </style>
+{% endblock head %}
+{% block title %}
+    Find Patient
+{% endblock title %}
+{% block body %}
+    <div class="card">
+        <div class="card-body">
+            <div class="centered">Serch By First or Last Name</div>
+            <form class="centered"
+                  hx-post="{% url 'labsys:patient-search' %}"
+                  hx-trigger="focusout delay:2000ms "
+                  hx-target="#search-results"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                <div class="form-row">
+                    <div class="form-group centered col-md-6">
+                        <input type="text" class="form-control" name="fname" placeholder="F name...">
+                    </div>
+                    <div class="form-group centered col-md-6">
+                        <input type="text" class="form-control" name="lname" placeholder="L name...">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <hr class="my-0">
+        <div class="card-body">
+            <div class="centered">OR by Mobile No</div>
+            <div class="form-row centered">
+                <input type="text"
+                       class="form-control"
+                       name="mobile"
+                       placeholder="Mobile ..."
+                       hx-post="{% url 'labsys:patient-search' %}"
+                       hx-trigger="focusout delay:2000ms "
+                       hx-target="#search-results"
+                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div id="search-results"></div>
+    </div>
+{% endblock body %}

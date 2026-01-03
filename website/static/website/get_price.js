@@ -1,88 +1,162 @@
-$(function () {
-  $("select").select2();
-});
+document.addEventListener("DOMContentLoaded", function () {
+  $("#test_select").select2({
+    placeholder: "Select test...",
+    allowClear: true,
+    width: "300px",
+  });
 
-(function () {
-  document.querySelector("#tablediv").style.display = "none";
-  document
-    .querySelector("#addtest")
-    .addEventListener("click", function (event) {
-      event.preventDefault();
-      //console.log(event.target);
-      let element = document.querySelector("#test_select");
-      let selected_option = element.options[element.selectedIndex];
-      let netprice = parseInt(selected_option.getAttribute("data-price"));
-      let regprice = parseInt(selected_option.getAttribute("data-aapm"));
-      let disc = parseInt(regprice - netprice);
-      console.log(disc);
-      let test = selected_option.value;
-      //let first_option = element.options[0];
-      //console.log(test, price);
-      element = document.querySelector("#pricetablebody");
-      let tr = document.createElement("tr");
-      tr.innerHTML = `<td>${test}</td>
-                        <td>${regprice}</td>
-                        <td>${disc}</td>
-                        <td>${netprice}</td>`;
-      element.append(tr);
-      totalreg = parseInt(document.querySelector("#totalreg").innerHTML);
-      totalreg = totalreg + regprice;
-      document.querySelector("#totalreg").innerHTML = totalreg;
+  const testSelect = document.getElementById("test_select");
+  const resetBtn = document.getElementById("resetlist");
+  const priceTableBody = document.getElementById("pricetablebody");
+  const tableDiv = document.getElementById("tablediv");
+  const totalRegElem = document.getElementById("totalreg");
+  const totalDiscElem = document.getElementById("totaldisc");
+  const totalNetElem = document.getElementById("totalnet");
 
-      totaldisc = parseInt(document.querySelector("#totaldisc").innerHTML);
-      totaldisc = totaldisc + disc;
-      document.querySelector("#totaldisc").innerHTML = totaldisc;
+  let totalReg = 0;
+  let totalDisc = 0;
+  let totalNet = 0;
 
-      totalnet = parseInt(document.querySelector("#totalnet").innerHTML);
-      totalnet = totalnet + netprice;
-      document.querySelector("#totalnet").innerHTML = totalnet;
+  // Track added tests
+  let addedTests = new Set();
 
-      document.querySelector("#tablediv").style.display = "block";
+  function updateTotals(regPrice, discount, netPrice, add = true) {
+    if (add) {
+      totalReg += regPrice;
+      totalDisc += discount;
+      totalNet += netPrice;
+    } else {
+      totalReg -= regPrice;
+      totalDisc -= discount;
+      totalNet -= netPrice;
+    }
+    totalRegElem.textContent = totalReg;
+    totalDiscElem.textContent = totalDisc;
+    totalNetElem.textContent = totalNet;
+  }
 
-      //hide the selected option
-      selected_option.remove();
-    });
-})();
+  function createRow(test, regPrice, discount, netPrice) {
+    const tr = document.createElement("tr");
 
-/*
-document.querySelector('#resetlist').addEventListener("click",function(event){
-      event.preventDefault();
-      htmltext = `<table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col">Test</th>
-                      <th scopce="col">Reg Price</th>
-                      <th scope="col">Discount</th>
-                      <th scope="col">Net Price</th>
-                    </tr>
-                  </thead>
-                  <tbody id = "pricetablebody">
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td>Total</td>
-                      <td id ="totalreg">0</td>
-                      <td id="totaldisc">0</td>            
-                      <td id="totalnet">0</td>
-                    </tr>
-                  </tfoot>
-                </table>`
-      document.querySelector('#tablediv').innerHTML= htmltext;
-      document.querySelector('#tablediv').style.display = "none";
-    });
+    tr.innerHTML = `<td class="font-weight-bold text-nowrap">${test}</td>
+                    <td class="d-md-table-cell">${regPrice}</td>
+                    <td class="d-md-table-cell">${discount}</td>
+                    <td class="font-weight-bold">${netPrice}</td>
+                    <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-danger btn-remove">&times;</button>
+                    </td>`;
 
+    tr.querySelector(".btn-remove").addEventListener("click", function () {
+      priceTableBody.removeChild(tr);
+      updateTotals(regPrice, discount, netPrice, false);
+      addedTests.delete(test);
 
-el = document.getElementById('test_select');
-    dl = document.getElementById('testlist');
-    function AddValue(el, dl){
-        if(el.value.trim() != ''){
-          var opSelected = dl.querySelector(`[value="${el.value}"]`);
-          var option = document.createElement("option");
-          option.value = opSelected.value;
-          option.text = opSelected.getAttribute('label');
-          document.getElementById('Colors').appendChild(option);
-        }
+      // Re-enable option in select
+      const option = [...testSelect.options].find((opt) => opt.value === test);
+      if (option) {
+        option.disabled = false;
       }
-    
+      $("#test_select").select2("destroy"); // Rebuild select2 to update options
+      $("#test_select").select2({
+        placeholder: "Select test...",
+        allowClear: true,
+        width: "300px",
+      });
 
-*/
+      if (priceTableBody.children.length === 0) {
+        tableDiv.style.display = "none";
+      }
+
+      // Autofocus search input after removal
+      // $(".select2-search__field").focus();
+    });
+
+    return tr;
+  }
+  // document.addEventListener("keydown", function (event) {
+  //   const searchInput = document.querySelector(".select2-search__field");
+  //   // console.log(event.target);
+  //   if (searchInput && document.activeElement !== searchInput) {
+  //     console.log("if run");
+  //     searchInput.focus();
+  //     event.stopPropagation();
+  //   }
+  // });
+
+  // Add test on selection change
+  $("#test_select").on("select2:select", function (e) {
+    const selectedOption = e.params.data.element;
+    if (!selectedOption) return;
+    const test = selectedOption.value;
+    if (addedTests.has(test)) {
+      alert("Test already added.");
+      $("#test_select").val(null).trigger("change");
+      // $(".select2-search__field").focus();
+      return;
+    }
+
+    const optionEl = selectedOption;
+
+    const regPrice = parseInt(optionEl.getAttribute("data-aapm")) || 0;
+    const netPrice = parseInt(optionEl.getAttribute("data-price")) || 0;
+    const discount = regPrice - netPrice;
+
+    const newRow = createRow(test, regPrice, discount, netPrice);
+    priceTableBody.appendChild(newRow);
+
+    updateTotals(regPrice, discount, netPrice, true);
+    addedTests.add(test);
+
+    // Disable selected option to prevent re-adding
+    optionEl.disabled = true;
+
+    // Refresh select2 to apply option disable
+    $("#test_select").select2("destroy");
+    $("#test_select").select2({
+      placeholder: "Select test...",
+      allowClear: true,
+      width: "300px",
+    });
+
+    // Clear selection
+    $("#test_select").val(null).trigger("change");
+    // autofocus on select2 search input
+    // $(document).on("select2:open", () => {
+    //   document.querySelector(".select2-search__field").focus();
+    // });
+    $(".select2-search__field").focus();
+
+    tableDiv.style.display = "block";
+  });
+
+  resetBtn.addEventListener("click", function () {
+    priceTableBody.innerHTML = "";
+    totalReg = 0;
+    totalDisc = 0;
+    totalNet = 0;
+    totalRegElem.textContent = "0";
+    totalDiscElem.textContent = "0";
+    totalNetElem.textContent = "0";
+    addedTests.clear();
+
+    // Enable all options
+    Array.from(testSelect.options).forEach((opt) => {
+      opt.disabled = false;
+    });
+
+    // Refresh select2 to reflect enabled options
+    $("#test_select").select2("destroy");
+    $("#test_select").select2({
+      placeholder: "Select test...",
+      allowClear: true,
+      width: "300px",
+    });
+    // Clear selection
+    $("#test_select").val(null).trigger("change");
+    // $(document).on("select2:open", () => {
+    //   document.querySelector(".select2-search__field").focus();
+    // });
+    // $(".select2-search__field").focus();
+    tableDiv.style.display = "none";
+  });
+});

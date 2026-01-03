@@ -1,0 +1,35 @@
+{% extends "labsys/layout.html" %}
+{% load static %}
+{% block title %}
+    Add Request 2
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block body %}
+    {% if message %}
+        <div style="color:red">{{ message }}</div>
+        <br>
+    {% endif %}
+    <div>
+        <form action="{% url 'labsys:add-request-2' pat_id plist_id pract_id %}"
+              method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group col-md-12">{{ form.tests.label }}{{ form.tests }}</div>
+            </div>
+            <div class="form-group col-md-7">
+                {{ form.appointment_time }}<span style="color:red;">{{ form.appointment_time.errors }}</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    {{ form.discount }}<span style="color:red;">{{ form.discount.errors }}</span>
+                </div>
+                <div class="form-group col-md-7">
+                    {{ form.paid }}<span style="color:red;">{{ form.paid.errors }}</span>
+                </div>
+            </div>
+            <input type="hidden" value="{{ e.id }}" name="eid">
+            <button type="submit" class="btn btn-primary btn-sm btn-block">Save</button>
+        </form>
+    </div>
+{% endblock body %}

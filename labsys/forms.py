@@ -39,7 +39,7 @@ class PatientRegistration(forms.Form):
     email = forms.EmailField(label="E Mail", required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E Mail',}))
     photo = forms.ImageField(label='Add Image ', required=False,  widget=forms.FileInput(attrs={'class': 'form-control', 'placeholder': 'Photo',}))
 
-class EncounterRegistration_1(forms.Form):
+class RequestRegi_1(forms.Form):
     # practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all().values_list('id', flat=True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
     practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.filter(active = True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
     # test field added to this form in view (Regi_encounter)
@@ -53,16 +53,23 @@ class EncounterRegistration_1(forms.Form):
 
 
 
-class EncounterRegistration(forms.Form):
+class RequestRegi_2(forms.Form):
     # practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.all().values_list('id', flat=True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
     # practitioner = forms.ModelChoiceField(queryset=Practitioner.objects.filter(active = True), label = "Ref By", widget=forms.Select(attrs={'class': 'form-control selectpicker ', 'data-live-search':'true'}) )  
     # test field added to this form in view (Regi_encounter)
     # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all().values('id'), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
     # test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
-    test = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+    tests = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.all(), 
+                                          required=False,label = "Tests", 
+                                          widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'})
+                                          )
     # account = forms.ModelChoiceField(queryset=Account.objects.all(), label = "Account", widget=forms.Select(attrs={'class': 'form-control selectpicker','data-live-search':'true'}))
-    discount = forms.IntegerField(label="Discount", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
+    discount = forms.IntegerField(label="Discount", validators=[is_currency], 
+                                  required=False, 
+                                  widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Discount', 'onkeydown':"return /[0-9]/i.test(event.key)"})
+                                  )
     paid = forms.IntegerField(label="Paid", validators=[is_currency], required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Paid', 'onkeydown':"return /[0-9]/i.test(event.key)"}))
+    appointment_time = forms.DateTimeField(label="Appointment Time", required=True, widget=forms.DateTimeInput(attrs={'class': 'form-control' }))
 
 class AppointmentRegistration (forms.Form): 
     description = forms.CharField(label="Description",  widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 5, 'style':"width:100%;" }))

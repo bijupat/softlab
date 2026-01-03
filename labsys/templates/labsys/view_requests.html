@@ -1,0 +1,45 @@
+{% extends "labsys/layout.html" %}
+{% block title %}
+    Requests
+{% endblock title %}
+{% block body %}
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Patient</th>
+                <th scope="col">Priority</th>
+                <th scope="col">Time</th>
+                <th scope="col">Requested By</th>
+                <th scope="col">Tests</th>
+                <th scope="col">Account</th>
+                <th scope="col">Note</th>
+                <th scope="col">Encounter</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+                <tr>
+                    <th scope="row"></th>
+                    <td>{{ request.fname }}</td>
+                    <td>{{ request.get_priority_display|title }}</td>
+                    <td>{{ request.authoredOn }}</td>
+                    <td>{{ request.requester }}</td>
+                    <td>
+                        {% for test in request.tests.all %}{{ test }} ,{% endfor %}
+                    </td>
+                    <td>{{ request.account }}</td>
+                    <td>{{ request.note }}</td>
+                    <td>
+                        {% if request.encounter %}
+                            {{ request.encounter }}
+                        {% else %}
+                            <a href="{% url 'labsys:add-encounter' request.id %}"
+                               class="btn btn-primary">Add</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock body %}

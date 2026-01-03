@@ -2,23 +2,24 @@
 #from multiprocessing import context
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from .models import *
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, FileResponse, HttpResponseRedirect
 from django.utils.timezone import datetime 
-from .forms import EncounterRegistration, PatientRegistration, AppointmentRegistration, EncounterRegistration_1
-from django.http import HttpResponseRedirect
+from .forms import PatientRegistration, AppointmentRegistration, RequestRegi_1, RequestRegi_2
 from django.urls import reverse
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.contrib.auth.decorators import login_required
 from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from .utilfunctions import register_encounter
 from django import forms
+from pprint import pprint
+from django.utils.datastructures import MultiValueDictKeyError
+from django.db.models import Count, F, Value
 
 
 @login_required(login_url='/lab/login/')
@@ -200,71 +201,116 @@ def search(request):
     return HttpResponse(status=400)
 
 
-
+#@@@ CONSIDER PREFETCH_RELATED OR SELECT_RELATED FOR THIS VIEW TO FETCH PATIENT WITH SEARCH OF NAME/TELCOMS
 @login_required(login_url='/lab/login/')
-def hx_search(request):
+def hx_patient_search(request):
     # print(request.POST)
-    try: 
-        mobile = request.POST["mobile"]
-        if len(mobile)==10:
-            telecoms = Telecom.objects.filter(use="M").filter(value=mobile)
-            patients = Patient.objects.filter(telecom__in = telecoms)
-            #filtering name objects with having patient in filtered patient set(queryset) patients
-            names = Name.objects.filter(patient__in=patients)
-            # names = name_found.order_by("-text").all()
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-        else:
-             return HttpResponse("Please enter valid 10 digit mobile Number")
-    except:
+    if request.method == 'POST':
         try:
+            mobile = request.POST['mobile']
+            if len(mobile)==10:
+                # this query create innerjoin on name, patient and telecom models in single query
+                names = Name.objects.select_related('content_type').filter(patient__telecoms__use="M", patient__telecoms__value = mobile)
+                message = f"Search result of Mobile no : '{mobile}'"
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            else:
+                return HttpResponse("<h4 style='color:red' class = 'text-center'>Please enter valid 10 digit mobile Number</h4>")
+        except MultiValueDictKeyError:
             fname = request.POST["fname"]
-        except:
-            fname = ""
-        try:
             lname = request.POST["lname"]
-        except:
-            lname = ""
-        if len(fname) > 2 and len(lname)> 2:
-            names = Name.objects.filter(given__icontains=fname, family__icontains=lname).exclude(patient=None)
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-            # names = name_found.order_by("-given").all()
-            # print (names)
-            # return HttpResponse(name_found)
-        if len(fname) > 2:
-            names = Name.objects.filter(given__icontains=fname).exclude(patient=None)
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-        if len(lname) > 2:
-            names = Name.objects.filter(family__icontains=lname).exclude(patient=None)
-            return render(request, 'labsys/hx_search_patient.html', {"names" :names})
-        return HttpResponse("Please enter atleast three letters")
-    
+            if len(fname) > 2 and len(lname)> 2:
+                names = Name.objects.select_related('content_type').filter(given__icontains=fname, family__icontains=lname, content_type__model = 'patient' )
+                message = f"Search result of First name : '{fname}' and Last name : '{lname}'"
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            if len(fname) > 2:
+                message = f"Search result of First name : '{fname}'"
+                names = Name.objects.filter(given__icontains=fname).exclude(patient=None)
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            if len(lname) > 2:
+                message = f"Search result of Last Name : '{lname}'"
+                names = Name.objects.filter(family__icontains=lname).exclude(patient=None)
+                return render(request, 'labsys/hx_patients.html', {"names" :names, "message" : message})
+            return HttpResponse("<h4 style='color:red'class = 'text-center'>Please enter atleast three letters</h4>")
+    return render(request, 'labsys/patient_search.html')
 
 @login_required(login_url='/lab/login/')
-def EnconterRegistration_1(request,pat_id ):
+def add_request_1(request, **kwargs):
     if request.method == "POST":
-        form = EncounterRegistration_1(request.POST)
+        form = RequestRegi_1(request.POST)
         if form.is_valid():
             practitioner = form.cleaned_data["practitioner"]
             account = form.cleaned_data["account"]
             pricelist = account.pricelist
             # print(account)
             # print(practitioner)
-        form = EncounterRegistration()
+        form = RequestRegi_2()
         # add test field in form modelform
         # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(price__pricelist = "3", status = "a")  
-        form.fields['test'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(prices__pricelist = pricelist , status = "A"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
+        form.fields['tests'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(price_s__pricelist = pricelist , status = "A"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
 
         # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(pricelist_included = 1)
-        return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": form, "practitioner_id":practitioner.id , "account_id":account.id })
-  
+        return render(request, 'labsys/add_request_2.html', { "pat_id": kwargs['pat_id'], "form": form, "pract_id":practitioner.id , "plist_id":pricelist.id })
+    
     else:
-        form = EncounterRegistration_1()
-        patid = pat_id
-        return render(request, 'labsys/add_enc_1.html', {"patid" :patid, "form" : form})
+        form = RequestRegi_1()
+        # pratitioners = Practitioner.objects.prefetch_related("names")
+        # form.fields['practitioner'].queryset = pratitioners
+        return render(request, 'labsys/add_request_1.html', {"pat_id" :kwargs['pat_id'], "form" : form})
 
 
+@login_required(login_url='/lab/login/')
+def add_request_2(request, **kwargs):
+    if request.method == "POST":
+        form = RequestRegi_2(request.POST)
+        if form.is_valid():
+            ser_req = ServiceRequet(subject = get_object_or_404( Patient, pk = kwargs['pat_id']), 
+                                    practitioner = get_object_or_404(Practitioner, pk = kwargs['pract_id']), 
+                                    account = get_object_or_404(Account , pk = kwargs['plist_id']),
+                                    status ="A",
+                                    category = 'L',
+                                    priority = 'R',
+                                    requester = request.user,
+                                    authoredOn = form.cleaned_data["appointment_time"]
+                                    )
+            ser_req.save()
+            tests = form.cleaned_data["tests"]
+            specimentype = set()
+            for test in tests:
+                for s in test.specimentypes.all():
+                    specimentype.add(s.id)
+            ser_req.tests.set(tests)
+            ser_req.specimentypes.set(specimentype)           
+            return HttpResponseRedirect(reverse("labsys:service-requests"))
+        
+        else:
+            return render(request, 'labsys/add_request_2.html', { "pat_id": kwargs['pat_id'], 
+                                                                 "form": form,
+                                                                 "pract_id":kwargs['pract_id'],
+                                                                 "plist_id":kwargs['plist_id'] })
 
+@login_required(login_url='/lab/login/')
+def add_encounter(request, **kwargs):
+    ser_req_id = kwargs['req_id']
+    req = ServiceRequet.objects.annotate(fname = F("subject__names__text")).get(pk=ser_req_id)
+    
+    return render(request, 'labsys/add_encounter.html', {"req" :req })
 
+@login_required(login_url='/lab/login/')
+def servicerequests(request):
+    if request.method == "POST":
+        pass
+        
+    servicerequests = ServiceRequet.objects.select_related("subject",
+                                                           "practitioner",
+                                        ).prefetch_related("subject__names",
+                                                             "tests", 
+                                                             "specimentypes",
+                                                             "requester",
+                                                             "practitioner__names",
+                                                             "account"
+                                        ).annotate(fname = F("subject__names__text"))
+    
+    return render(request, 'labsys/view_requests.html',{'requests' :servicerequests})
 
 @csrf_exempt
 @login_required(login_url='/lab/login/')
@@ -389,113 +435,8 @@ def index(request):
     encounter_today = Encounter.objects.filter(timedate__date=datetime.today().date())
     return render(request, 'labsys/index.html', {"encounter" :encounter_today})
 
-@login_required(login_url='/lab/login/')
-def pat_enc(request, pat_id):
-    date = "All Encounter for This Patient"
-    patient = Patient.objects.get(pk=pat_id)
-    encounter = Encounter.objects.filter(patient=patient)
-    return render(request, 'labsys/index.html', {"encounter" :encounter, "date" : date})
         
-# get from old patient registration and post from it self 
-@login_required(login_url='/lab/login/')
-def regi_encounter(request, pat_id, pract_id, acc_id):
-    if request.method == "POST":
-        form = EncounterRegistration(request.POST)
-        practitioner = Practitioner.objects.get(pk = pract_id)
-        account = Account.objects.get(pk = acc_id)
-        if form.is_valid():
-            # using utilfunction register_encunter if it returns true 
-            if register_encounter(Patient.objects.get(pk=pat_id), practitioner, form.cleaned_data["test"], form.cleaned_data["discount"], form.cleaned_data["paid"], account , request.user):
-                return HttpResponseRedirect(reverse("labsys:index"))
-            # register encounter returns false return to same page with partialy filled form
-            else:
-                return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id, "form": form, "message":"Check Payment Details !!"})
-        # if form is not valid
-        else:
-            return render(request, 'labsys/add_Encounter.html', {"pat_id":pat_id,"form": form , "message":"Form in not valid!!"})            
-    # if request method get
-    # print("test00")
-    form = EncounterRegistration()
-    # add test field in form modelform
-    # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(price__pricelist = "3", status = "a")  
-    form.fields['test'] = forms.ModelMultipleChoiceField(queryset=ChargeItemDefinition.objects.filter(price__pricelist = "4", status = "a"),required=False,label = "Tests", widget=forms.SelectMultiple(attrs={'class': 'form-control chosen-select'}))
 
-    # form.fields['test'].queryset = ChargeItemDefinition.objects.filter(pricelist_included = 1)
-    return render(request, 'labsys/add_Encounter.html', { "pat_id":pat_id, "form": form })
-
-
-"""
-@login_required(login_url='/lab/login/')
-def pat_register2(request):
-    if request.method == "POST":
-        form = PatientRegistration(request.POST)
-        register = request.POST["register"]
-        if form.is_valid():
-            new_patient = Patient(birthdate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
-            new_patient.save()
-            #populate new_name instance of Name class
-            pat_name = Name(given=form.cleaned_data["f_name"].title() +" "+ form.cleaned_data["m_name"].title(), patient=new_patient, family=form.cleaned_data["l_name"].title() )
-            pat_name.save()
-            #populate new_tele instance of Name class
-            pat_mobile = Telecom(patient=new_patient, system="P", use = "M", value = request.POST["mobile"])
-            pat_mobile.save()
-            #populate new_telecom instance of Name class for emali
-            pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
-            pat_email.save()
-            # converting string to variable using eval()
-            form_context = eval(f'{register}Registration')
-           # retunt template and context according to the value of register
-            return render(request, f'labsys/add_{register}.html', {"pat_id":new_patient.id, "form": form_context})
-        # if form is not valid
-        else:
-            return render(request, 'labsys/patient_regi.html', { "form": form, "message": "Click to correct Invalid Patient Credentials!"})
-    # if request method is get  
-    names = Name.objects.all()
-    # pass value of register as enconter to register encounter
-    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
-
-"""
-@login_required(login_url='/lab/login/')
-def pat_register(request, register= -1):
-    if request.method == "POST":
-        form = PatientRegistration(request.POST)
-        register = request.POST["register"]
-        if form.is_valid():
-            new_patient = Patient(birthdate=form.cleaned_data["birth_date"], gender=form.cleaned_data["gender"],  photo=form.cleaned_data['photo'])
-            new_patient.save()
-            #populate new_name instance of Name class
-            pat_name = Name(given=form.cleaned_data["f_name"].title() +" "+ form.cleaned_data["m_name"].title(), patient=new_patient, family=form.cleaned_data["l_name"].title() )
-            pat_name.save()
-            #populate new_tele instance of Name class
-            pat_mobile = Telecom(patient=new_patient, system="P", use = "M", value = request.POST["mobile"])
-            pat_mobile.save()
-            #populate new_telecom instance of Name class for emali
-            pat_email = Telecom(patient=new_patient, system="E", use = "W", value = request.POST["email"])
-            pat_email.save()
-            # converting string to variable using eval()
-            # form_context = eval(f'{register}Registration_1')
-            if register == "Encounter":
-                # form = EncounterRegistration_1()
-                return render(request, 'labsys/add_enc_1.html', {"patid" :new_patient.id, "form" : EncounterRegistration_1})
-        # retunt template and context according to the value of register
-            if register == "Appointment":
-                return render(request, 'labsys/add_Appointment.html', {"pat_id":new_patient.id, "form": AppointmentRegistration})
-        # if form is not valid
-        else:
-            return render(request, 'labsys/patient_regi.html', { "form": form, "message": "Click to correct Invalid Patient Credentials!"})
-    #if request method is GET
-    names = Name.objects.all()
-    # pass value of register as enconter to register encounter as value of register is 0
-    if register == 0:
-        return render(request, 'labsys/new_patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Encounter"})
-    # pass value of register as enconter to register encounter as value of register is 1
-    if register == 1:
-        return render(request, 'labsys/new_patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
-
-def EnconterRegistration(request):
-    if request.method == "POST":
-        pass
-    return render(request, 'labsys/patient_regi.html', { "form": PatientRegistration,})
 
 
 @login_required(login_url='/lab/login/')
@@ -520,23 +461,17 @@ def regi_appointment(request, pat_id):
                 # new appointment need to saved as needs to have a value for field "id" before this many-to-many relationship can be used.
                 new_appointment.participants.set(form.cleaned_data["participants"])
                 new_appointment.tests.set(form.cleaned_data["tests"])
-                print("try executed")
+                # print("try executed")
                 return HttpResponseRedirect(reverse("labsys:appointments"))
             except Exception as error:
-                print("excetp executed")
+                # print("excetp executed")
                 return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": form, "message":error})
         # if form is not valid
         else:
             return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id,"form": form, "message":form.errors })   
     # if request method get
     return render(request, 'labsys/add_Appointment.html', {"pat_id":pat_id, "form": AppointmentRegistration })
-  
-    """
-    # if request method get
-    names = Name.objects.all()
-    # pass value of register as "Appointment" to specify pat_register function to renter template/context
-    return render(request, 'labsys/patient_regi.html', {"names": names, "form": PatientRegistration, "register": "Appointment"})
-    """
+
 @login_required(login_url='/lab/login/')
 def appointments(request):
     if request.method == 'POST':
@@ -553,29 +488,9 @@ def appointments(request):
 def encounter(request, enc_id):
     e = Encounter.objects.get(pk=enc_id)
     chargeItems = ChargeItem.objects.filter(context= e)
-    #chargeItem_list = chargeItems.aggregate(Sum('priceOverride'))
-    #total = chargeItem_list['priceOverride__sum'] or 0
-    #Geting invoice object for encouter
     invoice = Invoice.objects.get(pk=e.invoice.id)
     # filtering payment objects for particular invoice
     payments = PaymentReconciliation.objects.filter(request=invoice)
-    # paymentset = payments.aggregate(Sum('paymentAmount'))
-    # totalpaid = paymentset['paymentAmount__sum'] or 0
-    # discount =  invoice.discount or 0
-    # invoice.totalGross = total
-    # checking if no test due to all test deleted and there is discount, totalnet  will be minus 
-    # if  invoice.totalGross - discount > 0:
-    #     invoice.totalnet = invoice.totalGross - discount
-    # else:
-    #     invoice.totalnet = 0
-    # # checking if no test due to all test deleted and there is discount, due will be minus
-    # if  invoice.totalnet-totalpaid > 0: 
-    #     invoice.due = invoice.totalnet-totalpaid
-    # else:
-    #     invoice.due = 0
-    # #saving the invoice
-    # invoice.save()    
-
     #creat set of chargeitemdefinations id included in this encounter(allready added tests)
     test_id_set = []
     # list of all chargeitem defination for the encounter
@@ -589,12 +504,6 @@ def encounter(request, enc_id):
     
     #to check all charge item  is final, first set varialbe to True
     is_all_chargeitem_atleast_final= True
-    # itereting through all chargeitems
-    # for chargeitem in chargeItems.all():
-    #     geting all observationsdefinations from relation manager (reverse relation)
-    #     observationDefs = chargeitem.observations.all()
-    #     for obdefination in observationDefs:
-    #         getting only those observations with same chargeitem, as it will return observation for all patient for this ob def
     obs = Observation.objects.filter(chargeitem__in=chargeItems)
     for ob in obs:
         if ob.status == "P" or ob.status == "R":
@@ -672,7 +581,6 @@ def login_view(request):
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
-
         # Check if authentication successful
         if user is not None:
             login(request, user)
@@ -713,3 +621,4 @@ def register(request):
         return HttpResponseRedirect(reverse("labsys:index"))
     else:
         return render(request, "labsys/register.html")
+    

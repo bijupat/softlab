@@ -1,0 +1,43 @@
+{% if names %}
+    <div class="card-header text-center">{{ message }}</div>
+    <div class="card-body">
+        <p class="card-text">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Mobile</th>
+                        <th scope="col">Handle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name in names %}
+                        <tr>
+                            <th scope="row">{{ name.patient.get.id }}</th>
+                            <td>{{ name.given }} {{ name.family }}</td>
+                            <td>{{ name.patient.get_mobile }}</td>
+                            <td>
+                                <a href="{% url 'labsys:add-request-1' name.patient.get.id %}"
+                                   class="btn btn-link"
+                                   type="button">Add This Patient</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </p>
+        <h5 class="card-title text-center">None of Above !</h5>
+        <a href="{% url 'labsys:index' %}"
+           class="btn btn-outline-secondary btn-sm centered ">Add As New Patient</a>
+    </div>
+{% else %}
+    <div class="card-header text-center">
+        {{ message }}
+        <div class="card-body">
+            <h5 class="card-title text-center">No Patient Found !!</h5>
+            <a href="{% url 'labsys:index' %}"
+               class="btn btn-outline-secondary btn-sm centered">Add As New Patient</a>
+        </div>
+    </div>
+{% endif %}
