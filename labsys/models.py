@@ -293,12 +293,12 @@ class Name(models.Model):
     family = models.CharField(max_length=75, blank=True, null=True)
     # // Parts that come after the name
     suffix = models.CharField(max_length=75, blank=True, null=True)
-    # // Text representation of the full name by generated field
-    text = models.GeneratedField(
-        expression=Concat('given', Value(' '), 'family'),
-        output_field = models.CharField(max_length=256,),
-        db_persist= True,
-        )
+    # # // Text representation of the full name by generated field
+    # text = models.GeneratedField(
+    #     expression=Concat('given', Value(' '), 'family'),
+    #     output_field = models.CharField(max_length=256,),
+    #     db_persist= True,
+    #     )
     #Generic Foreign key for multiple content_types
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
