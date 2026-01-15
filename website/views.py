@@ -1,18 +1,184 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, get_object_or_404, redirect
 #from django.views.decorators.csrf import csrf_exempt
-import csv, requests, os
+import csv, requests, os, json,time,io, user_agents
 #import os
 from django.template.defaulttags import register
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django_xhtml2pdf.utils import pdf_decorator
 from .forms import  PatientRegistration
-#from django.http import HttpResponseRedirect
-#from django.urls import reverse
-from .models import Patient, Appointment
+from .models import Patient, Appointment, Advertisement, AdLink, AdVisit, VisitorFingerprint
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse, FileResponse, JsonResponse, HttpResponseForbidden
+from django.urls import reverse
+from django.utils.timezone import now
+from django.db.models import Count, Q
+from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+from .utils import generate_fingerprint, hash_ip, create_qr_code
+import base64
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def is_admin(user):
+    return user.is_staff or user.is_superuser
+
+
+@user_passes_test(is_admin)
+def AdvertisementListView(request):
+    ads = Advertisement.objects.all().order_by("-created_at")
+    return render(request, "website/advertisement_list.html", {"ads": ads})
+
+
+@user_passes_test(is_admin)
+@require_http_methods(["GET", "POST"])
+def AdvertisementCreateView(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        platform = request.POST.get("platform")
+        notes = request.POST.get("notes")
+        is_active = bool(request.POST.get("is_active"))
+        Advertisement.objects.create(name=name, platform=platform, notes=notes, is_active=is_active)
+        return redirect("website:advertisement_list")
+    return render(request, "website/advertisement_create.html")
+
+
+@user_passes_test(is_admin)
+@require_http_methods(["GET", "POST"])
+def AdLinkCreateView(request, ad_id):
+    ad = get_object_or_404(Advertisement, pk=ad_id)
+    if request.method == "POST":
+        target_url = request.POST.get("target_url")
+        is_active = bool(request.POST.get("is_active"))
+        link = AdLink.objects.create(advertisement=ad, target_url=target_url, is_active=is_active)
+        # Return partial for HTMX refresh (example)
+        return render(request, "website/links_table.html", {"ad": ad,"links": ad.links.all()})
+    else:
+        # target_url = f"https://mahidiagnostics.in/ad/r/{ad.short_code}"
+        # link = AdLink.objects.create(advertisement=ad, target_url=target_url, is_active=True)
+        return render(request, "website/adlink_create_form.html", {"ad": ad, "links": ad.links.all()})
+
+
+@user_passes_test(is_admin)
+def QRCodeView(request, link_id):
+    link = get_object_or_404(AdLink, pk=link_id)
+    url = request.build_absolute_uri(reverse("website:redirect_tracking", args=[link.short_code]))
+    qr_content = create_qr_code(url)
+    qr_b64 = base64.b64encode(qr_content.read()).decode('utf-8')
+    if request.GET.get("download") == "1":
+        response = HttpResponse(qr_content, content_type="image/png")
+        response["Content-Disposition"] = f'attachment; filename="qr_{link.short_code}.png"'
+        return response
+    return render(request, "website/qr_code.html", {"qr_image": qr_b64, "link": link, "url": url})
+
+
+@require_http_methods(["GET"])
+def RedirectTrackingView(request, code):
+    start_time = time.monotonic()
+    link = get_object_or_404(AdLink, short_code=code, is_active=True)
+
+    ip = get_client_ip(request)
+    user_agent_str = request.META.get("HTTP_USER_AGENT", "")
+    accept_headers = request.META.get("HTTP_ACCEPT", "")
+    fingerprint_hash = generate_fingerprint(ip, user_agent_str, accept_headers)
+
+    fingerprint, created = VisitorFingerprint.objects.get_or_create(
+        fingerprint_hash=fingerprint_hash,
+        defaults={"hashed_ip": hash_ip(ip), "user_agent": user_agent_str, "accept_headers": accept_headers},
+    )
+
+    ua = user_agents.parse(user_agent_str)
+    device_type = "mobile" if ua.is_mobile else "tablet" if ua.is_tablet else "desktop"
+    browser = ua.browser.family
+    os = ua.os.family
+    referrer = request.META.get("HTTP_REFERER", "")
+
+    AdVisit.objects.create(
+        ad_link=link,
+        visitor_fingerprint=fingerprint,
+        hashed_ip=hash_ip(ip),
+        user_agent=user_agent_str,
+        browser=browser,
+        os=os,
+        device_type=device_type,
+        referrer=referrer,
+        timestamp=now(),
+    )
+
+    # Redirect fast, non-blocking (no expensive ops here)
+    elapsed = time.monotonic() - start_time
+    # Could log if needed for slow requests
+    return redirect('website:index')
+
+@user_passes_test(is_admin)
+def AnalyticsDashboardView(request):
+    ads = Advertisement.objects.filter(is_active=True).order_by("-created_at")
+    ad_id = request.GET.get("ad")
+    print(ads)
+    ad = None
+    visits = AdVisit.objects.none()
+    stats = {}
+
+    if ad_id:
+        ad = get_object_or_404(Advertisement, pk=ad_id)
+        visits = AdVisit.objects.filter(ad_link__advertisement=ad)
+        total_clicks = visits.count()
+        unique_visitors = visits.values("visitor_fingerprint").distinct().count()
+        repeat_visitors = total_clicks - unique_visitors
+
+        # Aggregated stats for charts and tables
+        clicks_per_link = (
+            visits.values("ad_link__short_code")
+            .annotate(clicks=Count("id"))
+            .order_by("-clicks")
+        )
+        device_breakdown = (
+            visits.values("device_type").annotate(count=Count("id")).order_by("-count")
+        )
+        browser_breakdown = (
+            visits.values("browser").annotate(count=Count("id")).order_by("-count")
+        )
+        os_breakdown = visits.values("os").annotate(count=Count("id")).order_by("-count")
+        top_referrers = (
+            visits.values("referrer")
+            .exclude(referrer__exact="")
+            .annotate(count=Count("id"))
+            .order_by("-count")[:10]
+        )
+
+        stats = {
+            "total_clicks": total_clicks,
+            "unique_visitors": unique_visitors,
+            "repeat_visitors": repeat_visitors,
+            "clicks_per_link": clicks_per_link,
+            "device_breakdown": device_breakdown,
+            "browser_breakdown": browser_breakdown,
+            "os_breakdown": os_breakdown,
+            "top_referrers": top_referrers,
+        }
+
+    return render(
+        request,
+        "website/analytics.html",
+        {"ads": ads, "selected_ad": ad, "stats": stats},
+    )
+
+
+# Helper function to get client IP (works behind proxies if configured)
+def get_client_ip(request):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR", "")
+    return ip
+
+
+
+
 
 #register filter for template
 @register.filter(name='split')
