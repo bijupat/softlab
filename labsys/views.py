@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError, connection
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from reportlab.pdfgen import canvas
 import io
 from django.template.loader import get_template
@@ -20,6 +20,14 @@ from django import forms
 from pprint import pprint
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Count, F, Value
+
+
+
+# define superuser required decorator to be used on view as decorators
+def superuser_required(view_func):
+    return user_passes_test(lambda u: u.is_superuser)(view_func)
+
+
 
 
 @login_required(login_url='/lab/login/')
@@ -596,6 +604,8 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("labsys:index"))
 
+
+@superuser_required
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]

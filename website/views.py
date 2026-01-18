@@ -7,7 +7,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django_xhtml2pdf.utils import pdf_decorator
 from .forms import  PatientRegistration
-from .models import Patient, Appointment, Advertisement, AdLink, AdVisit, VisitorFingerprint
+from .models import Patient, Appointment, Advertisement, AdLink, AdVisit, VisitorFingerprint, WebsiteVisitor
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, FileResponse, JsonResponse, HttpResponseForbidden
@@ -17,8 +17,9 @@ from django.db.models import Count, Q
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
-from .utils import generate_fingerprint, hash_ip, create_qr_code
+from .utils import generate_fingerprint, hash_ip, create_qr_code, get_client_ip
 import base64
+from user_agents import parse
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -229,8 +230,32 @@ def profilespreview(request):
     return response
 # Create your views here.
 def index(request):
-    
-    return render(request, 'website/index.html')
+    ip = get_client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+    # Log visitor
+    WebsiteVisitor.objects.create(ip_address=ip, user_agent=user_agent)
+
+    visitor_count = WebsiteVisitor.objects.count()
+    return render(request, 'website/index.html' , {"visitor_count": visitor_count})
+
+
+
+def visitors_list_view(request):
+    visitors = WebsiteVisitor.objects.order_by('-visit_time')[:100]
+    detailed_visitors = []
+    for v in visitors:
+        ua = parse(v.user_agent or "")
+        detailed_visitors.append({
+            "ip_address": v.ip_address,
+            "user_agent": v.user_agent,
+            "visit_time": v.visit_time,
+            "browser": f"{ua.browser.family} {ua.browser.version_string}",
+            "os": f"{ua.os.family} {ua.os.version_string}",
+            "device": f"{ua.device.family} ({'Mobile' if ua.is_mobile else 'Tablet' if ua.is_tablet else 'PC' if ua.is_pc else 'Other'})",
+            "is_bot": ua.is_bot,
+        })
+    return render(request, "website/visitors_list.html", {"visitors": detailed_visitors})
 
 
 #@csrf_exempt

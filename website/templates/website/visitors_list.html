@@ -1,0 +1,42 @@
+<!-- templates/visitors_list.html -->
+{% extends "website/layout.html" %}
+{% block title %}
+    Website Visitors
+{% endblock title %}
+{% block body %}
+    <div class="container my-4">
+        <h1>Recent Website Visitors</h1>
+        {% if visitors %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>Browser</th>
+                        <th>OS</th>
+                        <th>Device</th>
+                        <th>Bot?</th>
+                        <th>Visit Time</th>
+                    </tr>
+                </thead>
+                {% for v in visitors %}
+                    <td>{{ v.ip_address }}</td>
+                    <td>{{ v.browser }}</td>
+                    <td>{{ v.os }}</td>
+                    <td>{{ v.device }}</td>
+                    <td>
+                        {% if v.is_bot %}
+                            Bot
+                        {% else %}
+                            Human
+                        {% endif %}
+                    </td>
+                    <td>{{ v.visit_time|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No visitors recorded yet.</p>
+{% endif %}
+</div>
+{% endblock body %}

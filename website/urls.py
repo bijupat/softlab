@@ -25,6 +25,8 @@ urlpatterns = [
     path('pricelistview/', views.pricelistview, name='pricelistview'),
     path('managevisit/', views.manage_visit, name='managevisit'),
 
+
+    #website visitor tracking and advertisement tracking
     path("adddash", views.AnalyticsDashboardView, name="dashboard"), 
     path("advertisements/", views.AdvertisementListView, name="advertisement_list"),
     path("advertisements/add/", views.AdvertisementCreateView, name="advertisement_add"),
@@ -32,4 +34,6 @@ urlpatterns = [
     path("qr/<int:link_id>/", views.QRCodeView, name="qr_code"),
     path("ad/r/<str:code>/", views.RedirectTrackingView, name="redirect_tracking"),
     # path("analytics/<int:ad_id>/", views.AnalyticsDashboardView, name="analytics"),
+    path("visitors/", views.visitors_list_view, name="visitors_list"),
+
 ]

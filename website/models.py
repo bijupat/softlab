@@ -5,7 +5,15 @@ import uuid
 from django.utils import timezone
 from django.contrib.postgres.indexes import GinIndex
 
+class WebsiteVisitor(models.Model):
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(blank=True, null=True)
+    visit_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Visitor {self.ip_address} at {self.visit_time}"
+    
+    
 class Advertisement(models.Model):
     name = models.CharField(max_length=255)
     platform = models.CharField(max_length=100)
