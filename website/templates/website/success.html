@@ -1,0 +1,21 @@
+{% extends "website/layout.html" %}
+{% block title %}
+    Booking Successful
+{% endblock title %}
+{% block body %}
+    <div style="max-width: 400px;
+                margin: auto;
+                padding: 20px;
+                text-align: center">
+        <h2>Booking Successful!</h2>
+        <p>Thank you for booking your free test appointment.</p>
+        <p>Your unique code will be used to track your free visit.</p>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock body %}

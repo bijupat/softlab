@@ -6,27 +6,108 @@ from django.template.defaulttags import register
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django_xhtml2pdf.utils import pdf_decorator
-from .forms import  PatientRegistration
-from .models import Patient, Appointment, Advertisement, AdLink, AdVisit, VisitorFingerprint, WebsiteVisitor
-from django.contrib.auth.decorators import login_required
+from .forms import  PatientRegistration, FreeTestOfferBookingForm
+from .models import Patient, Appointment, Advertisement, AdLink, AdVisit, VisitorFingerprint, WebsiteVisitor, FreeTestOfferAppointment
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, FileResponse, JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.utils.timezone import now
 from django.db.models import Count, Q
-from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from .utils import generate_fingerprint, hash_ip, create_qr_code, get_client_ip
-import base64
+import base64, random
 from user_agents import parse
-
+from django.contrib import messages
+# from django.core.exceptions import ValidationError
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def is_admin(user):
     return user.is_staff or user.is_superuser
+ 
 
+def staff_active_user_check(user):
+    return user.is_active and user.is_staff
+
+@user_passes_test(staff_active_user_check)
+def free_appointment_list_view(request):
+    appointments = FreeTestOfferAppointment.objects.all().order_by('appointment_time')
+    context = {'appointments': appointments}
+    return render(request, 'website/free_appointment_list.html', context)
+
+def book_free_test_view(request):
+    if request.method == 'POST':
+        form = FreeTestOfferBookingForm(request.POST)
+
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.sms_verified = False
+            appointment.slot_capacity = 1
+            appointment.save()
+            # print(type(appointment.appointment_time), appointment.mobile)
+
+            # Simulate sending SMS verification code
+
+            sms_code = ''.join(random.choices('0123456789', k=6))
+            # print(sms_code)
+            request.session['sms_code'] = sms_code
+            request.session['appointment_id'] = appointment.id
+
+            # In production, integrate SMS sending here with sms_code
+
+            # SMSText = f"Dear  {appointment.name}, to confirm your lab appointment at Medilab on  {appointment.appointment_time}, please enter this OTP:  {sms_code}.  Thank you!" "
+            SMSText = f'Respected {appointment.name}, Your Appointment on {appointment.appointment_time.strftime("%A, %B %d, %Y %H:%M")} for blood tests RBS is booked. Address: GF14, Shakti Arcade Call 7016944046 if any query MEDI LAB'
+            #SMSText = f"Patient Name: {fname} {lname} Ref No: {visit_time} Reports is: {tests} Call: {mobile} For Any Query Contact,MEDILAB DIAGNOSTIC"
+            url_pat = f"https://onlysms.co.in/api/sms.aspx?UserID=MediLB&UserPass=Gurudev@101&MobileNo=91{appointment.mobile}&GSMID=MEDIDC&PEID=1301161848129500767&Message={SMSText}&UNICODE=TEXT"            
+            responce = requests.get(url_pat) 
+            # print(responce.status_code)
+            # print(responce.text)
+
+
+            """ Comment out next two line to activate SMS Verification that will redirect to verify_sms url/view
+                    messages.success(request, f"Verification code sent to {appointment.mobile}.")
+                    return redirect('website:verify_sms')
+            """
+            # remove this redirect to implement sms verification by code as this directly send to booking_success url/view)
+            messages.success(request, f"SMS verified! Your unique code: {appointment.unique_code}")
+            messages.success(request, f"Confirmation sent to {appointment.mobile}.")
+            return redirect('website:booking_success')
+
+
+
+    else:
+        form = FreeTestOfferBookingForm()
+    return render(request, 'website/booking.html', {'form': form})
+
+def verify_sms_view(request):
+    if request.method == 'POST':
+        input_code = request.POST.get('sms_code')
+        session_code = request.session.get('sms_code')
+        appointment_id = request.session.get('appointment_id')
+
+        if input_code and session_code and input_code == session_code:
+            try:
+                appointment = FreeTestOfferAppointment.objects.get(id=appointment_id)
+                appointment.sms_verified = True
+                appointment.save()
+                messages.success(request, f"SMS verified! Your unique code: {appointment.unique_code}")
+                # Clear session codes after verification
+                request.session.pop('sms_code', None)
+                request.session.pop('appointment_id', None)
+                # add logic to send sms with appointment_unique_code
+                # "Respected {#var#}, Your Appointment on {#var#} for blood tests {#var#} is booked. Address: {#var#} Call{#var#} if any query MEDI LAB"
+
+                return redirect('website:booking_success')
+            except FreeTestOfferAppointment.DoesNotExist:
+                messages.error(request, "Appointment not found.")
+        else:
+            messages.error(request, "Invalid verification code.")
+    return render(request, 'website/verify_sms.html')
+
+def booking_success_view(request):
+    return render(request, 'website/success.html')
 
 @user_passes_test(is_admin)
 def AdvertisementListView(request):
@@ -112,13 +193,13 @@ def RedirectTrackingView(request, code):
     # Redirect fast, non-blocking (no expensive ops here)
     elapsed = time.monotonic() - start_time
     # Could log if needed for slow requests
-    return redirect('website:index')
+    return redirect('website:book_free_test')
 
 @user_passes_test(is_admin)
 def AnalyticsDashboardView(request):
     ads = Advertisement.objects.filter(is_active=True).order_by("-created_at")
     ad_id = request.GET.get("ad")
-    print(ads)
+    # print(ads)
     ad = None
     visits = AdVisit.objects.none()
     stats = {}
@@ -303,11 +384,11 @@ def book_visit(request):
             #SMSText = f"Patient Name: {fname} {lname} Ref No: {visit_time} Reports is: {tests} Call: {mobile} For Any Query Contact,MEDILAB DIAGNOSTIC"
             url_pat = f"https://onlysms.co.in/api/sms.aspx?UserID=MediLB&UserPass=Gurudev@101&MobileNo=91{mobile}&GSMID=MEDIDC&PEID=1301161848129500767&Message={SMSText}&UNICODE=TEXT"            
             url_lab = f"https://onlysms.co.in/api/sms.aspx?UserID=MediLB&UserPass=Gurudev@101&MobileNo=919909016867&GSMID=MEDIDC&PEID=1301161848129500767&Message={SMSText}&UNICODE=TEXT"            
-            print(SMSText)
-            print(url_lab)
+            # print(SMSText)
+            # print(url_lab)
             responce = requests.get(url_lab) 
-            print(responce.status_code)
-            print(responce.text)
+            # print(responce.status_code)
+            # print(responce.text)
             return render(request, 'website/thankyou.html',{"patient": form.cleaned_data,})
         # if form is not valid
         else:

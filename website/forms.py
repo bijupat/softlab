@@ -1,11 +1,15 @@
 from django import forms
-#from .models import Account, ChargeItemDefinition, Practitioner, gender, ObservationDefinition, Slot , User, RecurrenceTemplate, Organization
 from django.core.exceptions import ValidationError
 #from django.utils.translation import gettext_lazy as _
 from labsys.models import gender
+from django.utils import timezone
+from .models import FreeTestOfferAppointment
+from django.core.validators import RegexValidator
+from datetime import time
 
 # this will convert DateInput's input type to date instead  of default 'text'
 forms.DateInput.input_type="date"
+
 # this will convert DateTimeInput's input type to datetime-local instead  of default 'text'
 forms.DateTimeInput.input_type="datetime-local" 
 
@@ -24,6 +28,46 @@ def is_currency(value):
             _('%(value)s is not valid Amount'),
             params={'value': value},
         )
+
+
+class FreeTestOfferBookingForm(forms.ModelForm):
+
+    class Meta:
+        model = FreeTestOfferAppointment
+        fields = ['name', 'mobile', 'appointment_time']
+
+    def clean_appointment_time(self):
+        appointment_time = self.cleaned_data['appointment_time']
+        if appointment_time < timezone.now():
+            raise forms.ValidationError("Appointment time cannot be in the past.")
+        if appointment_time.weekday() == 6:  # Sunday is 6
+            raise forms.ValidationError("Appointments cannot be booked on Sundays.")
+        if not time(8, 0) <= appointment_time.time() <= time(12, 0):
+            raise forms.ValidationError("Appointment time must be 8 AM to 11:45 AM")
+        if appointment_time.minute % 15 != 0:
+            raise forms.ValidationError("Appointment time must be in 15-minute intervals like 9:00, 9:15, 9:30 10:00 etc.")
+        slot_capacity = 1  # You can make this configurable elsewhere
+        if not FreeTestOfferAppointment.slot_available(appointment_time, slot_capacity):
+            raise forms.ValidationError("This time slot is fully booked.")
+        return appointment_time
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        names = name.split()
+        if len(names) < 2:
+            raise forms.ValidationError("Name must be at least 2 word (first name and last name) long.")
+        for n in names:
+            if len(n) < 2:
+                raise forms.ValidationError("first name and last name must be at least 2 ch long.")
+            if not all(x.isalpha() or x.isspace() for x in n):
+                raise forms.ValidationError("Name must contain only letters and spaces.")
+        return name
+
+    def clean_mobile(self):
+        mobile = self.cleaned_data['mobile'].strip()
+        validator = RegexValidator(r'^\d{10}$', 'Enter a valid mobile number with 10 digits.')
+        validator(mobile)
+        return mobile
+    
 
 class newcommentform(forms.Form):
     title = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comment Title' }))

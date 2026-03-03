@@ -4,7 +4,38 @@ from labsys.models import appointment_status, User, gender
 import uuid
 from django.utils import timezone
 from django.contrib.postgres.indexes import GinIndex
+import random
+import string
+# from django.core.exceptions import ValidationError
 
+class FreeTestOfferAppointment(models.Model):
+    name = models.CharField(max_length=100)
+    mobile = models.CharField(max_length=15)
+    sms_verified = models.BooleanField(default=False)
+    unique_code = models.CharField(max_length=12, unique=True, blank=True)
+    appointment_time = models.DateTimeField()
+    slot_capacity = models.IntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        if not self.unique_code:
+            self.unique_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def slot_available(cls, appointment_time, slot_capacity):
+        start = appointment_time.replace(minute=(appointment_time.minute // 15) * 15, second=0, microsecond=0)
+        end = start + timezone.timedelta(minutes=15)
+        count = cls.objects.filter(appointment_time__gte=start, appointment_time__lt=end).count()
+        return count < slot_capacity
+
+    # def clean(self):
+    #     if not self.appointment_time:
+    #         pass
+    #     if self.appointment_time.minute % 15 != 0:
+    #         raise ValidationError("Appointment time must be in 15-minute intervals.")
+    #     if not self.slot_available(self.appointment_time, self.slot_capacity):
+    #         raise ValidationError("This appointment slot is full.")
+   
 class WebsiteVisitor(models.Model):
     ip_address = models.GenericIPAddressField()
     user_agent = models.TextField(blank=True, null=True)

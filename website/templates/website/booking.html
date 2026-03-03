@@ -1,0 +1,52 @@
+{% extends "website/layout.html" %}
+{% block title %}
+    Free Test Offer Booking
+{% endblock title %}
+{% block body %}
+    <div style="max-width: 600px;
+                margin: auto;
+                padding: 20px;
+                text-align:center">
+        <div style="animation: pulse 2s infinite;">
+            <h2 style="color: #2a9d8f; font-weight: bold;">FREE TEST UNLOCKED</h2>
+            <h3 style="color: #264653;">FREE Random Blood Sugar (RBS)</h3>
+        </div>
+        <p>Terms: This free offer is valid for one Random Blood Sugar test. Each time slot holds limited appointments.</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div>
+                {{ form.name.label_tag }}
+                <br>
+                {{ form.name }}
+                <h3 style="color: #db1d1d;">{{ form.name.errors }}</h3>
+            </div>
+            <div>
+                {{ form.mobile.label_tag }}
+                <br>
+                {{ form.mobile }}
+                <h3 style="color: #db1d1d;">{{ form.mobile.errors }}</h3>
+            </div>
+            <div>
+                {{ form.appointment_time.label_tag }}
+                <br>
+                {{ form.appointment_time }}
+                <h3 style="color: #db1d1d;">{{ form.appointment_time.errors }}</h3>
+            </div>
+            <button type="submit"
+                    style="margin-top: 15px;
+                           padding: 10px 20px;
+                           background-color:#2a9d8f;
+                           color:#fff;
+                           border:none;
+                           cursor:pointer">BOOK TEST NOW</button>
+        </form>
+    </div>
+    <style>
+@keyframes pulse {
+  0% { transform: scale(1); color: #2a9d8f; }
+  50% { transform: scale(1.1); color: #e76f51; }
+  100% { transform: scale(1); color: #2a9d8f; }
+}
+    </style>
+{% endblock body %}

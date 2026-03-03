@@ -1,0 +1,57 @@
+{% extends "website/layout.html" %}
+{% load static %}
+{% block title %}
+    Free Appointments
+{% endblock title %}
+{% block head %}
+    <script src="{% static 'website/free_appointment_list.js' %}" defer></script>
+{% endblock head %}
+{% block body %}
+    <div class="container mt-4">
+        <h2>Free Appointments</h2>
+        <div class="form-row mb-3">
+            <div class="col">
+                <input type="date"
+                       id="filter-date"
+                       class="form-control"
+                       placeholder="Filter by date" />
+            </div>
+            <div class="col">
+                <input type="text"
+                       id="filter-name"
+                       class="form-control"
+                       placeholder="Search by name" />
+            </div>
+            <div class="col">
+                <input type="text"
+                       id="filter-mobile"
+                       class="form-control"
+                       placeholder="Search by mobile" />
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" id="filter-btn">Filter</button>
+                <button class="btn btn-secondary" id="clear-btn">Clear</button>
+            </div>
+        </div>
+        <table class="table table-striped" id="appointments-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Appointment Time</th>
+                    <th>SMS Verified</th>
+                </tr>
+            </thead>
+            <tbody id="appointments-tbody">
+                {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.name }}</td>
+                        <td>{{ appointment.mobile }}</td>
+                        <td>{{ appointment.appointment_time }}</td>
+                        <td>{{ appointment.sms_verified }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock body %}

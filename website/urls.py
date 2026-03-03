@@ -6,8 +6,9 @@ from . import views
 app_name = 'website'
 
 
+
+
 urlpatterns = [
-   
 ]
 
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path('managevisit/', views.manage_visit, name='managevisit'),
 
 
+
     #website visitor tracking and advertisement tracking
     path("adddash", views.AnalyticsDashboardView, name="dashboard"), 
     path("advertisements/", views.AdvertisementListView, name="advertisement_list"),
@@ -35,5 +37,12 @@ urlpatterns = [
     path("ad/r/<str:code>/", views.RedirectTrackingView, name="redirect_tracking"),
     # path("analytics/<int:ad_id>/", views.AnalyticsDashboardView, name="analytics"),
     path("visitors/", views.visitors_list_view, name="visitors_list"),
+    
+
+    path('book-free-test/', views.book_free_test_view, name='book_free_test'),
+    path('verify-sms/', views.verify_sms_view, name='verify_sms'),
+    path('booking-success/', views.booking_success_view, name='booking_success'),
+    path('free-appointments/', views.free_appointment_list_view, name='free_appointment_list_view'),
+
 
 ]

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Advertisement, AdLink, VisitorFingerprint, AdVisit, Appointment, Patient# Register your models here.
+from .models import Advertisement, AdLink, VisitorFingerprint, AdVisit, Appointment, Patient, FreeTestOfferAppointment
 
 
 
@@ -87,3 +87,12 @@ class AdVisitAdmin(admin.ModelAdmin):
     )
     ordering = ("-timestamp",)
     autocomplete_fields = ("ad_link", "visitor_fingerprint")
+
+
+@admin.register(FreeTestOfferAppointment)
+class FreeTestOfferAppointmentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'mobile', 'sms_verified', 'unique_code', 'appointment_time')
+    list_filter = ('sms_verified', 'appointment_time')
+    search_fields = ('name', 'mobile', 'unique_code')
+    ordering = ('-appointment_time',)
+    readonly_fields = ('unique_code',)
